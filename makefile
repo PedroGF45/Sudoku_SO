@@ -1,12 +1,25 @@
-# Purpose: Makefile for the server and client programs
-server: server.o
-	gcc server.o -g -o server
+CC = gcc
+CFLAGS = -Wall
 
-server.o:
-	gcc -c server\server.c
+all: server # Adicionar o client quando estiver pronto
 
-client: client\client.c
-	gcc -o client client\client.c 
+#client: client\client.c
+#	gcc -o client client\client.c
 
-clean: 
-	rm -rf *.o
+
+# Compilar o servidor
+server: Server/src/server.o Server/src/jogos.o
+	$(CC) $(CFLAGS) -o server Server/src/server.o Server/src/jogos.o
+
+# Compila server.c e jogos.c para (.o)
+Server/src/server.o: Server/src/server.c
+	$(CC) $(CFLAGS) -c Server/src/server.c -o Server/src/server.o
+
+Server/src/jogos.o: Server/src/jogos.c Server/src/jogos.h
+	$(CC) $(CFLAGS) -c Server/src/jogos.c -o Server/src/jogos.o
+
+# Limpar os ficheiros .o e o executável
+clean:
+# Usar no linux para limpar (nao funciona no windows)
+# 	rm -f Server/src/*.o server 
+	del /Q Server\src\server.o Server\src\jogos.o server.exe
