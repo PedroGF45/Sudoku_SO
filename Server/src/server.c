@@ -10,7 +10,7 @@ int main() {
     // MODIFICAR O CAMINHO PARA O CAMINHO CORRETO NO VOSSO COMPUTADOR*/
     Jogo jogo = carregaJogo("Server/data/games.txt", idJogo);
 
-    writeLog("Server/data/logs.txt", "Jogo carregado");
+    writeLog("Server/data/logs.txt", "Jogo carregado",idJogo);
 
     // Mostra a String do jogo incompleta (usar zeros para os espacos em branco)
     printf("Tabuleiro do Jogo %d: \n", idJogo);

@@ -3,7 +3,7 @@
 #include "logs.h"  // Incluir o header com a struct e funcoes
 #include <time.h>  // Usar time_t, time(), ctime()
 
-void writeLog(const char *filename, const char *log) {
+void writeLog(const char *filename, const char *log, int id) {
 
     // Abrir o ficheiro em modo de escrita no final do ficheiro
     FILE *file = fopen(filename, "a");
@@ -12,14 +12,6 @@ void writeLog(const char *filename, const char *log) {
     if (file == NULL) {
         perror("Erro ao abrir o ficheiro de log");
         exit(1);
-    }
-
-    // ler o id anterior, se houver
-    int id = 0;
-    char linha[100];
-    while (fgets(linha, sizeof(linha), file)) {
-        sscanf(linha, "%d | %*s | %*s", &id);
-        id++;
     }
 
     // Obter a data e hora atual

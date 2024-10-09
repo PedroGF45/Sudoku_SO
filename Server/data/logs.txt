@@ -5,3 +5,7 @@
 0 | 19:16:37 | Jogo carregado
 0 | 19:18:53 | Jogo carregado
 0 | 19:19:08 | Jogo carregado
+0 | 19:41:13 | Jogo carregado
+1 | 19:53:24 | Jogo carregado
+1 | 19:59:30 | Jogo carregado
+1 | 20:13:05 | Jogo carregado
