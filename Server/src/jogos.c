@@ -38,3 +38,26 @@ int verificaSolucao(Jogo jogo, const char *solucaoEnviada) {
     // Comparar a solucao enviada com a solucao correta
     return strcmp(jogo.solucao, solucaoEnviada) == 0;
 }
+
+void mostraTabuleiro(Jogo jogo) {
+    printf("-------------------------\n");
+    for (int i = 0; i < 9; i++) { // row
+        printf("| ");
+
+        for (int j = 0; j < 9; j++) {
+            // mostra valores do tabuleiro
+            printf("%c ", jogo.tabuleiro[i * 9 + j]); 
+
+            // separa a cada 3 colunas
+            if ((j + 1) % 3 == 0) {
+                printf("| "); 
+            }
+        }
+
+        // separa a cada 3 linhas
+        if ((i + 1) % 3 == 0) {
+            printf("\n-------------------------");
+        }
+        printf("\n");
+    }
+}

@@ -1,5 +1,6 @@
 #include <stdio.h>
-#include "jogos.h"  // Incluir o header com a struct e funcoes
+#include "jogos.h"
+#include "logs.h"
 
 int main() {
     int idJogo = 1;  // ID do jogo que queremos carregar (deviamos receber isto como argumento)
@@ -7,10 +8,13 @@ int main() {
     // Load ao jogo com ID 1 a partir do ficheiro 'games.txt'
     /*Aqui estava com um erro no caminho relativo do ficheiro por isso usei o caminho absoluto
     // MODIFICAR O CAMINHO PARA O CAMINHO CORRETO NO VOSSO COMPUTADOR*/
-    Jogo jogo = carregaJogo("C:/Users/claud/OneDrive/Documentos/GitHub/Sudoku_SO/Server/data/games.txt", idJogo);
+    Jogo jogo = carregaJogo("Server/data/games.txt", idJogo);
+
+    writeLog("Server/data/logs.txt", "Jogo carregado");
 
     // Mostra a String do jogo incompleta (usar zeros para os espacos em branco)
-    printf("Tabuleiro do Jogo %d: %s\n", idJogo, jogo.tabuleiro);
+    printf("Tabuleiro do Jogo %d: \n", idJogo);
+    mostraTabuleiro(jogo);
 
     // Pergunta ao utilizador para inserir a solucao
     char solucaoEnviada[82];

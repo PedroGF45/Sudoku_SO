@@ -16,4 +16,6 @@ Jogo carregaJogo(const char *filename, int idJogo);
 // Verifica a solucao do jogo
 int verificaSolucao(Jogo jogo, const char *solucaoEnviada);
 
+void mostraTabuleiro(Jogo jogo);
+
 #endif
