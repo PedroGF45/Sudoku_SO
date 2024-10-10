@@ -2,3 +2,21 @@
 10/10/2024 17:27:32 0 1 200 Tabuleiro do jogo mostrado
 10/10/2024 17:27:34 0 1 200 Solucao introduzida
 10/10/2024 17:27:34 0 1 200 Solucao errada
+10/10/2024 21:55:41 0 1 1 Jogo carregado
+10/10/2024 21:55:41 0 1 1 Tabuleiro do jogo mostrado
+10/10/2024 21:56:38 0 1 1 Solucao introduzida
+10/10/2024 21:56:38 0 1 1 Solucao correta
+10/10/2024 21:57:05 0 1 2 Jogo carregado
+10/10/2024 21:57:05 0 1 2 Tabuleiro do jogo mostrado
+10/10/2024 21:57:07 0 1 2 Solucao introduzida
+10/10/2024 21:57:07 0 1 2 Solucao correta
+10/10/2024 22:05:02 0 1 2 Jogo carregado
+10/10/2024 22:05:02 0 1 2 Tabuleiro do jogo mostrado
+10/10/2024 22:05:23 0 1 2 Solucao introduzida
+10/10/2024 22:05:23 0 1 2 Solucao errada
+10/10/2024 22:05:25 0 1 2 Jogo carregado
+10/10/2024 22:05:25 0 1 2 Tabuleiro do jogo mostrado
+10/10/2024 22:05:49 0 1 2 Jogo carregado
+10/10/2024 22:05:49 0 1 2 Tabuleiro do jogo mostrado
+10/10/2024 22:05:50 0 1 2 Solucao introduzida
+10/10/2024 22:05:50 0 1 2 Solucao correta
