@@ -1,4 +1,12 @@
-2 | 14:26:44 | Jogo carregado
-2 | 14:26:44 | Tabuleiro do jogo mostrado
-2 | 14:26:52 | Solucao introduzida
-2 | 14:26:52 | Solucao errada
+2 | 15:55:33 | Jogo carregado
+2 | 15:55:33 | Tabuleiro do jogo mostrado
+2 | 15:55:35 | Solucao introduzida
+2 | 15:55:35 | Solucao errada
+2 | 16:34:44 | Jogo carregado
+2 | 16:34:44 | Tabuleiro do jogo mostrado
+2 | 16:34:49 | Solucao introduzida
+2 | 16:34:49 | Solucao errada
+2 | 16:45:33 | Jogo carregado
+2 | 16:45:33 | Tabuleiro do jogo mostrado
+2 | 16:45:45 | Solucao introduzida
+2 | 16:45:45 | Solucao correta
