@@ -10,6 +10,6 @@ struct log {
     char log[256];
 };
 
-void writeLog(const char *filename, const char *log, int id);
+void writeLog(const char *filename, int idJogo, int idJogador, const char *log);
 
 #endif
