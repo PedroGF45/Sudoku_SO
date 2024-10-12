@@ -20,3 +20,15 @@
 10/10/2024 22:05:49 0 1 2 Tabuleiro do jogo mostrado
 10/10/2024 22:05:50 0 1 2 Solucao introduzida
 10/10/2024 22:05:50 0 1 2 Solucao correta
+12/10/2024 14:58:24 0 1 2 Jogo carregado
+12/10/2024 14:58:24 0 1 2 Tabuleiro do jogo mostrado
+12/10/2024 14:58:39 0 1 2 Solucao introduzida
+12/10/2024 14:58:39 0 1 2 Solucao errada
+12/10/2024 15:00:00 0 1 2 Jogo carregado
+12/10/2024 15:00:00 0 1 2 Tabuleiro do jogo mostrado
+12/10/2024 15:00:15 0 1 2 Solucao introduzida
+12/10/2024 15:00:15 0 1 2 Solucao errada
+12/10/2024 15:00:23 0 1 2 Jogo carregado
+12/10/2024 15:00:23 0 1 2 Tabuleiro do jogo mostrado
+12/10/2024 15:00:28 0 1 2 Solucao introduzida
+12/10/2024 15:00:28 0 1 2 Solucao errada
