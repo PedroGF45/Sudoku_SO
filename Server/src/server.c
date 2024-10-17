@@ -28,28 +28,28 @@ int main(int argc, char *argv[]) {
     // Load ao jogo com ID 1 a partir do ficheiro 'games.txt'
     Jogo jogo = carregaJogo(config.gamePath, idJogo);
 
-    writeLog(config.logPath, idJogo ,idJogador, "Jogo carregado");
+    writeLog(config.logPath, idJogo ,idJogador, EVENT_GAME_LOAD);
 
     // Mostra a String do jogo incompleta (usar zeros para os espacos em branco)
     printf("Tamanho tabuleiro do Jogo %d: \n", idJogo);
     mostraTabuleiro(jogo);
 
-    writeLog(config.logPath, idJogo ,idJogador, "Tabuleiro do jogo mostrado");
+    writeLog(config.logPath, idJogo ,idJogador, EVENT_BOARD_SHOW);
 
     // Pergunta ao utilizador para inserir a solucao
     char solucaoEnviada[82];
     printf("Insira a sua solucao para o jogo %d: ", idJogo);
     scanf("%81s", solucaoEnviada);
 
-    writeLog(config.logPath, idJogo ,idJogador, "Solucao introduzida");
+    writeLog(config.logPath, idJogo ,idJogador, EVENT_SOLUTION_SENT);
 
     // Compara a solucao introduzida com a solucao correta
     if (verificaSolucao(jogo, solucaoEnviada)) {
         printf("Solucao correta!\n");
-        writeLog(config.logPath, idJogo ,idJogador, "Solucao correta");
+        writeLog(config.logPath, idJogo ,idJogador, EVENT_SOLUTION_CORRECT);
     } else {
         printf("Solucao errada.\n");
-        writeLog(config.logPath, idJogo ,idJogador, "Solucao errada");
+        writeLog(config.logPath, idJogo ,idJogador, EVENT_SOLUTION_WRONG);
     }
 
     return 0;
