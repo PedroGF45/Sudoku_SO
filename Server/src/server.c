@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "jogos.h"
-#include "logs.h"
+#include "../../utils/logs/logs.h"
 #include "../config/config.h"
 
 

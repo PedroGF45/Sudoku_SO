@@ -1,29 +1,36 @@
 CC = gcc
 CFLAGS = -g -c
 
-all: server # Adicionar o client quando estiver pronto
+all: server client utils# Adicionar o client quando estiver pronto
 
-#client: client\client.c
-#	gcc -o client client\client.c
+client: client/src/client.o client/config/config.o utils/utils.o
+	$(CC) -o client.exe client/src/client.o client/config/config.o utils/utils.o
+
+client/src/client.o: client/src/client.c
+	$(CC) $(CFLAGS) client/src/client.c -o client/src/client.o
 
 # Compilar o servidor
-server: Server/src/server.o Server/src/jogos.o Server/src/logs.o Server/config/config.o
-	$(CC) -o server.exe Server/src/server.o Server/src/jogos.o Server/src/logs.o Server/config/config.o
+server: server/src/server.o server/src/jogos.o server/config/config.o utils/utils.o
+	$(CC) -o server.exe server/src/server.o server/src/jogos.o server/config/config.o utils/utils.o
 
 # Compila server.c, jogos.c e logs.c para (.o)
-Server/src/server.o: Server/src/server.c
-	$(CC) $(CFLAGS) Server/src/server.c -o Server/src/server.o
+server/src/server.o: server/src/server.c
+	$(CC) $(CFLAGS) server/src/server.c -o server/src/server.o
 
-Server/src/jogos.o: Server/src/jogos.c Server/src/jogos.h
-	$(CC) $(CFLAGS) Server/src/jogos.c -o Server/src/jogos.o
+server/src/jogos.o: server/src/jogos.c server/src/jogos.h
+	$(CC) $(CFLAGS) server/src/jogos.c -o server/src/jogos.o
 
-Server/src/logs.o: Server/src/logs.c Server/src/logs.h
-	$(CC) $(CFLAGS) Server/src/logs.c -o Server/src/logs.o
+# Compila config.c para (.o)
+server/config/config.o: server/config/config.c server/config/config.h
+	$(CC) $(CFLAGS) server/config/config.c -o server/config/config.o
 
-Server/config/config.o: Server/config/config.c Server/config/config.h
-	$(CC) $(CFLAGS) Server/config/config.c -o Server/config/config.o
+client/config/config.o: client/config/config.c client/config/config.h
+	$(CC) $(CFLAGS) client/config/config.c -o client/config/config.o
+
+utils/utils.o: utils/logs/logs.c utils/logs/logs.h
+	$(CC) $(CFLAGS) utils/logs/logs.c -o utils/utils.o
 
 # Limpar os ficheiros .o e o executável
 clean:
-	rm -f Server/src/*.o Server/config/config*.o server.exe
-#	del /Q Server\src\server.o Server\src\jogos.o  Server\src\logs.o Server\config\config.o server.exe
+	rm -f server/src/*.o server/config/config*.o server.exe client/src/*.o client/config/config*.o client.exe utils/*.o
+#	del /Q server\src\server.o server\src\jogos.o  server\src\logs.o server\config\config.o server.exe

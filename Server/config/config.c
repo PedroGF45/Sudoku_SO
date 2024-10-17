@@ -6,7 +6,7 @@
 
 serverConfig getServerConfig(char *configPath) {
 
-    // Cria uma variável do tipo serverConfig
+    // Cria uma variável do tipo clientConfig
     serverConfig config;
 
     //printf("Config path: %s\n", configPath);
