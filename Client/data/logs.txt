@@ -1,0 +1,10 @@
+17/10/2024 16:54:24 0 29 30 Jogo carregado
+17/10/2024 16:54:24 0 29 30 Tabuleiro do jogo mostrado
+17/10/2024 16:54:24 0 29 30 Solucao enviada
+17/10/2024 16:54:24 0 29 30 Solucao correta
+17/10/2024 16:54:24 0 29 30 Solucao errada
+17/10/2024 16:55:36 0 29 30 Jogo carregado
+17/10/2024 16:55:36 0 29 30 Tabuleiro do jogo mostrado
+17/10/2024 16:55:36 0 29 30 Solucao enviada
+17/10/2024 16:55:36 0 29 30 Solucao correta
+17/10/2024 16:55:36 0 29 30 Solucao errada
