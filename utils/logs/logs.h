@@ -15,4 +15,7 @@ struct log {
 
 void writeLog(const char *filename, int idJogo, int idJogador, const char *log);
 
+// novo log
+void writeLogJSON(const char *filename, int idJogo, int idJogador, const char *logMessage);
+
 #endif
