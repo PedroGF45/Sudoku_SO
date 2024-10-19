@@ -16,8 +16,8 @@ int main(int argc, char *argv[]) {
     ServerConfig config = getServerConfig(argv[1]);
 
     // Define idJogo e idJogador
-    /*Aqui depois temos de definir valores incrementados para cada jogo e jogador
-    ou um random para atribuir um tabuleiro aleatorio ao jogador*/ 
+     /*Aqui depois temos de definir valores incrementados para cada jogo e jogador
+    ou um random para atribuir um tabuleiro aleatorio ao jogador*/
     int idJogo = 2;
     int idJogador = 2;
 
@@ -30,39 +30,44 @@ int main(int argc, char *argv[]) {
 
     // Perguntar pela solução linha por linha
     int linhaInserida[9];
-    // Armazena cada linha da solução como string
+   // Armazena cada linha da solução como string
     char linha[10];  
     // Armazena os valores inseridos pelo utilizador
     char valoresInseridos[50];  
 
     for (int i = 0; i < 9; i++) {
         // Controla se a linha esta correta
-        int linhaCorreta = 0;  
+        int linhaCorreta = 0;
 
         while (!linhaCorreta) {
             printf("Insira valores para a linha %d do tabuleiro (exactamente 9 digitos):\n", i + 1);
-            // Ler a linha como uma string de no máximo 9 dígitos
-            scanf("%9s", linha);  
+             // Ler a linha como uma string de no máximo 9 dígitos
+            scanf("%9s", linha); 
 
             // Limpa a string de valores inseridos
-            strcpy(valoresInseridos, "");
+            strcpy(valoresInseridos, "");  
 
             // Verifica o tamanho da entrada do utilizador
             int len = strlen(linha);
             if (len != 9) {
                 printf("A linha deve conter exatamente 9 digitos.\n");
                 // Pede novamente a linha se nao tiver 9 digitos
-                continue;  
+                continue;
             }
 
-            // Converter a linha de string para numeros e criar a string de valores inseridos
+            // Preenche a linhaInserida e prepara valoresInseridos para o log
             for (int j = 0; j < 9; j++) {
-                // Converter char para int
-                linhaInserida[j] = linha[j] - '0';  
+                if (linha[j] >= '0' && linha[j] <= '9') {
+                    // Converte char para int
+                    linhaInserida[j] = linha[j] - '0';  
+                } else {
+                    linhaInserida[j] = 0;  // Coloca 0 para caracteres não numéricos
+                }
 
-                // Adicionar o valor inserido a string
+                 // Adicionar o valor inserido a string
                 char valor[3];
-                sprintf(valor, "%d", linhaInserida[j]);
+                // Preserva o caractere original
+                sprintf(valor, "%c", linha[j]);  
                 strcat(valoresInseridos, valor);
                 if (j < 8) strcat(valoresInseridos, " ");
             }
@@ -73,7 +78,7 @@ int main(int argc, char *argv[]) {
             char logMessage[100];
             // Escreve no log se a linha está correta ou errada
             if (!linhaCorreta) {
-                printf("A linha %d contem erros ou esta incompleta.\n", i + 1);
+                printf("A linha %d contém erros ou esta incompleta.\n", i + 1);
                 sprintf(logMessage, "%s errada para a linha %d: %s", EVENT_SOLUTION_WRONG, i + 1, valoresInseridos);
             } else {
                 sprintf(logMessage, "%s para a linha %d: %s", EVENT_SOLUTION_CORRECT, i + 1, valoresInseridos);
@@ -88,4 +93,3 @@ int main(int argc, char *argv[]) {
 
     return 0;
 }
-
