@@ -4,8 +4,8 @@
 typedef struct {
     char gamePath[256];
     char logPath[256];
-} serverConfig;
+} ServerConfig;
 
-serverConfig getServerConfig(char *configPath);
+ServerConfig getServerConfig(char *configPath);
 
 #endif // CONFIG_H

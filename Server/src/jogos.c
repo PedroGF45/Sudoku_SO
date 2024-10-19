@@ -2,12 +2,16 @@
 #include <stdlib.h> 
 #include <string.h> // Usar strings (strcpy(), strcmp())
 #include "jogos.h"  // Incluir o header com a struct e funcoes
-#include "C:\Users\claud\OneDrive\Documentos\GitHub\Sudoku_SO\parson.h"
+#include "../../utils/logs/logs.h"
+#include "../../utils/parson/parson.h"
 
-// Funcao que vai carregar um dos jogos do ficheiro 'games.txt'
-Jogo carregaJogo(const char *filename, int idJogo) {
+// Funcao que vai carregar um dos jogos do ficheiro 'games.json' de acordo com o ID do jogo
+Jogo carregaJogo(ServerConfig config, int idJogo, int idJogador) {
     Jogo jogo;
-    FILE *file = fopen(filename, "r");
+    FILE *file = fopen(config.gamePath, "r");
+
+    // set default value of id as 0
+    jogo.id = 0;
 
     if (file == NULL) {
         perror("Erro ao abrir o ficheiro de jogo");
@@ -29,14 +33,55 @@ Jogo carregaJogo(const char *filename, int idJogo) {
     JSON_Object *root_object = json_value_get_object(root_value);
     free(file_content);
 
-    // Obter o tabueliro e a solucao do JSON
-    for (int i = 0; i < 9; i++) {
-        JSON_Array *tabuleiro_row = json_array_get_array(json_object_get_array(root_object, "tabuleiro"), i);
-        JSON_Array *solucao_row = json_array_get_array(json_object_get_array(root_object, "solucao"), i);
-        for (int j = 0; j < 9; j++) {
-            jogo.tabuleiro[i][j] = (int)json_array_get_number(tabuleiro_row, j);
-            jogo.solucao[i][j] = (int)json_array_get_number(solucao_row, j);
-        }
+    // Get the "games" array
+    JSON_Array *games_array = json_object_get_array(root_object, "games");
+
+    // Iterate over the games array to find the matching ID
+    for (int i = 0; i < json_array_get_count(games_array); i++) {
+
+        // get json object
+        JSON_Object *game_object = json_array_get_object(games_array, i);
+
+        // get current id from Json object
+        int currentID = (int)json_object_get_number(game_object, "id");
+        
+        // se o jogo for encontrado
+        if (currentID == idJogo) {
+
+            // set game id as currentID
+            jogo.id = currentID;
+
+             // Obter o tabuleiro e a solucao do JSON
+            for (int i = 0; i < 9; i++) {
+                JSON_Array *tabuleiro_row = json_array_get_array(json_object_get_array(game_object, "tabuleiro"), i);
+                JSON_Array *solucao_row = json_array_get_array(json_object_get_array(game_object, "solucao"), i);
+                for (int j = 0; j < 9; j++) {
+                    jogo.tabuleiro[i][j] = (int)json_array_get_number(tabuleiro_row, j);
+                    jogo.solucao[i][j] = (int)json_array_get_number(solucao_row, j);
+                }
+            }
+
+            // game has been loaded
+            writeLogJSON(config.logPath, idJogo, idJogador, EVENT_GAME_LOAD);
+
+            // if game has been found leave loop
+            break;
+        } 
+    }
+
+    // Game not found
+    if (jogo.id == 0) {
+        
+        // cria mensagem mais detalhada
+        char logMessage[100];
+        sprintf(logMessage, "%s: Jogo com ID %d nao encontrado", EVENT_GAME_NOT_LOAD, idJogo );
+
+        // escreve log de jogo nao encontrado
+        writeLogJSON(config.logPath, idJogo, idJogador, logMessage);
+
+        // mostra no terminal e encerra programa
+        fprintf(stderr, "Jogo com ID %d nao encontrado.\n", idJogo);
+        exit(1);
     }
 
     // Limpar memoria alocada ao JSON
@@ -44,23 +89,13 @@ Jogo carregaJogo(const char *filename, int idJogo) {
 
     return jogo;
 }
-// Nao vai ser necessario esta funcao se quisermos manter esta logica de linha a linha
-// Funcao para verificar se a solucao enviada esta correta
-int verificaSolucao(Jogo jogo, int solucaoEnviada[9][9]) {
-    for (int i = 0; i < 9; i++) {
-        for (int j = 0; j < 9; j++) {
-            if (jogo.solucao[i][j] != solucaoEnviada[i][j]) {
-                return 0;  // Solução errada
-            }
-        }
-    }
-    return 1;  // Solução correta
-}
 
-void mostraTabuleiro(Jogo jogo) {
-    printf("-------------------------\n");
+void mostraTabuleiro(char * logFileName, Jogo jogo, int idJogador) {
+
+    printf("ID do jogo: %d\n", jogo.id);
+    printf("-------------------------------------\n");
     for (int i = 0; i < 9; i++) {
-        printf("| ");
+        printf("| line %d -> | ", i + 1);
         for (int j = 0; j < 9; j++) {
             if (jogo.tabuleiro[i][j] == 0) {
                 printf("0 ");  // Mostra '0' para espaços vazios
@@ -72,30 +107,41 @@ void mostraTabuleiro(Jogo jogo) {
             }
         }
         if ((i + 1) % 3 == 0) {
-            printf("\n-------------------------");
+            printf("\n-------------------------------------");
         }
         printf("\n");
     }
+
+    writeLogJSON(logFileName, jogo.id, idJogador, EVENT_BOARD_SHOW);
 }
 
 // Funcao para verificar uma linha e corrigir valores incorretos
-int verificaLinha(Jogo *jogo, int linhaInserida[9], int numeroLinha) {
-    int correta = 1;  // Assume que a linha está correta
+int verificaLinha(char * logFileName, char * solucaoEnviada, Jogo *jogo, int linhaInserida[9], int numeroLinha, int idJogador) {
+
+    int correta = 1;
+
+    // Escreve no log que a solucaoo foi recebida no servidor
+    char logMessage[100];
+    sprintf(logMessage, "%s para a linha %d: %s", EVENT_SOLUTION_SENT, numeroLinha + 1, solucaoEnviada);
+    writeLogJSON(logFileName, jogo->id, idJogador, logMessage);
+
     for (int j = 0; j < 9; j++) {
         // Verifica se a posicao no tabuleiro original ja tem um valor fixo
         if (jogo->tabuleiro[numeroLinha][j] != 0) {
-            continue;  // Nao vai alterar os valores que ja lae stao
+            continue;  // Nao vai alterar os valores que ja la estao
         }
         
         // Se a posicao esta vazia no tabuleiro original, faz a verificacao
         if (linhaInserida[j] == jogo->solucao[numeroLinha][j]) {
             // O valor esta correto, inserir no tabuleiro
             jogo->tabuleiro[numeroLinha][j] = linhaInserida[j];
+            
         } else {
             // O valor esta errado, substituí-lo por 0 no tabuleiro
             jogo->tabuleiro[numeroLinha][j] = 0;
             correta = 0;  // A linha nao esta correta
         }
     }
-    return correta;  // Retorna 1 se toda a linha estiver correta, 0 se não
+
+    return correta;
 }

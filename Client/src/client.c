@@ -19,10 +19,10 @@ int main(int argc, char *argv[]) {
     int idJogo = 29;
     int idJogador = 30;
 
-    writeLog(config.logPath, idJogo ,idJogador, EVENT_GAME_LOAD);
-    writeLog(config.logPath, idJogo ,idJogador, EVENT_BOARD_SHOW);
-    writeLog(config.logPath, idJogo ,idJogador, EVENT_SOLUTION_SENT);
-    writeLog(config.logPath, idJogo ,idJogador, EVENT_SOLUTION_CORRECT);
-    writeLog(config.logPath, idJogo ,idJogador, EVENT_SOLUTION_WRONG);
+    writeLogJSON(config.logPath, idJogo ,idJogador, EVENT_GAME_LOAD);
+    writeLogJSON(config.logPath, idJogo ,idJogador, EVENT_BOARD_SHOW);
+    writeLogJSON(config.logPath, idJogo ,idJogador, EVENT_SOLUTION_SENT);
+    writeLogJSON(config.logPath, idJogo ,idJogador, EVENT_SOLUTION_CORRECT);
+    writeLogJSON(config.logPath, idJogo ,idJogador, EVENT_SOLUTION_WRONG);
     
 }

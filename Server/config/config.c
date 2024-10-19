@@ -3,11 +3,12 @@
 #include <string.h>
 #include <errno.h>
 #include "config.h"
+#include "../../utils/logs/logs.h"
 
-serverConfig getServerConfig(char *configPath) {
+ServerConfig getServerConfig(char *configPath) {
 
     // Cria uma variável do tipo clientConfig
-    serverConfig config;
+    ServerConfig config;
 
     //printf("Config path: %s\n", configPath);
 
@@ -17,7 +18,7 @@ serverConfig getServerConfig(char *configPath) {
 
     // Se o ficheiro não existir, imprime uma mensagem de erro e termina o programa
     if (file == NULL) {
-        //fprintf(stderr, "Couldn't open %s: %s\n", configPath, strerror(errno));
+        fprintf(stderr, "Couldn't open %s: %s\n", configPath, strerror(errno));
         exit(1);
     }
 
@@ -34,6 +35,7 @@ serverConfig getServerConfig(char *configPath) {
         sscanf(line, "SERVER_LOG_PATH = %s", config.logPath);
     }
 
+    writeLogJSON(config.logPath, 0, 0, EVENT_SERVER_START);
     printf("PATH DO JOGO: %s\n", config.gamePath);
     printf("PATH DO LOG: %s\n", config.logPath);
 

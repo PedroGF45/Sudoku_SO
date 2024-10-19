@@ -1,13 +1,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "jogos.h"
 #include "../../utils/logs/logs.h"
+#include "../../utils/parson/parson.h"
 #include "../config/config.h"
-#include "C:\\Users\\claud\\OneDrive\\Documentos\\GitHub\\Sudoku_SO\\parson.h"
-
-//get from config file
-
+#include "jogos.h"
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {
@@ -16,25 +13,20 @@ int main(int argc, char *argv[]) {
     }
 
     // Carrega a configuracao do servidor
-    serverConfig config = getServerConfig(argv[1]);
-
-    // Debug: Verifica o caminho do ficheiro de log
-    printf("PATH DO LOG: %s\n", config.logPath);
+    ServerConfig config = getServerConfig(argv[1]);
 
     // Define idJogo e idJogador
     /*Aqui depois temos de definir valores incrementados para cada jogo e jogador
     ou um random para atribuir um tabuleiro aleatorio ao jogador*/ 
-    int idJogo = 1;
+    int idJogo = 2;
     int idJogador = 2;
 
     // Load ao jogo
-    Jogo jogo = carregaJogo(config.gamePath, idJogo);
-
-    writeLogJSON(config.logPath, idJogo, idJogador, "Jogo carregado");
+    Jogo jogo = carregaJogo(config, idJogo, idJogador);
 
     // Mostra o tabuleiro
     printf("Tabuleiro inicial:\n");
-    mostraTabuleiro(jogo);
+    mostraTabuleiro(config.logPath, jogo, idJogador);
 
     // Perguntar pela solução linha por linha
     int linhaInserida[9];
@@ -46,6 +38,7 @@ int main(int argc, char *argv[]) {
     for (int i = 0; i < 9; i++) {
         // Controla se a linha esta correta
         int linhaCorreta = 0;  
+
         while (!linhaCorreta) {
             printf("Insira valores para a linha %d do tabuleiro (exactamente 9 digitos):\n", i + 1);
             // Ler a linha como uma string de no máximo 9 dígitos
@@ -74,26 +67,22 @@ int main(int argc, char *argv[]) {
                 if (j < 8) strcat(valoresInseridos, " ");
             }
 
-            // Escreve no log que a solucaoo foi enviada
-            char logMessage[100];
-            sprintf(logMessage, "Solucao enviada para a linha %d: %s", i + 1, valoresInseridos);
-            writeLogJSON(config.logPath, idJogo, idJogador, logMessage);
-
             // Verifica a linha inserida
-            linhaCorreta = verificaLinha(&jogo, linhaInserida, i);
+            linhaCorreta = verificaLinha(config.logPath, valoresInseridos, &jogo, linhaInserida, i, idJogador);
+
+            char logMessage[100];
+            // Escreve no log se a linha está correta ou errada
+            if (!linhaCorreta) {
+                printf("A linha %d contem erros ou esta incompleta.\n", i + 1);
+                sprintf(logMessage, "%s errada para a linha %d: %s", EVENT_SOLUTION_WRONG, i + 1, valoresInseridos);
+            } else {
+                sprintf(logMessage, "%s para a linha %d: %s", EVENT_SOLUTION_CORRECT, i + 1, valoresInseridos);
+            }
+            writeLogJSON(config.logPath, idJogo, idJogador, logMessage);  // Log com a mensagem atualizada
 
             // Mostra o tabuleiro atualizado
             printf("Tabuleiro atualizado:\n");
-            mostraTabuleiro(jogo);
-
-            // Escreve no log se a linha está correta ou errada
-            if (!linhaCorreta) {
-                printf("A linha %d contem erros ou esta imcompleta.\n", i + 1);
-                sprintf(logMessage, "Solucao errada para a linha %d: %s", i + 1, valoresInseridos);
-            } else {
-                sprintf(logMessage, "Solucao correta para a linha %d: %s", i + 1, valoresInseridos);
-            }
-            writeLogJSON(config.logPath, idJogo, idJogador, logMessage);  // Log com a mensagem atualizada
+            mostraTabuleiro(config.logPath, jogo, idJogador);
         }
     }
 
