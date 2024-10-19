@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
             // Verifica o tamanho da entrada do utilizador
             int len = strlen(linha);
             if (len != 9) {
-                printf("A linha deve conter exatamente 9 dígitos.\n");
+                printf("A linha deve conter exatamente 9 digitos.\n");
                 // Pede novamente a linha se nao tiver 9 digitos
                 continue;  
             }
