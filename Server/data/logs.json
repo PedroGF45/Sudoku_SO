@@ -1,745 +1,229 @@
 {
     "logs": [
         {
-            "timestamp": "19-10-2024 14:15:54",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Jogo carregado"
-        },
-        {
-            "timestamp": "19-10-2024 14:15:54",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Tabuleiro do jogo mostrado"
-        },
-        {
-            "timestamp": "19-10-2024 14:16:10",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao enviada para a linha 1: 3 5 1 5 3 1 5 3 1"
-        },
-        {
-            "timestamp": "19-10-2024 14:16:10",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Tabuleiro do jogo mostrado"
-        },
-        {
-            "timestamp": "19-10-2024 14:16:10",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao errada para a linha 1: 3 5 1 5 3 1 5 3 1"
-        },
-        {
-            "timestamp": "19-10-2024 14:16:14",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao enviada para a linha 1: 1 2 1 3 1 5 2 2 2"
-        },
-        {
-            "timestamp": "19-10-2024 14:16:14",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Tabuleiro do jogo mostrado"
-        },
-        {
-            "timestamp": "19-10-2024 14:16:14",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao errada para a linha 1: 1 2 1 3 1 5 2 2 2"
-        },
-        {
-            "timestamp": "19-10-2024 14:32:55",
+            "timestamp": "24-10-2024 16:05:08",
             "idJogo": 0,
             "idJogador": 0,
             "mensagem": "Server inicializado"
         },
         {
-            "timestamp": "19-10-2024 14:32:55",
+            "timestamp": "24-10-2024 16:06:35",
+            "idJogo": 0,
+            "idJogador": 0,
+            "mensagem": "Mensagem enviada para o cliente: menu"
+        },
+        {
+            "timestamp": "24-10-2024 16:06:35",
+            "idJogo": 0,
+            "idJogador": 0,
+            "mensagem": "Mensagem enviada para o cliente: 1. Mostrar tabuleiro\n2. Enviar solucao\n3. Sair\n"
+        },
+        {
+            "timestamp": "24-10-2024 16:06:35",
             "idJogo": 2,
             "idJogador": 2,
             "mensagem": "Jogo carregado"
         },
         {
-            "timestamp": "19-10-2024 14:32:55",
+            "timestamp": "24-10-2024 16:06:35",
             "idJogo": 2,
             "idJogador": 2,
             "mensagem": "Tabuleiro do jogo mostrado"
         },
         {
-            "timestamp": "19-10-2024 14:33:19",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao enviada para a linha 1: 9 8 9 9 8 9 9 8 9"
-        },
-        {
-            "timestamp": "19-10-2024 14:33:19",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao errada para a linha 1: 9 8 9 9 8 9 9 8 9"
-        },
-        {
-            "timestamp": "19-10-2024 14:33:19",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Tabuleiro do jogo mostrado"
-        },
-        {
-            "timestamp": "19-10-2024 14:41:01",
+            "timestamp": "24-10-2024 16:06:49",
             "idJogo": 0,
             "idJogador": 0,
             "mensagem": "Server inicializado"
         },
         {
-            "timestamp": "19-10-2024 14:41:01",
-            "idJogo": 10,
-            "idJogador": 2,
-            "mensagem": "Jogo nao carregado: Jogo com ID 10 nao encontrado"
-        },
-        {
-            "timestamp": "19-10-2024 14:42:15",
+            "timestamp": "24-10-2024 16:08:06",
             "idJogo": 0,
             "idJogador": 0,
             "mensagem": "Server inicializado"
         },
         {
-            "timestamp": "19-10-2024 14:42:15",
+            "timestamp": "24-10-2024 16:08:16",
+            "idJogo": 0,
+            "idJogador": 0,
+            "mensagem": "Server inicializado"
+        },
+        {
+            "timestamp": "24-10-2024 16:08:19",
             "idJogo": 2,
             "idJogador": 2,
             "mensagem": "Jogo carregado"
         },
         {
-            "timestamp": "19-10-2024 14:42:15",
+            "timestamp": "24-10-2024 16:08:19",
             "idJogo": 2,
             "idJogador": 2,
             "mensagem": "Tabuleiro do jogo mostrado"
         },
         {
-            "timestamp": "19-10-2024 14:42:23",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao recebida para a linha 1: 1 3 5 4 6 7 8 9 6"
-        },
-        {
-            "timestamp": "19-10-2024 14:42:23",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao errada para a linha 1: 1 3 5 4 6 7 8 9 6"
-        },
-        {
-            "timestamp": "19-10-2024 14:42:23",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Tabuleiro do jogo mostrado"
-        },
-        {
-            "timestamp": "19-10-2024 14:45:07",
+            "timestamp": "24-10-2024 16:08:59",
             "idJogo": 0,
             "idJogador": 0,
             "mensagem": "Server inicializado"
         },
         {
-            "timestamp": "19-10-2024 14:45:07",
+            "timestamp": "24-10-2024 16:09:01",
             "idJogo": 2,
             "idJogador": 2,
             "mensagem": "Jogo carregado"
         },
         {
-            "timestamp": "19-10-2024 14:45:07",
+            "timestamp": "24-10-2024 16:09:01",
             "idJogo": 2,
             "idJogador": 2,
             "mensagem": "Tabuleiro do jogo mostrado"
         },
         {
-            "timestamp": "19-10-2024 14:45:21",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao recebida para a linha 1: 9 9 9 9 9 9 9 9 9"
-        },
-        {
-            "timestamp": "19-10-2024 14:45:21",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao errada errada para a linha 1: 9 9 9 9 9 9 9 9 9"
-        },
-        {
-            "timestamp": "19-10-2024 14:45:21",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Tabuleiro do jogo mostrado"
-        },
-        {
-            "timestamp": "19-10-2024 14:45:41",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao recebida para a linha 1: 4 8 3 9 2 1 6 5 7"
-        },
-        {
-            "timestamp": "19-10-2024 14:45:41",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao correta para a linha 1: 4 8 3 9 2 1 6 5 7"
-        },
-        {
-            "timestamp": "19-10-2024 14:45:41",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Tabuleiro do jogo mostrado"
-        },
-        {
-            "timestamp": "19-10-2024 14:52:51",
+            "timestamp": "24-10-2024 16:09:19",
             "idJogo": 0,
             "idJogador": 0,
             "mensagem": "Server inicializado"
         },
         {
-            "timestamp": "19-10-2024 14:52:51",
+            "timestamp": "24-10-2024 16:09:20",
+            "idJogo": 0,
+            "idJogador": 0,
+            "mensagem": "Mensagem enviada para o cliente: menu"
+        },
+        {
+            "timestamp": "24-10-2024 16:09:20",
+            "idJogo": 0,
+            "idJogador": 0,
+            "mensagem": "Mensagem enviada para o cliente: 1. Mostrar tabuleiro\n2. Enviar solucao\n3. Sair\n"
+        },
+        {
+            "timestamp": "24-10-2024 16:09:20",
             "idJogo": 2,
             "idJogador": 2,
             "mensagem": "Jogo carregado"
         },
         {
-            "timestamp": "19-10-2024 14:52:51",
+            "timestamp": "24-10-2024 16:09:20",
             "idJogo": 2,
             "idJogador": 2,
             "mensagem": "Tabuleiro do jogo mostrado"
         },
         {
-            "timestamp": "19-10-2024 14:53:02",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao recebida para a linha 1: 5 5 3 5 4 6 4 7 6"
-        },
-        {
-            "timestamp": "19-10-2024 14:53:02",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao errada errada para a linha 1: 5 5 3 5 4 6 4 7 6"
-        },
-        {
-            "timestamp": "19-10-2024 14:53:02",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Tabuleiro do jogo mostrado"
-        },
-        {
-            "timestamp": "19-10-2024 19:01:24",
+            "timestamp": "24-10-2024 16:26:50",
             "idJogo": 0,
             "idJogador": 0,
             "mensagem": "Server inicializado"
         },
         {
-            "timestamp": "19-10-2024 19:01:24",
+            "timestamp": "24-10-2024 16:26:53",
+            "idJogo": 0,
+            "idJogador": 0,
+            "mensagem": "Mensagem recebida do cliente: menu"
+        },
+        {
+            "timestamp": "24-10-2024 16:26:53",
+            "idJogo": 0,
+            "idJogador": 0,
+            "mensagem": "Mensagem enviada para o cliente: 1. Mostrar tabuleiro\n2. Enviar solucao\n3. Sair\n"
+        },
+        {
+            "timestamp": "24-10-2024 16:26:53",
             "idJogo": 2,
             "idJogador": 2,
             "mensagem": "Jogo carregado"
         },
         {
-            "timestamp": "19-10-2024 19:01:24",
+            "timestamp": "24-10-2024 16:26:53",
             "idJogo": 2,
             "idJogador": 2,
             "mensagem": "Tabuleiro do jogo mostrado"
         },
         {
-            "timestamp": "19-10-2024 19:01:45",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao recebida para a linha 1: 49 49 49 49 49 49 49 49 49"
-        },
-        {
-            "timestamp": "19-10-2024 19:01:45",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao errada errada para a linha 1: 49 49 49 49 49 49 49 49 49"
-        },
-        {
-            "timestamp": "19-10-2024 19:01:45",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Tabuleiro do jogo mostrado"
-        },
-        {
-            "timestamp": "19-10-2024 19:12:26",
+            "timestamp": "24-10-2024 16:28:18",
             "idJogo": 0,
             "idJogador": 0,
             "mensagem": "Server inicializado"
         },
         {
-            "timestamp": "19-10-2024 19:12:26",
+            "timestamp": "24-10-2024 16:28:20",
+            "idJogo": 0,
+            "idJogador": 0,
+            "mensagem": "Mensagem recebida do cliente: menu"
+        },
+        {
+            "timestamp": "24-10-2024 16:28:20",
+            "idJogo": 0,
+            "idJogador": 0,
+            "mensagem": "Mensagem enviada para o cliente: 1. Mostrar tabuleiro\n2. Enviar solucao\n3. Sair\n"
+        },
+        {
+            "timestamp": "24-10-2024 16:28:20",
             "idJogo": 2,
             "idJogador": 2,
             "mensagem": "Jogo carregado"
         },
         {
-            "timestamp": "19-10-2024 19:12:26",
+            "timestamp": "24-10-2024 16:28:20",
             "idJogo": 2,
             "idJogador": 2,
             "mensagem": "Tabuleiro do jogo mostrado"
         },
         {
-            "timestamp": "19-10-2024 19:14:43",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao recebida para a linha 1: 4 8 3 9 2 1 6 5 7"
-        },
-        {
-            "timestamp": "19-10-2024 19:14:43",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao correta para a linha 1: 4 8 3 9 2 1 6 5 7"
-        },
-        {
-            "timestamp": "19-10-2024 19:14:43",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Tabuleiro do jogo mostrado"
-        },
-        {
-            "timestamp": "19-10-2024 19:16:01",
+            "timestamp": "24-10-2024 16:29:01",
             "idJogo": 0,
             "idJogador": 0,
             "mensagem": "Server inicializado"
         },
         {
-            "timestamp": "19-10-2024 19:16:01",
+            "timestamp": "24-10-2024 16:29:03",
+            "idJogo": 0,
+            "idJogador": 0,
+            "mensagem": "Mensagem recebida do cliente: menu"
+        },
+        {
+            "timestamp": "24-10-2024 16:29:03",
+            "idJogo": 0,
+            "idJogador": 0,
+            "mensagem": "Mensagem enviada para o cliente: 1. Mostrar tabuleiro\n2. Enviar solucao\n3. Sair\n"
+        },
+        {
+            "timestamp": "24-10-2024 16:29:03",
             "idJogo": 2,
             "idJogador": 2,
             "mensagem": "Jogo carregado"
         },
         {
-            "timestamp": "19-10-2024 19:16:01",
+            "timestamp": "24-10-2024 16:29:03",
             "idJogo": 2,
             "idJogador": 2,
             "mensagem": "Tabuleiro do jogo mostrado"
         },
         {
-            "timestamp": "19-10-2024 19:19:14",
+            "timestamp": "24-10-2024 16:29:16",
             "idJogo": 0,
             "idJogador": 0,
             "mensagem": "Server inicializado"
         },
         {
-            "timestamp": "19-10-2024 19:19:14",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Jogo carregado"
-        },
-        {
-            "timestamp": "19-10-2024 19:19:14",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Tabuleiro do jogo mostrado"
-        },
-        {
-            "timestamp": "19-10-2024 19:20:12",
+            "timestamp": "24-10-2024 16:29:18",
             "idJogo": 0,
             "idJogador": 0,
-            "mensagem": "Server inicializado"
+            "mensagem": "Mensagem recebida do cliente: menu"
         },
         {
-            "timestamp": "19-10-2024 19:20:12",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Jogo carregado"
-        },
-        {
-            "timestamp": "19-10-2024 19:20:12",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Tabuleiro do jogo mostrado"
-        },
-        {
-            "timestamp": "19-10-2024 19:21:22",
+            "timestamp": "24-10-2024 16:29:18",
             "idJogo": 0,
             "idJogador": 0,
-            "mensagem": "Server inicializado"
+            "mensagem": "Mensagem enviada para o cliente: 1. Mostrar tabuleiro\n2. Enviar solucao\n3. Sair\n"
         },
         {
-            "timestamp": "19-10-2024 19:21:22",
+            "timestamp": "24-10-2024 16:29:18",
             "idJogo": 2,
             "idJogador": 2,
             "mensagem": "Jogo carregado"
         },
         {
-            "timestamp": "19-10-2024 19:21:22",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Tabuleiro do jogo mostrado"
-        },
-        {
-            "timestamp": "19-10-2024 20:01:32",
-            "idJogo": 0,
-            "idJogador": 0,
-            "mensagem": "Server inicializado"
-        },
-        {
-            "timestamp": "19-10-2024 20:01:32",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Jogo carregado"
-        },
-        {
-            "timestamp": "19-10-2024 20:01:32",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Tabuleiro do jogo mostrado"
-        },
-        {
-            "timestamp": "19-10-2024 20:01:37",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao recebida para a linha 1: 1 2 3 4 a 6 7 8 9"
-        },
-        {
-            "timestamp": "19-10-2024 20:01:37",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao errada errada para a linha 1: 1 2 3 4 a 6 7 8 9"
-        },
-        {
-            "timestamp": "19-10-2024 20:01:38",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Tabuleiro do jogo mostrado"
-        },
-        {
-            "timestamp": "19-10-2024 20:07:40",
-            "idJogo": 0,
-            "idJogador": 0,
-            "mensagem": "Server inicializado"
-        },
-        {
-            "timestamp": "19-10-2024 20:07:40",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Jogo carregado"
-        },
-        {
-            "timestamp": "19-10-2024 20:07:40",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Tabuleiro do jogo mostrado"
-        },
-        {
-            "timestamp": "19-10-2024 20:07:47",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao recebida para a linha 1: 1234a5678"
-        },
-        {
-            "timestamp": "19-10-2024 20:07:47",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao errada errada para a linha 1: 1234a5678"
-        },
-        {
-            "timestamp": "19-10-2024 20:07:47",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Tabuleiro do jogo mostrado"
-        },
-        {
-            "timestamp": "19-10-2024 20:09:28",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao recebida para a linha 1: 483921657"
-        },
-        {
-            "timestamp": "19-10-2024 20:09:28",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao correta para a linha 1: 483921657"
-        },
-        {
-            "timestamp": "19-10-2024 20:09:28",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Tabuleiro do jogo mostrado"
-        },
-        {
-            "timestamp": "19-10-2024 20:09:36",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao recebida para a linha 2: 967345821"
-        },
-        {
-            "timestamp": "19-10-2024 20:09:36",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao correta para a linha 2: 967345821"
-        },
-        {
-            "timestamp": "19-10-2024 20:09:36",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Tabuleiro do jogo mostrado"
-        },
-        {
-            "timestamp": "19-10-2024 20:09:46",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao recebida para a linha 3: 251876493"
-        },
-        {
-            "timestamp": "19-10-2024 20:09:46",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao correta para a linha 3: 251876493"
-        },
-        {
-            "timestamp": "19-10-2024 20:09:46",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Tabuleiro do jogo mostrado"
-        },
-        {
-            "timestamp": "19-10-2024 20:09:58",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao recebida para a linha 4: 548132976"
-        },
-        {
-            "timestamp": "19-10-2024 20:09:58",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao correta para a linha 4: 548132976"
-        },
-        {
-            "timestamp": "19-10-2024 20:09:58",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Tabuleiro do jogo mostrado"
-        },
-        {
-            "timestamp": "19-10-2024 20:10:06",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao recebida para a linha 5: 739564182"
-        },
-        {
-            "timestamp": "19-10-2024 20:10:06",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao correta para a linha 5: 739564182"
-        },
-        {
-            "timestamp": "19-10-2024 20:10:06",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Tabuleiro do jogo mostrado"
-        },
-        {
-            "timestamp": "19-10-2024 20:10:17",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao recebida para a linha 6: 126798345"
-        },
-        {
-            "timestamp": "19-10-2024 20:10:17",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao correta para a linha 6: 126798345"
-        },
-        {
-            "timestamp": "19-10-2024 20:10:17",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Tabuleiro do jogo mostrado"
-        },
-        {
-            "timestamp": "19-10-2024 20:10:30",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao recebida para a linha 7: 372689514"
-        },
-        {
-            "timestamp": "19-10-2024 20:10:30",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao correta para a linha 7: 372689514"
-        },
-        {
-            "timestamp": "19-10-2024 20:10:30",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Tabuleiro do jogo mostrado"
-        },
-        {
-            "timestamp": "19-10-2024 20:10:47",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao recebida para a linha 8: 815243769"
-        },
-        {
-            "timestamp": "19-10-2024 20:10:47",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao correta para a linha 8: 815243769"
-        },
-        {
-            "timestamp": "19-10-2024 20:10:47",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Tabuleiro do jogo mostrado"
-        },
-        {
-            "timestamp": "19-10-2024 20:10:57",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao recebida para a linha 9: 694517238"
-        },
-        {
-            "timestamp": "19-10-2024 20:10:57",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao correta para a linha 9: 694517238"
-        },
-        {
-            "timestamp": "19-10-2024 20:10:57",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Tabuleiro do jogo mostrado"
-        },
-        {
-            "timestamp": "19-10-2024 20:12:22",
-            "idJogo": 0,
-            "idJogador": 0,
-            "mensagem": "Server inicializado"
-        },
-        {
-            "timestamp": "19-10-2024 20:12:22",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Jogo carregado"
-        },
-        {
-            "timestamp": "19-10-2024 20:12:22",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Tabuleiro do jogo mostrado"
-        },
-        {
-            "timestamp": "19-10-2024 20:12:28",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao recebida para a linha 1: abcdefg12"
-        },
-        {
-            "timestamp": "19-10-2024 20:12:28",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao errada errada para a linha 1: abcdefg12"
-        },
-        {
-            "timestamp": "19-10-2024 20:12:28",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Tabuleiro do jogo mostrado"
-        },
-        {
-            "timestamp": "19-10-2024 20:12:36",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao recebida para a linha 1: 12345avbs"
-        },
-        {
-            "timestamp": "19-10-2024 20:12:36",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao errada errada para a linha 1: 12345avbs"
-        },
-        {
-            "timestamp": "19-10-2024 20:12:36",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Tabuleiro do jogo mostrado"
-        },
-        {
-            "timestamp": "19-10-2024 20:15:56",
-            "idJogo": 0,
-            "idJogador": 0,
-            "mensagem": "Server inicializado"
-        },
-        {
-            "timestamp": "19-10-2024 20:15:56",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Jogo carregado"
-        },
-        {
-            "timestamp": "19-10-2024 20:15:56",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Tabuleiro do jogo mostrado"
-        },
-        {
-            "timestamp": "19-10-2024 20:16:04",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao recebida para a linha 1: 1 2 3 4 a 5 6 7 8"
-        },
-        {
-            "timestamp": "19-10-2024 20:16:04",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao errada errada para a linha 1: 1 2 3 4 a 5 6 7 8"
-        },
-        {
-            "timestamp": "19-10-2024 20:16:04",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Tabuleiro do jogo mostrado"
-        },
-        {
-            "timestamp": "19-10-2024 20:22:28",
-            "idJogo": 0,
-            "idJogador": 0,
-            "mensagem": "Server inicializado"
-        },
-        {
-            "timestamp": "19-10-2024 20:22:28",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Jogo carregado"
-        },
-        {
-            "timestamp": "19-10-2024 20:22:28",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Tabuleiro do jogo mostrado"
-        },
-        {
-            "timestamp": "19-10-2024 20:22:50",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao recebida para a linha 1: 1 2 3 4 a b 7 8 9"
-        },
-        {
-            "timestamp": "19-10-2024 20:22:50",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Solucao errada errada para a linha 1: 1 2 3 4 a b 7 8 9"
-        },
-        {
-            "timestamp": "19-10-2024 20:22:50",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Tabuleiro do jogo mostrado"
-        },
-        {
-            "timestamp": "19-10-2024 23:02:45",
-            "idJogo": 0,
-            "idJogador": 0,
-            "mensagem": "Server inicializado"
-        },
-        {
-            "timestamp": "19-10-2024 23:02:45",
-            "idJogo": 2,
-            "idJogador": 2,
-            "mensagem": "Jogo carregado"
-        },
-        {
-            "timestamp": "19-10-2024 23:02:45",
+            "timestamp": "24-10-2024 16:29:18",
             "idJogo": 2,
             "idJogador": 2,
             "mensagem": "Tabuleiro do jogo mostrado"

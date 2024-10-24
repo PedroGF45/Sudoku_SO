@@ -3,8 +3,9 @@
 
 typedef struct {
     char serverIP[256];
-    char serverPort[256];
-    char clientID[256];
+    int serverPort;
+    char serverHostName[256];
+    int clientID;
     char logPath[256];
 } clientConfig;
 

@@ -2,6 +2,8 @@
 #define JOGOS_H
 #include "../config/config.h"
 
+#define MENU_INTERFACE "1. Mostrar tabuleiro\n2. Enviar solucao\n3. Sair\n"
+
 /*Struct para armazenar o tabuleiro e a solucao do jogo.
 Aqui usei o typedef para criar um alias para a struct 
 (evita repetir 'struct' no código sempre que quisermos usar a struct). */

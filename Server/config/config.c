@@ -23,6 +23,13 @@ ServerConfig getServerConfig(char *configPath) {
     }
 
     char line[256];
+
+    if (fgets(line, sizeof(line), file) != NULL) {
+        // Remover a nova linha, se houver
+        line[strcspn(line, "\n")] = 0;
+        sscanf(line, "SERVER_PORT = %d", &config.serverPort);
+    }
+
     if (fgets(line, sizeof(line), file) != NULL) {
         // Remover a nova linha, se houver
         line[strcspn(line, "\n")] = 0;
@@ -35,12 +42,14 @@ ServerConfig getServerConfig(char *configPath) {
         sscanf(line, "SERVER_LOG_PATH = %s", config.logPath);
     }
 
-    writeLogJSON(config.logPath, 0, 0, EVENT_SERVER_START);
-    printf("PATH DO JOGO: %s\n", config.gamePath);
-    printf("PATH DO LOG: %s\n", config.logPath);
-
     // Fecha o ficheiro
     fclose(file);
+
+    writeLogJSON(config.logPath, 0, 0, EVENT_SERVER_START);
+    printf("Server Started\n");
+    printf("PORTA DO SERVIDOR: %d\n", config.serverPort);
+    printf("PATH DO JOGO: %s\n", config.gamePath);
+    printf("PATH DO LOG: %s\n", config.logPath);
 
     // Retorna a variável config
     return config;

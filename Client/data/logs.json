@@ -1,0 +1,160 @@
+{
+    "logs": [
+        {
+            "timestamp": "24-10-2024 16:05:10",
+            "idJogo": 0,
+            "idJogador": 0,
+            "mensagem": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "24-10-2024 16:05:10",
+            "idJogo": 0,
+            "idJogador": 0,
+            "mensagem": "Mensagem enviada para o servidor: menu"
+        },
+        {
+            "timestamp": "24-10-2024 16:06:52",
+            "idJogo": 0,
+            "idJogador": 0,
+            "mensagem": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "24-10-2024 16:06:52",
+            "idJogo": 0,
+            "idJogador": 0,
+            "mensagem": "Mensagem enviada para o servidor: menu"
+        },
+        {
+            "timestamp": "24-10-2024 16:07:08",
+            "idJogo": 0,
+            "idJogador": 0,
+            "mensagem": "Mensagem recebida do servidor: "
+        },
+        {
+            "timestamp": "24-10-2024 16:08:19",
+            "idJogo": 0,
+            "idJogador": 0,
+            "mensagem": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "24-10-2024 16:08:19",
+            "idJogo": 0,
+            "idJogador": 0,
+            "mensagem": "Mensagem enviada para o servidor: menu"
+        },
+        {
+            "timestamp": "24-10-2024 16:08:19",
+            "idJogo": 0,
+            "idJogador": 0,
+            "mensagem": "Mensagem recebida do servidor: 1. Mostrar tabuleiro\n2. Enviar solucao\n3. Sair\n"
+        },
+        {
+            "timestamp": "24-10-2024 16:09:01",
+            "idJogo": 0,
+            "idJogador": 0,
+            "mensagem": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "24-10-2024 16:09:01",
+            "idJogo": 0,
+            "idJogador": 0,
+            "mensagem": "Mensagem enviada para o servidor: menu"
+        },
+        {
+            "timestamp": "24-10-2024 16:09:01",
+            "idJogo": 0,
+            "idJogador": 0,
+            "mensagem": "Mensagem recebida do servidor: 1. Mostrar tabuleiro\n2. Enviar solucao\n3. Sair\n"
+        },
+        {
+            "timestamp": "24-10-2024 16:09:20",
+            "idJogo": 0,
+            "idJogador": 0,
+            "mensagem": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "24-10-2024 16:09:20",
+            "idJogo": 0,
+            "idJogador": 0,
+            "mensagem": "Mensagem enviada para o servidor: menu"
+        },
+        {
+            "timestamp": "24-10-2024 16:09:20",
+            "idJogo": 0,
+            "idJogador": 0,
+            "mensagem": "Mensagem recebida do servidor: 1. Mostrar tabuleiro\n2. Enviar solucao\n3. Sair\n"
+        },
+        {
+            "timestamp": "24-10-2024 16:26:53",
+            "idJogo": 0,
+            "idJogador": 0,
+            "mensagem": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "24-10-2024 16:26:53",
+            "idJogo": 0,
+            "idJogador": 0,
+            "mensagem": "Mensagem enviada para o servidor: menu"
+        },
+        {
+            "timestamp": "24-10-2024 16:26:53",
+            "idJogo": 0,
+            "idJogador": 0,
+            "mensagem": "Mensagem recebida do servidor: 1. Mostrar tabuleiro\n2. Enviar solucao\n3. Sair\n"
+        },
+        {
+            "timestamp": "24-10-2024 16:28:20",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "24-10-2024 16:28:20",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Mensagem enviada para o servidor: menu"
+        },
+        {
+            "timestamp": "24-10-2024 16:28:20",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Mensagem recebida do servidor: 1. Mostrar tabuleiro\n2. Enviar solucao\n3. Sair\n"
+        },
+        {
+            "timestamp": "24-10-2024 16:29:03",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "24-10-2024 16:29:03",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Mensagem enviada para o servidor: menu"
+        },
+        {
+            "timestamp": "24-10-2024 16:29:03",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Mensagem recebida do servidor: 1. Mostrar tabuleiro\n2. Enviar solucao\n3. Sair\n"
+        },
+        {
+            "timestamp": "24-10-2024 16:29:18",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "24-10-2024 16:29:18",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Mensagem enviada para o servidor: menu"
+        },
+        {
+            "timestamp": "24-10-2024 16:29:18",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Mensagem recebida do servidor: 1. Mostrar tabuleiro\n2. Enviar solucao\n3. Sair\n"
+        }
+    ]
+}

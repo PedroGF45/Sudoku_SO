@@ -31,13 +31,19 @@ clientConfig getClientConfig(char *configPath) {
     if (fgets(line, sizeof(line), file) != NULL) {
         // Remover a nova linha, se houver
         line[strcspn(line, "\n")] = 0;
-        sscanf(line, "PORT = %s", config.serverPort);
+        sscanf(line, "SERVER_PORT = %d", &config.serverPort);
     }
 
     if (fgets(line, sizeof(line), file) != NULL) {
         // Remover a nova linha, se houver
         line[strcspn(line, "\n")] = 0;
-        sscanf(line, "CLIENT_ID = %s", config.clientID);
+        sscanf(line, "SERVER_HOSTNAME = %s", config.serverHostName);
+    }
+
+    if (fgets(line, sizeof(line), file) != NULL) {
+        // Remover a nova linha, se houver
+        line[strcspn(line, "\n")] = 0;
+        sscanf(line, "CLIENT_ID = %d", &config.clientID);
     }
 
     if (fgets(line, sizeof(line), file) != NULL) {
