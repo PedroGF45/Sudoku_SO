@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
     // Carrega a configuracao do servidor
     ServerConfig config = getServerConfig(argv[1]);
 
-    // inicializa variaveis para socket
+    // Inicializa variáveis para socket
     int sockfd, newSockfd;
     struct sockaddr_in serv_addr;
 
@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
     if (bind(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
         err_dump(config.logPath, 0, 0, " : can't bind local address", EVENT_CONNECTION_SERVER_ERROR);
     }
-		
+    
     // Ouvir o socket
     listen(sockfd, 1);
 
@@ -53,112 +53,121 @@ int main(int argc, char *argv[]) {
         // Print conexao estabelecida
         printf("Conexao estabelecida com um cliente\n");
 
-        memset(buffer, 0, sizeof(buffer));
-        memset(logMessage, 0, sizeof(logMessage));
-
-        // Receber mensagem do cliente
-        if (recv(newSockfd, buffer, sizeof(buffer), 0) < 0) {
-            // Erro ao receber mensagem
-            err_dump(config.logPath, 0, 0, " : read error", EVENT_MESSAGE_SERVER_NOT_RECEIVED);
-        }
-
-        // Print mensagem recebida
-        printf("Mensagem recebida do cliente:\n %s\n", buffer);
-
-        // Escrever no log
-        snprintf(logMessage, sizeof(logMessage), "%s: %s", EVENT_MESSAGE_SERVER_RECEIVED, buffer);
-        writeLogJSON(config.logPath, 0, 0, logMessage);
-
-        // se mensagem for "menu" envia o menu
-        if (strcmp(buffer, "menu") == 0) {
-
-            if (send(newSockfd, MENU_INTERFACE, strlen(MENU_INTERFACE), 0) < 0) {
-                snprintf(logMessage, sizeof(logMessage), "%s: %s", EVENT_MESSAGE_SERVER_NOT_SENT, MENU_INTERFACE);
-                err_dump(config.logPath, 0, 0, " : write error - menu", EVENT_MESSAGE_SERVER_NOT_SENT);
-            }
-
-            // Escrever no log
-            snprintf(logMessage, sizeof(logMessage), "%s: %s", EVENT_MESSAGE_SERVER_SENT, MENU_INTERFACE);
-            writeLogJSON(config.logPath, 0, 0, logMessage);
-        }
-
-        // Define idJogo e idJogador
-        /*Aqui depois temos de definir valores incrementados para cada jogo e jogador
-        ou um random para atribuir um tabuleiro aleatorio ao jogador*/
-        int idJogo = 2;
-        int idJogador = 2;
-
-        // Load ao jogo
+        // Carregar o jogo do ficheiro JSON
+        int idJogo = 2; // Pode ser parametrizado conforme necessidade
+        int idJogador = 1; // Pode ser parametrizado conforme necessidade
         Jogo jogo = carregaJogo(config, idJogo, idJogador);
 
-        // Mostra o tabuleiro
-        printf("Tabuleiro inicial:\n");
-        mostraTabuleiro(config.logPath, jogo, idJogador);
-
-        // Perguntar pela solução linha por linha
-        int linhaInserida[9];
-        // Armazena cada linha da solução como string
-        char linha[10];  
-        // Armazena os valores inseridos pelo utilizador
-        char valoresInseridos[50];  
+        // Enviar tabuleiro ao cliente em formato JSON
+        JSON_Value *root_value = json_value_init_object();
+        JSON_Object *root_object = json_value_get_object(root_value);
+        json_object_set_number(root_object, "id", jogo.id);
+        JSON_Value *tabuleiro_value = json_value_init_array();
+        JSON_Array *tabuleiro_array = json_value_get_array(tabuleiro_value);
 
         for (int i = 0; i < 9; i++) {
-            // Controla se a linha esta correta
+            JSON_Value *linha_value = json_value_init_array();
+            JSON_Array *linha_array = json_value_get_array(linha_value);
+            for (int j = 0; j < 9; j++) {
+                json_array_append_number(linha_array, jogo.tabuleiro[i][j]);
+            }
+            json_array_append_value(tabuleiro_array, linha_value);
+        }
+
+        json_object_set_value(root_object, "tabuleiro", tabuleiro_value);
+        char *serialized_string = json_serialize_to_string(root_value);
+        send(newSockfd, serialized_string, strlen(serialized_string), 0);
+        json_free_serialized_string(serialized_string);
+        json_value_free(root_value);
+
+        // Receber e validar as linhas do cliente
+        for (int i = 0; i < 9; i++) {
             int linhaCorreta = 0;
-
             while (!linhaCorreta) {
-                printf("Insira valores para a linha %d do tabuleiro (exactamente 9 digitos):\n", i + 1);
-                // Ler a linha como uma string de no máximo 9 dígitos
-                scanf("%9s", linha); 
+                memset(buffer, 0, sizeof(buffer));
 
-                // Limpa a string de valores inseridos
-                strcpy(valoresInseridos, "");  
-
-                // Verifica o tamanho da entrada do utilizador
-                int len = strlen(linha);
-                if (len != 9) {
-                    printf("A linha deve conter exatamente 9 digitos.\n");
-                    // Pede novamente a linha se nao tiver 9 digitos
-                    continue;
+                // Receber linha do cliente
+                int n = recv(newSockfd, buffer, sizeof(buffer), 0);
+                if (n <= 0) {
+                    printf("Conexao terminada com o cliente\n");
+                    close(newSockfd);
+                    break;
                 }
 
-                // Preenche a linhaInserida e prepara valoresInseridos para o log
+                printf("Verificando linha %d...\n", i + 1);
+                printf("Linha inserida: ");
                 for (int j = 0; j < 9; j++) {
-                    if (linha[j] >= '0' && linha[j] <= '9') {
-                        // Converte char para int
-                        linhaInserida[j] = linha[j] - '0';  
-                    } else {
-                        linhaInserida[j] = 0;  // Coloca 0 para caracteres não numéricos
+                    printf("%c ", buffer[j]);
+                }
+                printf("\n");
+
+                // Verificar se a linha recebida tem exatamente 9 digitos
+                if (strlen(buffer) != 9) {
+                    strcpy(buffer, "incorreto: A linha deve ter exatamente 9 digitos");
+                    send(newSockfd, buffer, strlen(buffer), 0);
+                    // Enviar o tabuleiro mesmo se a linha estiver incorreta
+                    goto enviar_tabuleiro;
+                }
+
+                // Converte a linha recebida em valores inteiros
+                int linhaInserida[9];
+                int inputValido = 1;
+                for (int j = 0; j < 9; j++) {
+                    if (buffer[j] < '0' || buffer[j] > '9') {
+                        inputValido = 0;
+                        break;
                     }
-
-                    // Adicionar o valor inserido a string
-                    char valor[3];
-                    // Preserva o caractere original
-                    sprintf(valor, "%c", linha[j]);  
-                    strcat(valoresInseridos, valor);
-                    if (j < 8) strcat(valoresInseridos, " ");
+                    linhaInserida[j] = buffer[j] - '0';
                 }
 
-                // Verifica a linha inserida
-                linhaCorreta = verificaLinha(config.logPath, valoresInseridos, &jogo, linhaInserida, i, idJogador);
+                // Se a linha contiver caracteres inválidos
+                if (!inputValido) {
+                    strcpy(buffer, "incorreto: A linha contem caracteres nao numericos");
+                    send(newSockfd, buffer, strlen(buffer), 0);
+                    // Enviar o tabuleiro mesmo se a linha estiver incorreta
+                    goto enviar_tabuleiro;
+                }
 
-                char logMessage[100];
-                // Escreve no log se a linha está correta ou errada
-                if (!linhaCorreta) {
-                    printf("A linha %d contém erros ou esta incompleta.\n", i + 1);
-                    sprintf(logMessage, "%s errada para a linha %d: %s", EVENT_SOLUTION_WRONG, i + 1, valoresInseridos);
+                // Verificar a linha recebida com a função verificaLinha
+                linhaCorreta = verificaLinha(config.logPath, buffer, &jogo, linhaInserida, i, idJogador);
+
+                // Enviar resposta ao cliente
+                if (linhaCorreta) {
+                    strcpy(buffer, "correto");
                 } else {
-                    sprintf(logMessage, "%s para a linha %d: %s", EVENT_SOLUTION_CORRECT, i + 1, valoresInseridos);
+                    strcpy(buffer, "incorreto: Valores incorretos na linha, tente novamente");
                 }
-                writeLogJSON(config.logPath, idJogo, idJogador, logMessage);  // Log com a mensagem atualizada
 
-                // Mostra o tabuleiro atualizado
-                printf("Tabuleiro atualizado:\n");
-                mostraTabuleiro(config.logPath, jogo, idJogador);
+                send(newSockfd, buffer, strlen(buffer), 0);
+
+                // Enviar o tabuleiro após a interação
+                enviar_tabuleiro:
+
+                // Enviar o tabuleiro atualizado ao cliente
+                JSON_Value *updated_root_value = json_value_init_object();
+                JSON_Object *updated_root_object = json_value_get_object(updated_root_value);
+                json_object_set_number(updated_root_object, "id", jogo.id);
+                JSON_Value *updated_tabuleiro_value = json_value_init_array();
+                JSON_Array *updated_tabuleiro_array = json_value_get_array(updated_tabuleiro_value);
+
+                for (int k = 0; k < 9; k++) {
+                    JSON_Value *linha_value = json_value_init_array();
+                    JSON_Array *linha_array = json_value_get_array(linha_value);
+                    for (int j = 0; j < 9; j++) {
+                        json_array_append_number(linha_array, jogo.tabuleiro[k][j]);
+                    }
+                    json_array_append_value(updated_tabuleiro_array, linha_value);
+                }
+
+                json_object_set_value(updated_root_object, "tabuleiro", updated_tabuleiro_value);
+                char *updated_serialized_string = json_serialize_to_string(updated_root_value);
+                send(newSockfd, updated_serialized_string, strlen(updated_serialized_string), 0);
+                json_free_serialized_string(updated_serialized_string);
+                json_value_free(updated_root_value);
             }
         }
 
-        // Fechar o socket
+        // Fechar o socket do cliente
         close(newSockfd);
     }
 

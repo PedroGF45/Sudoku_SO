@@ -120,10 +120,22 @@ int verificaLinha(char * logFileName, char * solucaoEnviada, Jogo *jogo, int lin
 
     int correta = 1;
 
-    // Escreve no log que a solucaoo foi recebida no servidor
+    // Escreve no log que a solucao foi recebida no servidor
     char logMessage[100];
     sprintf(logMessage, "%s para a linha %d: %s", EVENT_SOLUTION_SENT, numeroLinha + 1, solucaoEnviada);
     writeLogJSON(logFileName, jogo->id, idJogador, logMessage);
+
+    // Adiciona log adicional para depuração
+    printf("Verificando linha %d...\n", numeroLinha + 1);
+    printf("Linha inserida: ");
+    for (int j = 0; j < 9; j++) {
+        printf("%d ", linhaInserida[j]);
+    }
+    printf("\nSolucao esperada: ");
+    for (int j = 0; j < 9; j++) {
+        printf("%d ", jogo->solucao[numeroLinha][j]);
+    }
+    printf("\n");
 
     for (int j = 0; j < 9; j++) {
         // Verifica se a posicao no tabuleiro original ja tem um valor fixo

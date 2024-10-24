@@ -155,6 +155,48 @@
             "idJogo": 0,
             "idJogador": 789,
             "mensagem": "Mensagem recebida do servidor: 1. Mostrar tabuleiro\n2. Enviar solucao\n3. Sair\n"
+        },
+        {
+            "timestamp": "25-10-2024 00:18:07",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Erro ao estabelecer conexao com o servidor:  : can't connect to server"
+        },
+        {
+            "timestamp": "25-10-2024 00:18:09",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Erro ao estabelecer conexao com o servidor:  : can't connect to server"
+        },
+        {
+            "timestamp": "25-10-2024 00:18:10",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Erro ao estabelecer conexao com o servidor:  : can't connect to server"
+        },
+        {
+            "timestamp": "25-10-2024 00:18:12",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Erro ao estabelecer conexao com o servidor:  : can't connect to server"
+        },
+        {
+            "timestamp": "25-10-2024 00:18:13",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Erro ao estabelecer conexao com o servidor:  : can't connect to server"
+        },
+        {
+            "timestamp": "25-10-2024 00:18:14",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Erro ao estabelecer conexao com o servidor:  : can't connect to server"
+        },
+        {
+            "timestamp": "25-10-2024 00:20:43",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Conexao estabelecida com o servidor"
         }
     ]
 }
