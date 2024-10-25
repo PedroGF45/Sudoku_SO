@@ -227,6 +227,48 @@
             "idJogo": 2,
             "idJogador": 2,
             "mensagem": "Tabuleiro do jogo mostrado"
+        },
+        {
+            "timestamp": "25-10-2024 00:19:57",
+            "idJogo": 0,
+            "idJogador": 0,
+            "mensagem": "Server inicializado"
+        },
+        {
+            "timestamp": "25-10-2024 00:20:43",
+            "idJogo": 2,
+            "idJogador": 1,
+            "mensagem": "Jogo carregado"
+        },
+        {
+            "timestamp": "25-10-2024 00:20:45",
+            "idJogo": 2,
+            "idJogador": 1,
+            "mensagem": "Solucao recebida para a linha 1: 123123123"
+        },
+        {
+            "timestamp": "25-10-2024 00:20:47",
+            "idJogo": 2,
+            "idJogador": 1,
+            "mensagem": "Solucao recebida para a linha 1: 123123123"
+        },
+        {
+            "timestamp": "25-10-2024 00:20:48",
+            "idJogo": 2,
+            "idJogador": 1,
+            "mensagem": "Solucao recebida para a linha 1: 123123123"
+        },
+        {
+            "timestamp": "25-10-2024 00:20:50",
+            "idJogo": 2,
+            "idJogador": 1,
+            "mensagem": "Solucao recebida para a linha 1: 123123123"
+        },
+        {
+            "timestamp": "25-10-2024 00:20:51",
+            "idJogo": 2,
+            "idJogador": 1,
+            "mensagem": "Solucao recebida para a linha 1: 123123123"
         }
     ]
 }
