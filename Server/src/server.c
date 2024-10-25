@@ -58,6 +58,9 @@ int main(int argc, char *argv[]) {
                     break;
                 }
 
+                // **Adicionei print para verificar a linha recebida**
+                printf("Linha recebida do cliente: %s\n", buffer); 
+
                 printf("Verificando linha %d...\n", i + 1);
 
                 // Validar linha

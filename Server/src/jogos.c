@@ -60,6 +60,7 @@ Jogo carregaJogo(ServerConfig config, int idJogo, int idJogador) {
                     jogo.solucao[i][j] = (int)json_array_get_number(solucao_row, j);
                 }
             }
+      
 
             // game has been loaded
             writeLogJSON(config.logPath, idJogo, idJogador, EVENT_GAME_LOAD);
@@ -115,45 +116,32 @@ void mostraTabuleiro(char * logFileName, Jogo jogo, int idJogador) {
     writeLogJSON(logFileName, jogo.id, idJogador, EVENT_BOARD_SHOW);
 }
 
-// Funcao para verificar uma linha e corrigir valores incorretos
 int verificaLinha(char * logFileName, char * solucaoEnviada, Jogo *jogo, int linhaInserida[9], int numeroLinha, int idJogador) {
-
     int correta = 1;
-
-    // Escreve no log que a solucao foi recebida no servidor
     char logMessage[100];
+    
     sprintf(logMessage, "%s para a linha %d: %s", EVENT_SOLUTION_SENT, numeroLinha + 1, solucaoEnviada);
     writeLogJSON(logFileName, jogo->id, idJogador, logMessage);
-
-    // Adiciona log adicional para depuração
-    printf("Verificando linha %d...\n", numeroLinha + 1);
-    printf("Linha inserida: ");
+    
     for (int j = 0; j < 9; j++) {
-        printf("%d ", linhaInserida[j]);
-    }
-    printf("\nSolucao esperada: ");
-    for (int j = 0; j < 9; j++) {
-        printf("%d ", jogo->solucao[numeroLinha][j]);
-    }
-    printf("\n");
-
-    for (int j = 0; j < 9; j++) {
-        // Verifica se a posicao no tabuleiro original ja tem um valor fixo
         if (jogo->tabuleiro[numeroLinha][j] != 0) {
-            continue;  // Nao vai alterar os valores que ja la estao
+            continue;  // Ignora valores fixos
         }
-        
-        // Se a posicao esta vazia no tabuleiro original, faz a verificacao
+
         if (linhaInserida[j] == jogo->solucao[numeroLinha][j]) {
-            // O valor esta correto, inserir no tabuleiro
             jogo->tabuleiro[numeroLinha][j] = linhaInserida[j];
-            
         } else {
-            // O valor esta errado, substituí-lo por 0 no tabuleiro
-            jogo->tabuleiro[numeroLinha][j] = 0;
-            correta = 0;  // A linha nao esta correta
+            correta = 0;
+            printf("Erro na posição %d: esperado %d, recebido %d\n", j, jogo->solucao[numeroLinha][j], linhaInserida[j]);
         }
+    }
+
+    if (correta) {
+        writeLogJSON(logFileName, jogo->id, idJogador, "Linha validada como correta");
+    } else {
+        writeLogJSON(logFileName, jogo->id, idJogador, "Linha invalidada, tentar novamente");
     }
 
     return correta;
 }
+

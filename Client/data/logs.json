@@ -197,6 +197,336 @@
             "idJogo": 0,
             "idJogador": 789,
             "mensagem": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "25-10-2024 16:47:55",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "25-10-2024 16:51:31",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "25-10-2024 16:51:46",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Linha invalidada, tentar novamente"
+        },
+        {
+            "timestamp": "25-10-2024 16:52:15",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "25-10-2024 16:52:19",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Linha validada corretamente"
+        },
+        {
+            "timestamp": "25-10-2024 16:52:32",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Linha validada corretamente"
+        },
+        {
+            "timestamp": "25-10-2024 16:52:44",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Linha validada corretamente"
+        },
+        {
+            "timestamp": "25-10-2024 16:52:57",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Linha validada corretamente"
+        },
+        {
+            "timestamp": "25-10-2024 16:53:35",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Linha validada corretamente"
+        },
+        {
+            "timestamp": "25-10-2024 16:53:45",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Linha validada corretamente"
+        },
+        {
+            "timestamp": "25-10-2024 16:53:55",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Linha validada corretamente"
+        },
+        {
+            "timestamp": "25-10-2024 16:54:03",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Linha validada corretamente"
+        },
+        {
+            "timestamp": "25-10-2024 16:54:11",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Linha validada corretamente"
+        },
+        {
+            "timestamp": "25-10-2024 16:56:25",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "25-10-2024 16:56:30",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Linha validada corretamente"
+        },
+        {
+            "timestamp": "25-10-2024 16:57:02",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "25-10-2024 16:57:07",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Linha enviada ao servidor"
+        },
+        {
+            "timestamp": "25-10-2024 16:57:07",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Linha invalidada, tentar novamente"
+        },
+        {
+            "timestamp": "25-10-2024 16:57:17",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Linha enviada ao servidor"
+        },
+        {
+            "timestamp": "25-10-2024 16:57:17",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Linha invalidada, tentar novamente"
+        },
+        {
+            "timestamp": "25-10-2024 16:57:29",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "25-10-2024 16:57:42",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Linha enviada ao servidor"
+        },
+        {
+            "timestamp": "25-10-2024 16:57:42",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Linha validada corretamente"
+        },
+        {
+            "timestamp": "25-10-2024 16:58:48",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "25-10-2024 16:58:54",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Linha enviada ao servidor"
+        },
+        {
+            "timestamp": "25-10-2024 16:58:54",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Linha validada corretamente"
+        },
+        {
+            "timestamp": "25-10-2024 16:59:02",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Linha enviada ao servidor"
+        },
+        {
+            "timestamp": "25-10-2024 16:59:03",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Linha invalidada, tentar novamente"
+        },
+        {
+            "timestamp": "25-10-2024 16:59:12",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "25-10-2024 16:59:17",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Linha enviada ao servidor"
+        },
+        {
+            "timestamp": "25-10-2024 16:59:17",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Linha invalidada, tentar novamente"
+        },
+        {
+            "timestamp": "25-10-2024 16:59:34",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "25-10-2024 16:59:39",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Linha enviada ao servidor"
+        },
+        {
+            "timestamp": "25-10-2024 16:59:39",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Linha invalidada, tentar novamente"
+        },
+        {
+            "timestamp": "25-10-2024 17:00:17",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "25-10-2024 17:00:21",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Linha enviada ao servidor"
+        },
+        {
+            "timestamp": "25-10-2024 17:00:21",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Linha validada corretamente"
+        },
+        {
+            "timestamp": "25-10-2024 17:00:41",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Linha enviada ao servidor"
+        },
+        {
+            "timestamp": "25-10-2024 17:00:41",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Linha validada corretamente"
+        },
+        {
+            "timestamp": "25-10-2024 17:00:48",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Linha enviada ao servidor"
+        },
+        {
+            "timestamp": "25-10-2024 17:00:48",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Linha validada corretamente"
+        },
+        {
+            "timestamp": "25-10-2024 17:00:57",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Linha enviada ao servidor"
+        },
+        {
+            "timestamp": "25-10-2024 17:00:57",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Linha validada corretamente"
+        },
+        {
+            "timestamp": "25-10-2024 17:01:07",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Linha enviada ao servidor"
+        },
+        {
+            "timestamp": "25-10-2024 17:01:07",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Linha invalidada, tentar novamente"
+        },
+        {
+            "timestamp": "25-10-2024 17:04:57",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "25-10-2024 17:13:45",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "25-10-2024 17:21:06",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "25-10-2024 17:30:14",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "25-10-2024 17:38:18",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "25-10-2024 17:39:19",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "25-10-2024 17:44:31",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "25-10-2024 17:50:55",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "25-10-2024 17:57:20",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "25-10-2024 18:09:46",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Conexao estabelecida com o servidor"
         }
     ]
 }
