@@ -1,0 +1,1048 @@
+{
+    "logs": [
+        {
+            "timestamp": "28-10-2024 17:30:26",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 20:19:11",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 20:31:55",
+            "gameID": 2,
+            "playerID": 1,
+            "message": "Jogo carregado"
+        },
+        {
+            "timestamp": "28-10-2024 20:32:38",
+            "gameID": 2,
+            "playerID": 1,
+            "message": "Jogo carregado"
+        },
+        {
+            "timestamp": "28-10-2024 20:32:46",
+            "gameID": 2,
+            "playerID": 1,
+            "message": "Jogo carregado"
+        },
+        {
+            "timestamp": "28-10-2024 20:33:21",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 20:33:21",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Erro na conexao do servidor: can't bind local address"
+        },
+        {
+            "timestamp": "28-10-2024 20:33:51",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 20:33:51",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Erro na conexao do servidor: can't bind local address"
+        },
+        {
+            "timestamp": "28-10-2024 20:36:12",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 20:36:19",
+            "gameID": 2,
+            "playerID": 1,
+            "message": "Jogo carregado"
+        },
+        {
+            "timestamp": "28-10-2024 20:36:37",
+            "gameID": 2,
+            "playerID": 1,
+            "message": "Jogo carregado"
+        },
+        {
+            "timestamp": "28-10-2024 20:36:53",
+            "gameID": 2,
+            "playerID": 1,
+            "message": "Jogo carregado"
+        },
+        {
+            "timestamp": "28-10-2024 20:40:22",
+            "gameID": 2,
+            "playerID": 1,
+            "message": "Jogo carregado"
+        },
+        {
+            "timestamp": "28-10-2024 20:40:27",
+            "gameID": 2,
+            "playerID": 1,
+            "message": "Jogo carregado"
+        },
+        {
+            "timestamp": "28-10-2024 20:55:00",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 20:55:46",
+            "gameID": 2,
+            "playerID": 1,
+            "message": "Jogo carregado"
+        },
+        {
+            "timestamp": "28-10-2024 20:55:49",
+            "gameID": 2,
+            "playerID": 1,
+            "message": "Erro ao receber mensagem do cliente: connection closed with the server"
+        },
+        {
+            "timestamp": "28-10-2024 20:55:49",
+            "gameID": 2,
+            "playerID": 1,
+            "message": "Erro ao receber mensagem do cliente: connection closed with the server"
+        },
+        {
+            "timestamp": "28-10-2024 20:55:49",
+            "gameID": 2,
+            "playerID": 1,
+            "message": "Erro ao receber mensagem do cliente: connection closed with the server"
+        },
+        {
+            "timestamp": "28-10-2024 20:55:49",
+            "gameID": 2,
+            "playerID": 1,
+            "message": "Erro ao receber mensagem do cliente: connection closed with the server"
+        },
+        {
+            "timestamp": "28-10-2024 20:55:49",
+            "gameID": 2,
+            "playerID": 1,
+            "message": "Erro ao receber mensagem do cliente: connection closed with the server"
+        },
+        {
+            "timestamp": "28-10-2024 20:55:49",
+            "gameID": 2,
+            "playerID": 1,
+            "message": "Erro ao receber mensagem do cliente: connection closed with the server"
+        },
+        {
+            "timestamp": "28-10-2024 20:55:49",
+            "gameID": 2,
+            "playerID": 1,
+            "message": "Erro ao receber mensagem do cliente: connection closed with the server"
+        },
+        {
+            "timestamp": "28-10-2024 20:55:49",
+            "gameID": 2,
+            "playerID": 1,
+            "message": "Erro ao receber mensagem do cliente: connection closed with the server"
+        },
+        {
+            "timestamp": "28-10-2024 20:55:49",
+            "gameID": 2,
+            "playerID": 1,
+            "message": "Erro ao receber mensagem do cliente: connection closed with the server"
+        },
+        {
+            "timestamp": "28-10-2024 20:56:51",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 20:56:53",
+            "gameID": 2,
+            "playerID": 1,
+            "message": "Jogo carregado"
+        },
+        {
+            "timestamp": "28-10-2024 20:56:55",
+            "gameID": 2,
+            "playerID": 1,
+            "message": "Erro ao receber mensagem do cliente: connection closed with the server"
+        },
+        {
+            "timestamp": "28-10-2024 20:58:06",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 20:58:08",
+            "gameID": 2,
+            "playerID": 1,
+            "message": "Jogo carregado"
+        },
+        {
+            "timestamp": "28-10-2024 20:58:11",
+            "gameID": 2,
+            "playerID": 1,
+            "message": "Erro ao receber mensagem do cliente: connection closed with the server"
+        },
+        {
+            "timestamp": "28-10-2024 20:59:48",
+            "gameID": 2,
+            "playerID": 1,
+            "message": "Jogo carregado"
+        },
+        {
+            "timestamp": "28-10-2024 21:00:54",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 21:00:54",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Erro na conexao do servidor: can't bind local address"
+        },
+        {
+            "timestamp": "28-10-2024 21:00:59",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 21:00:59",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Erro na conexao do servidor: can't bind local address"
+        },
+        {
+            "timestamp": "28-10-2024 21:01:55",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 21:01:57",
+            "gameID": 2,
+            "playerID": 1,
+            "message": "Jogo carregado"
+        },
+        {
+            "timestamp": "28-10-2024 21:02:02",
+            "gameID": 2,
+            "playerID": 1,
+            "message": "Conexao com o servidor fechada: connection closed with the server"
+        },
+        {
+            "timestamp": "28-10-2024 21:20:50",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 21:31:47",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 21:31:58",
+            "gameID": 1,
+            "playerID": 789,
+            "message": "Jogo carregado"
+        },
+        {
+            "timestamp": "28-10-2024 21:32:17",
+            "gameID": 1,
+            "playerID": 789,
+            "message": "Conexao com o servidor fechada"
+        },
+        {
+            "timestamp": "28-10-2024 21:34:14",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 21:34:19",
+            "gameID": 1,
+            "playerID": 789,
+            "message": "Jogo carregado"
+        },
+        {
+            "timestamp": "28-10-2024 21:35:57",
+            "gameID": 1,
+            "playerID": 789,
+            "message": "Conexao com o servidor fechada"
+        },
+        {
+            "timestamp": "28-10-2024 21:36:14",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 21:36:19",
+            "gameID": 1,
+            "playerID": 789,
+            "message": "Jogo carregado"
+        },
+        {
+            "timestamp": "28-10-2024 21:36:45",
+            "gameID": 1,
+            "playerID": 789,
+            "message": "Conexao com o servidor fechada"
+        },
+        {
+            "timestamp": "28-10-2024 21:36:57",
+            "gameID": 1,
+            "playerID": 789,
+            "message": "Jogo carregado"
+        },
+        {
+            "timestamp": "28-10-2024 21:38:19",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 21:38:28",
+            "gameID": 1,
+            "playerID": 789,
+            "message": "Jogo carregado"
+        },
+        {
+            "timestamp": "28-10-2024 21:39:06",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 21:39:06",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Erro na conexao do servidor: can't bind local address"
+        },
+        {
+            "timestamp": "28-10-2024 21:39:37",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 21:39:37",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Erro na conexao do servidor: can't bind local address"
+        },
+        {
+            "timestamp": "28-10-2024 21:39:38",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 21:39:38",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Erro na conexao do servidor: can't bind local address"
+        },
+        {
+            "timestamp": "28-10-2024 21:39:39",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 21:39:39",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Erro na conexao do servidor: can't bind local address"
+        },
+        {
+            "timestamp": "28-10-2024 21:39:39",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 21:39:39",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Erro na conexao do servidor: can't bind local address"
+        },
+        {
+            "timestamp": "28-10-2024 21:39:40",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 21:39:40",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Erro na conexao do servidor: can't bind local address"
+        },
+        {
+            "timestamp": "28-10-2024 21:39:41",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 21:39:41",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Erro na conexao do servidor: can't bind local address"
+        },
+        {
+            "timestamp": "28-10-2024 21:39:44",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 21:39:44",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Erro na conexao do servidor: can't bind local address"
+        },
+        {
+            "timestamp": "28-10-2024 21:39:54",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 21:39:54",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Erro na conexao do servidor: can't bind local address"
+        },
+        {
+            "timestamp": "28-10-2024 21:39:59",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 21:39:59",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Erro na conexao do servidor: can't bind local address"
+        },
+        {
+            "timestamp": "28-10-2024 21:40:43",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 21:40:48",
+            "gameID": 1,
+            "playerID": 789,
+            "message": "Jogo carregado"
+        },
+        {
+            "timestamp": "28-10-2024 21:41:13",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 21:41:13",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Erro na conexao do servidor: can't bind local address"
+        },
+        {
+            "timestamp": "28-10-2024 21:41:30",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 21:41:30",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Erro na conexao do servidor: can't bind local address"
+        },
+        {
+            "timestamp": "28-10-2024 21:42:00",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 21:42:00",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Erro na conexao do servidor: can't bind local address"
+        },
+        {
+            "timestamp": "28-10-2024 21:42:17",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 21:42:24",
+            "gameID": 1,
+            "playerID": 789,
+            "message": "Jogo carregado"
+        },
+        {
+            "timestamp": "28-10-2024 21:43:00",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 21:43:06",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Jogo carregado"
+        },
+        {
+            "timestamp": "28-10-2024 21:44:25",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Conexao com o servidor fechada"
+        },
+        {
+            "timestamp": "28-10-2024 21:44:30",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 21:44:37",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Jogo carregado"
+        },
+        {
+            "timestamp": "28-10-2024 21:48:15",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Conexao com o servidor fechada"
+        },
+        {
+            "timestamp": "28-10-2024 21:48:43",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 21:48:48",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Jogo carregado"
+        },
+        {
+            "timestamp": "28-10-2024 21:48:59",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Conexao com o servidor fechada"
+        },
+        {
+            "timestamp": "28-10-2024 21:49:04",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 21:49:08",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Jogo carregado"
+        },
+        {
+            "timestamp": "28-10-2024 21:49:11",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Conexao com o servidor fechada"
+        },
+        {
+            "timestamp": "28-10-2024 21:49:17",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 21:49:21",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Jogo carregado"
+        },
+        {
+            "timestamp": "28-10-2024 21:49:31",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 21:49:31",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Erro na conexao do servidor: can't bind local address"
+        },
+        {
+            "timestamp": "28-10-2024 21:49:49",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 21:49:49",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Erro na conexao do servidor: can't bind local address"
+        },
+        {
+            "timestamp": "28-10-2024 21:50:01",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 21:50:01",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Erro na conexao do servidor: can't bind local address"
+        },
+        {
+            "timestamp": "28-10-2024 21:51:19",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 21:51:23",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Jogo carregado"
+        },
+        {
+            "timestamp": "28-10-2024 21:51:34",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Conexao com o servidor fechada"
+        },
+        {
+            "timestamp": "28-10-2024 21:51:37",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 21:51:41",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Jogo carregado"
+        },
+        {
+            "timestamp": "28-10-2024 21:51:55",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Conexao com o servidor fechada"
+        },
+        {
+            "timestamp": "28-10-2024 21:52:37",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 21:52:57",
+            "gameID": 1662593744,
+            "playerID": 789,
+            "message": "Conexao com o servidor fechada"
+        },
+        {
+            "timestamp": "28-10-2024 21:53:19",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 21:53:24",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Jogo carregado"
+        },
+        {
+            "timestamp": "28-10-2024 21:53:36",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Conexao com o servidor fechada"
+        },
+        {
+            "timestamp": "28-10-2024 21:54:22",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 21:54:25",
+            "gameID": 1,
+            "playerID": 789,
+            "message": "Jogo carregado"
+        },
+        {
+            "timestamp": "28-10-2024 21:54:38",
+            "gameID": 1,
+            "playerID": 789,
+            "message": "Conexao com o servidor fechada"
+        },
+        {
+            "timestamp": "28-10-2024 21:55:06",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 21:55:12",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Jogo carregado"
+        },
+        {
+            "timestamp": "28-10-2024 21:55:14",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Conexao com o servidor fechada"
+        },
+        {
+            "timestamp": "28-10-2024 21:55:19",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 21:55:24",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Jogo carregado"
+        },
+        {
+            "timestamp": "28-10-2024 21:55:25",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Conexao com o servidor fechada"
+        },
+        {
+            "timestamp": "28-10-2024 21:55:29",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 21:55:34",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Jogo carregado"
+        },
+        {
+            "timestamp": "28-10-2024 21:55:36",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Conexao com o servidor fechada"
+        },
+        {
+            "timestamp": "28-10-2024 21:55:39",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 21:55:43",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Jogo carregado"
+        },
+        {
+            "timestamp": "28-10-2024 21:55:45",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Conexao com o servidor fechada"
+        },
+        {
+            "timestamp": "28-10-2024 21:55:53",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 21:55:58",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Jogo carregado"
+        },
+        {
+            "timestamp": "28-10-2024 21:56:01",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Conexao com o servidor fechada"
+        },
+        {
+            "timestamp": "28-10-2024 21:56:27",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 21:56:32",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Jogo carregado"
+        },
+        {
+            "timestamp": "28-10-2024 21:56:34",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Conexao com o servidor fechada"
+        },
+        {
+            "timestamp": "28-10-2024 21:57:03",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Jogo carregado"
+        },
+        {
+            "timestamp": "28-10-2024 21:57:23",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Solucao recebida para a linha 1: 918567312"
+        },
+        {
+            "timestamp": "28-10-2024 21:57:23",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Linha invalidada, tentar novamente"
+        },
+        {
+            "timestamp": "28-10-2024 21:57:47",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Solucao recebida para a linha 1: 918567423"
+        },
+        {
+            "timestamp": "28-10-2024 21:57:47",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Linha validada como correct"
+        },
+        {
+            "timestamp": "28-10-2024 22:05:25",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "28-10-2024 22:05:27",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao estabelecida com o cliente"
+        },
+        {
+            "timestamp": "28-10-2024 22:05:31",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Jogo carregado"
+        },
+        {
+            "timestamp": "28-10-2024 22:05:52",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Solucao recebida para a linha 1: 12"
+        },
+        {
+            "timestamp": "28-10-2024 22:05:52",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Linha invalidada, tentar novamente"
+        },
+        {
+            "timestamp": "28-10-2024 22:06:27",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Solucao recebida para a linha 1: 912222222"
+        },
+        {
+            "timestamp": "28-10-2024 22:06:27",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Linha invalidada, tentar novamente"
+        },
+        {
+            "timestamp": "28-10-2024 22:06:34",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Solucao recebida para a linha 1: 918567423"
+        },
+        {
+            "timestamp": "28-10-2024 22:06:34",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Linha validada como correct"
+        },
+        {
+            "timestamp": "28-10-2024 22:06:43",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Solucao recebida para a linha 2: 257483916"
+        },
+        {
+            "timestamp": "28-10-2024 22:06:43",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Linha validada como correct"
+        },
+        {
+            "timestamp": "28-10-2024 22:06:46",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Solucao recebida para a linha 3: 643129587"
+        },
+        {
+            "timestamp": "28-10-2024 22:06:46",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Linha validada como correct"
+        },
+        {
+            "timestamp": "28-10-2024 22:06:54",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Solucao recebida para a linha 4: 592614378"
+        },
+        {
+            "timestamp": "28-10-2024 22:06:54",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Linha validada como correct"
+        },
+        {
+            "timestamp": "28-10-2024 22:06:58",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Solucao recebida para a linha 5: 361978254"
+        },
+        {
+            "timestamp": "28-10-2024 22:06:58",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Linha validada como correct"
+        },
+        {
+            "timestamp": "28-10-2024 22:07:01",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Solucao recebida para a linha 6: 874352691"
+        },
+        {
+            "timestamp": "28-10-2024 22:07:01",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Linha validada como correct"
+        },
+        {
+            "timestamp": "28-10-2024 22:07:04",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Solucao recebida para a linha 7: 186235749"
+        },
+        {
+            "timestamp": "28-10-2024 22:07:04",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Linha validada como correct"
+        },
+        {
+            "timestamp": "28-10-2024 22:07:07",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Solucao recebida para a linha 8: 435791862"
+        },
+        {
+            "timestamp": "28-10-2024 22:07:07",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Linha validada como correct"
+        },
+        {
+            "timestamp": "28-10-2024 22:07:12",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Solucao recebida para a linha 9: 729846135"
+        },
+        {
+            "timestamp": "28-10-2024 22:07:12",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Linha validada como correct"
+        },
+        {
+            "timestamp": "28-10-2024 22:07:27",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao estabelecida com o cliente"
+        },
+        {
+            "timestamp": "28-10-2024 22:07:31",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Jogo carregado"
+        },
+        {
+            "timestamp": "28-10-2024 22:07:36",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Solucao recebida para a linha 1: 2"
+        },
+        {
+            "timestamp": "28-10-2024 22:07:36",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Linha invalidada, tentar novamente"
+        },
+        {
+            "timestamp": "28-10-2024 22:07:39",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Solucao recebida para a linha 1: 2"
+        },
+        {
+            "timestamp": "28-10-2024 22:07:39",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Linha invalidada, tentar novamente"
+        },
+        {
+            "timestamp": "28-10-2024 22:07:41",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Solucao recebida para a linha 1: 3"
+        },
+        {
+            "timestamp": "28-10-2024 22:07:41",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Linha invalidada, tentar novamente"
+        },
+        {
+            "timestamp": "28-10-2024 22:07:51",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Conexao com o servidor fechada"
+        }
+    ]
+}

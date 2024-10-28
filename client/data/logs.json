@@ -1,0 +1,634 @@
+{
+    "logs": [
+        {
+            "timestamp": "28-10-2024 17:41:47",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Erro ao estabelecer conexao com o servidor:  : can't connect to server"
+        },
+        {
+            "timestamp": "28-10-2024 17:42:09",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Erro ao estabelecer conexao com o servidor:  : can't connect to server"
+        },
+        {
+            "timestamp": "28-10-2024 20:19:25",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Erro ao estabelecer conexao com o servidor:  : can't connect to server"
+        },
+        {
+            "timestamp": "28-10-2024 20:24:05",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Erro ao estabelecer conexao com o servidor: can't connect to server"
+        },
+        {
+            "timestamp": "28-10-2024 20:27:37",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Erro ao estabelecer conexao com o servidor: can't connect to server"
+        },
+        {
+            "timestamp": "28-10-2024 20:28:19",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Erro ao estabelecer conexao com o servidor: can't connect to server"
+        },
+        {
+            "timestamp": "28-10-2024 20:28:43",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Erro ao estabelecer conexao com o servidor: can't connect to server"
+        },
+        {
+            "timestamp": "28-10-2024 20:29:14",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Erro ao estabelecer conexao com o servidor: can't connect to server"
+        },
+        {
+            "timestamp": "28-10-2024 20:29:42",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Erro ao estabelecer conexao com o servidor: can't connect to server"
+        },
+        {
+            "timestamp": "28-10-2024 20:31:55",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "28-10-2024 20:32:38",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "28-10-2024 20:32:46",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "28-10-2024 20:32:56",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "28-10-2024 20:33:11",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "28-10-2024 20:36:19",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "28-10-2024 20:36:37",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "28-10-2024 20:36:53",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "28-10-2024 20:37:14",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "28-10-2024 20:40:27",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "28-10-2024 20:55:46",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "28-10-2024 20:56:53",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "28-10-2024 20:58:08",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "28-10-2024 20:59:48",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "28-10-2024 21:01:57",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "28-10-2024 21:20:55",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "28-10-2024 21:20:55",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Mensagem enviada para o servidor: ID do cliente 789 enviado para o servidor"
+        },
+        {
+            "timestamp": "28-10-2024 21:31:52",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "28-10-2024 21:31:52",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Mensagem enviada para o servidor: ID do cliente 789 enviado para o servidor"
+        },
+        {
+            "timestamp": "28-10-2024 21:31:58",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Tabuleiro do jogo mostrado"
+        },
+        {
+            "timestamp": "28-10-2024 21:34:16",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "28-10-2024 21:34:16",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Mensagem enviada para o servidor: Client ID 789"
+        },
+        {
+            "timestamp": "28-10-2024 21:34:19",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Tabuleiro do jogo mostrado"
+        },
+        {
+            "timestamp": "28-10-2024 21:36:16",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "28-10-2024 21:36:16",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Mensagem enviada para o servidor: Client ID 789"
+        },
+        {
+            "timestamp": "28-10-2024 21:36:19",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Tabuleiro do jogo mostrado"
+        },
+        {
+            "timestamp": "28-10-2024 21:36:51",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "28-10-2024 21:36:51",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Mensagem enviada para o servidor: Client ID 789"
+        },
+        {
+            "timestamp": "28-10-2024 21:36:57",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Tabuleiro do jogo mostrado"
+        },
+        {
+            "timestamp": "28-10-2024 21:38:23",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "28-10-2024 21:38:23",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Mensagem enviada para o servidor: Client ID 789"
+        },
+        {
+            "timestamp": "28-10-2024 21:38:28",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Tabuleiro do jogo mostrado"
+        },
+        {
+            "timestamp": "28-10-2024 21:40:45",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "28-10-2024 21:40:45",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Mensagem enviada para o servidor: Client ID 789"
+        },
+        {
+            "timestamp": "28-10-2024 21:40:48",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Tabuleiro do jogo mostrado"
+        },
+        {
+            "timestamp": "28-10-2024 21:42:21",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "28-10-2024 21:42:21",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Mensagem enviada para o servidor: Client ID 789"
+        },
+        {
+            "timestamp": "28-10-2024 21:42:24",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Tabuleiro do jogo mostrado"
+        },
+        {
+            "timestamp": "28-10-2024 21:43:04",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "28-10-2024 21:43:04",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Mensagem enviada para o servidor: Client ID 789"
+        },
+        {
+            "timestamp": "28-10-2024 21:43:06",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Tabuleiro do jogo mostrado"
+        },
+        {
+            "timestamp": "28-10-2024 21:44:32",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "28-10-2024 21:44:32",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Mensagem enviada para o servidor: Client ID 789"
+        },
+        {
+            "timestamp": "28-10-2024 21:44:37",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Tabuleiro do jogo mostrado"
+        },
+        {
+            "timestamp": "28-10-2024 21:48:45",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "28-10-2024 21:48:45",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Mensagem enviada para o servidor: Client ID 789"
+        },
+        {
+            "timestamp": "28-10-2024 21:48:48",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Tabuleiro do jogo mostrado"
+        },
+        {
+            "timestamp": "28-10-2024 21:49:06",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "28-10-2024 21:49:06",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Mensagem enviada para o servidor: Client ID 789"
+        },
+        {
+            "timestamp": "28-10-2024 21:49:08",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Tabuleiro do jogo mostrado"
+        },
+        {
+            "timestamp": "28-10-2024 21:49:19",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "28-10-2024 21:49:19",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Mensagem enviada para o servidor: Client ID 789"
+        },
+        {
+            "timestamp": "28-10-2024 21:49:21",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Tabuleiro do jogo mostrado"
+        },
+        {
+            "timestamp": "28-10-2024 21:51:21",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "28-10-2024 21:51:21",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Mensagem enviada para o servidor: Client ID 789"
+        },
+        {
+            "timestamp": "28-10-2024 21:51:23",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Tabuleiro do jogo mostrado"
+        },
+        {
+            "timestamp": "28-10-2024 21:51:39",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "28-10-2024 21:51:39",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Mensagem enviada para o servidor: Client ID 789"
+        },
+        {
+            "timestamp": "28-10-2024 21:51:41",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Tabuleiro do jogo mostrado"
+        },
+        {
+            "timestamp": "28-10-2024 21:52:39",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "28-10-2024 21:52:39",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Mensagem enviada para o servidor: Client ID 789"
+        },
+        {
+            "timestamp": "28-10-2024 21:52:41",
+            "gameID": 1662593744,
+            "playerID": 789,
+            "message": "Tabuleiro do jogo mostrado"
+        },
+        {
+            "timestamp": "28-10-2024 21:53:22",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "28-10-2024 21:53:22",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Mensagem enviada para o servidor: Client ID 789"
+        },
+        {
+            "timestamp": "28-10-2024 21:53:24",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Tabuleiro do jogo mostrado"
+        },
+        {
+            "timestamp": "28-10-2024 21:54:23",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "28-10-2024 21:54:23",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Mensagem enviada para o servidor: Client ID 789"
+        },
+        {
+            "timestamp": "28-10-2024 21:54:25",
+            "gameID": 1,
+            "playerID": 789,
+            "message": "Tabuleiro do jogo mostrado"
+        },
+        {
+            "timestamp": "28-10-2024 21:55:01",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Erro ao estabelecer conexao com o servidor: can't connect to server"
+        },
+        {
+            "timestamp": "28-10-2024 21:55:08",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "28-10-2024 21:55:08",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Mensagem enviada para o servidor: Client ID 789"
+        },
+        {
+            "timestamp": "28-10-2024 21:55:12",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Tabuleiro do jogo mostrado"
+        },
+        {
+            "timestamp": "28-10-2024 21:55:20",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "28-10-2024 21:55:20",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Mensagem enviada para o servidor: Client ID 789"
+        },
+        {
+            "timestamp": "28-10-2024 21:55:24",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Tabuleiro do jogo mostrado"
+        },
+        {
+            "timestamp": "28-10-2024 21:55:30",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "28-10-2024 21:55:30",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Mensagem enviada para o servidor: Client ID 789"
+        },
+        {
+            "timestamp": "28-10-2024 21:55:34",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Tabuleiro do jogo mostrado"
+        },
+        {
+            "timestamp": "28-10-2024 21:55:41",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "28-10-2024 21:55:41",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Mensagem enviada para o servidor: Client ID 789"
+        },
+        {
+            "timestamp": "28-10-2024 21:55:43",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Tabuleiro do jogo mostrado"
+        },
+        {
+            "timestamp": "28-10-2024 21:55:56",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "28-10-2024 21:55:56",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Mensagem enviada para o servidor: Client ID 789"
+        },
+        {
+            "timestamp": "28-10-2024 21:55:58",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Tabuleiro do jogo mostrado"
+        },
+        {
+            "timestamp": "28-10-2024 21:56:31",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "28-10-2024 21:56:31",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Mensagem enviada para o servidor: Client ID 789"
+        },
+        {
+            "timestamp": "28-10-2024 21:56:32",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Tabuleiro do jogo mostrado"
+        },
+        {
+            "timestamp": "28-10-2024 21:56:57",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "28-10-2024 21:56:57",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Mensagem enviada para o servidor: Client ID 789"
+        },
+        {
+            "timestamp": "28-10-2024 21:57:03",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Tabuleiro do jogo mostrado"
+        },
+        {
+            "timestamp": "28-10-2024 22:05:27",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "28-10-2024 22:05:27",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Mensagem enviada para o servidor: Client ID 789"
+        },
+        {
+            "timestamp": "28-10-2024 22:05:31",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Tabuleiro do jogo mostrado"
+        },
+        {
+            "timestamp": "28-10-2024 22:07:27",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "28-10-2024 22:07:27",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Mensagem enviada para o servidor: Client ID 789"
+        },
+        {
+            "timestamp": "28-10-2024 22:07:31",
+            "gameID": 2,
+            "playerID": 789,
+            "message": "Tabuleiro do jogo mostrado"
+        }
+    ]
+}
