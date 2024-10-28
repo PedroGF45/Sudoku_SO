@@ -1919,6 +1919,66 @@
             "idJogo": 2,
             "idJogador": 1,
             "mensagem": "Linha validada como correta"
+        },
+        {
+            "timestamp": "26-10-2024 19:29:05",
+            "idJogo": 0,
+            "idJogador": 0,
+            "mensagem": "Server inicializado"
+        },
+        {
+            "timestamp": "26-10-2024 19:29:22",
+            "idJogo": 2,
+            "idJogador": 1,
+            "mensagem": "Jogo carregado"
+        },
+        {
+            "timestamp": "26-10-2024 19:29:28",
+            "idJogo": 2,
+            "idJogador": 1,
+            "mensagem": "Solucao recebida para a linha 1: 123456789"
+        },
+        {
+            "timestamp": "26-10-2024 19:29:28",
+            "idJogo": 2,
+            "idJogador": 1,
+            "mensagem": "Linha invalidada, tentar novamente"
+        },
+        {
+            "timestamp": "26-10-2024 19:29:55",
+            "idJogo": 2,
+            "idJogador": 1,
+            "mensagem": "Solucao recebida para a linha 1: 123456789"
+        },
+        {
+            "timestamp": "26-10-2024 19:29:55",
+            "idJogo": 2,
+            "idJogador": 1,
+            "mensagem": "Linha invalidada, tentar novamente"
+        },
+        {
+            "timestamp": "26-10-2024 19:53:09",
+            "idJogo": 0,
+            "idJogador": 0,
+            "mensagem": "Server inicializado"
+        },
+        {
+            "timestamp": "26-10-2024 19:53:45",
+            "idJogo": 2,
+            "idJogador": 1,
+            "mensagem": "Jogo carregado"
+        },
+        {
+            "timestamp": "26-10-2024 19:53:52",
+            "idJogo": 2,
+            "idJogador": 1,
+            "mensagem": "Solucao recebida para a linha 1: 123456789"
+        },
+        {
+            "timestamp": "26-10-2024 19:53:52",
+            "idJogo": 2,
+            "idJogador": 1,
+            "mensagem": "Linha invalidada, tentar novamente"
         }
     ]
 }

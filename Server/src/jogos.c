@@ -132,7 +132,7 @@ int verificaLinha(char * logFileName, char * solucaoEnviada, Jogo *jogo, int lin
             jogo->tabuleiro[numeroLinha][j] = linhaInserida[j];
         } else {
             correta = 0;
-            printf("Erro na posição %d: esperado %d, recebido %d\n", j, jogo->solucao[numeroLinha][j], linhaInserida[j]);
+            printf("Erro na posição %d: esperado %d, recebido %d\n", j + 1, jogo->solucao[numeroLinha][j], linhaInserida[j]);
         }
     }
 
@@ -143,5 +143,17 @@ int verificaLinha(char * logFileName, char * solucaoEnviada, Jogo *jogo, int lin
     }
 
     return correta;
+}
+
+int validarLinha(char *buffer) {
+    if (strlen(buffer) != 9) {
+        return -1;
+    }
+    for (int i = 0; i < 9; i++) {
+        if (buffer[i] < '0' || buffer[i] > '9') {
+            return -1;
+        }
+    }
+    return 0;
 }
 

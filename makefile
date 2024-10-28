@@ -15,8 +15,8 @@ client/config/config.o: client/config/config.c client/config/config.h
 	$(CC) $(CFLAGS) client/config/config.c -o client/config/config.o
 
 # Compilar o servidor
-server: server/src/server.o server/src/jogos.o server/config/config.o utils/logs/logs.o utils/parson/parson.o utils/network/network.o
-	$(CC) -o server.exe server/src/server.o server/src/jogos.o server/config/config.o utils/logs/logs.o utils/parson/parson.o utils/network/network.o
+server: server/src/server.o server/src/jogos.o server/src/server-comms.o server/config/config.o utils/logs/logs.o utils/parson/parson.o utils/network/network.o
+	$(CC) -o server.exe server/src/server.o server/src/jogos.o server/src/server-comms.o server/config/config.o utils/logs/logs.o utils/parson/parson.o utils/network/network.o
 
 # Compila server.c, jogos.c logs.c e config.c para (.o)
 server/src/server.o: server/src/server.c
@@ -24,6 +24,9 @@ server/src/server.o: server/src/server.c
 
 server/src/jogos.o: server/src/jogos.c server/src/jogos.h 
 	$(CC) $(CFLAGS) server/src/jogos.c -o server/src/jogos.o
+
+server/src/server-comms.o: server/src/server-comms.c server/src/server-comms.h
+	$(CC) $(CFLAGS) server/src/server-comms.c -o server/src/server-comms.o
 
 server/config/config.o: server/config/config.c server/config/config.h 
 	$(CC) $(CFLAGS) server/config/config.c -o server/config/config.o

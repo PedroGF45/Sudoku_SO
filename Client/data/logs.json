@@ -527,6 +527,18 @@
             "idJogo": 0,
             "idJogador": 789,
             "mensagem": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "26-10-2024 19:29:22",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "26-10-2024 19:53:45",
+            "idJogo": 0,
+            "idJogador": 789,
+            "mensagem": "Conexao estabelecida com o servidor"
         }
     ]
 }
