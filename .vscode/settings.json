@@ -2,6 +2,8 @@
     "files.associations": {
         "*.ejs": "html",
         "logs.h": "c",
-        "network.h": "c"
+        "network.h": "c",
+        "string.h": "c",
+        "server-comms.h": "c"
     }
 }

@@ -168,10 +168,7 @@ void playRandomGame(int *socketfd, clientConfig config) {
             showBoard(buffer, config.logPath, config.clientID);
 
         }
-
-
     }
-
 }
 
 void showBoard(char *buffer, char * logFileName, int playerID) {

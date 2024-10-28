@@ -1,7 +1,59 @@
+#include <pthread.h>
 #include "../../utils/parson/parson.h"
 #include "../../utils/network/network.h"
 #include "../../utils/logs/logs.h"
 #include "server-comms.h"
+
+void *handleClient(void *arg) {
+    // Obter dados do cliente
+    ClientData *clientData = (ClientData *) arg;
+    ServerConfig config = clientData->config;
+    int newSockfd = clientData->socket_fd;
+
+    // receber buffer do cliente
+    char buffer[BUFFER_SIZE];
+    memset(buffer, 0, sizeof(buffer));
+
+    // Receber ID do jogador
+    if (recv(newSockfd, buffer, sizeof(buffer), 0) < 0) {
+        // erro ao receber ID do jogador
+        err_dump(config.logPath, 0, 0, "can't receive player ID from client", EVENT_MESSAGE_SERVER_NOT_RECEIVED);
+    }
+
+    // ID do jogador
+    int playerID = atoi(buffer);
+
+    printf("Conexao estabelecida com o cliente %d\n", playerID);
+    writeLogJSON(config.logPath, 0, playerID, EVENT_CONNECTION_SERVER_ESTABLISHED);
+
+    // Receber menu status
+    if (recv(newSockfd, buffer, sizeof(buffer), 0) < 0) {
+        // erro ao receber modo de jogo
+        err_dump(config.logPath, 0, playerID, "can't receive menu status", EVENT_MESSAGE_SERVER_NOT_RECEIVED);
+    } else {
+        
+        if (strcmp(buffer, "randomGame") == 0) {
+
+            // Escolher um jogo aleatório
+            Game game = loadRandomGame(config, playerID);
+
+            // Enviar tabuleiro ao cliente
+            sendBoard(&newSockfd, &game);
+
+            // Receber linhas do cliente
+            receiveLines(&newSockfd, &game, playerID, config);
+        } 
+    }
+
+    // libertar a memória alocada
+    free(clientData);
+
+    // fechar a ligação com o cliente
+    close(newSockfd);
+
+    // terminar a thread
+    pthread_exit(NULL);
+}
 
 void initializeSocket(struct sockaddr_in *serv_addr, int *sockfd, ServerConfig config) {
 
@@ -24,7 +76,7 @@ void initializeSocket(struct sockaddr_in *serv_addr, int *sockfd, ServerConfig c
     }
 
     // Ouvir o socket
-    listen(*sockfd, 1);
+    listen(*sockfd, 2);
 }
 
 void sendBoard(int *socket, Game *game) {

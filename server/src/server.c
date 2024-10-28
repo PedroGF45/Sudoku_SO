@@ -1,13 +1,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <pthread.h>
 #include "../../utils/logs/logs.h"
 #include "../../utils/network/network.h"
 #include "../config/config.h"
 #include "server-comms.h"
 #include "server-game.h"
-
-
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {
@@ -34,45 +33,20 @@ int main(int argc, char *argv[]) {
             err_dump(config.logPath, 0, 0, "accept error", EVENT_CONNECTION_SERVER_ERROR);
 
         } else {
-            
-            // receber buffer do cliente
-            char buffer[BUFFER_SIZE];
-            memset(buffer, 0, sizeof(buffer));
 
-            // Receber ID do jogador
-            if (recv(newSockfd, buffer, sizeof(buffer), 0) < 0) {
-                // erro ao receber ID do jogador
-                err_dump(config.logPath, 0, 0, "can't receive player ID from client", EVENT_MESSAGE_SERVER_NOT_RECEIVED);
+            // elements to pass to thread: config, playerID, newSockfd
+            ClientData *clientData = (ClientData *) malloc(sizeof(ClientData));
+            clientData->config = config;
+            clientData->socket_fd = newSockfd;
+
+
+            pthread_t thread;
+            if (pthread_create(&thread, NULL, handleClient, (void *)clientData) != 0) {
+                // erro ao criar thread
+                err_dump(config.logPath, 0, 0, "can't create thread", EVENT_SERVER_THREAD_ERROR);
             }
-
-            // ID do jogador
-            int playerID = atoi(buffer);
-
-            printf("Conexao estabelecida com o cliente %d\n", playerID);
-            writeLogJSON(config.logPath, 0, playerID, EVENT_CONNECTION_SERVER_ESTABLISHED);
-
-            // Receber menu status
-            if (recv(newSockfd, buffer, sizeof(buffer), 0) < 0) {
-                // erro ao receber modo de jogo
-                err_dump(config.logPath, 0, playerID, "can't receive menu status", EVENT_MESSAGE_SERVER_NOT_RECEIVED);
-            } else {
-                
-                if (strcmp(buffer, "randomGame") == 0) {
-
-                    // Escolher um jogo aleatório
-                    Game game = loadRandomGame(config, playerID);
-
-                    // Enviar tabuleiro ao cliente
-                    sendBoard(&newSockfd, &game);
-
-                    // Receber linhas do cliente
-                    receiveLines(&newSockfd, &game, playerID, config);
-                } 
-            }
+            pthread_detach(thread);
         }
-
-        // Fechar o socket do cliente
-        close(newSockfd);
     }
 
     close(sockfd);

@@ -4,6 +4,14 @@
 #include "../config/config.h"
 #include "server-game.h" // Include server-game.h to access Game struct
 
+typedef struct {
+    int socket_fd;
+    ServerConfig config;
+} ClientData;
+
+// Função para lidar com o cliente
+void *handleClient(void *arg);
+
 // Funções de comunicação do servidor
 void initializeSocket(struct sockaddr_in *serv_addr, int *sockfd, ServerConfig config);
 
