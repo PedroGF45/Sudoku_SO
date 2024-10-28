@@ -19,6 +19,7 @@
 /* client */
 #define EVENT_CONNECTION_CLIENT_ESTABLISHED     "Conexao estabelecida com o servidor"
 #define EVENT_CONNECTION_CLIENT_NOT_ESTABLISHED "Erro ao estabelecer conexao com o servidor"
+#define EVENT_CONNECTION_CLIENT_CLOSED          "Conexao com o servidor fechada"
 #define EVENT_MESSAGE_CLIENT_SENT               "Mensagem enviada para o servidor"
 #define EVENT_MESSAGE_CLIENT_NOT_SENT           "Erro ao enviar mensagem para o servidor"
 #define EVENT_MESSAGE_CLIENT_RECEIVED           "Mensagem recebida do servidor"
