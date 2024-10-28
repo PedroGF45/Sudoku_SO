@@ -2,13 +2,12 @@
 #include <stdio.h>
 #include <string.h>
 #include "../../utils/logs/logs.h"
-#include "../../utils/parson/parson.h"
 #include "../../utils/network/network.h"
 #include "../config/config.h"
 #include "server-comms.h"
-#include "jogos.h"
+#include "server-game.h"
 
-int validarLinha(char *buffer);
+
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {
@@ -24,69 +23,26 @@ int main(int argc, char *argv[]) {
     struct sockaddr_in serv_addr;
 
     // Inicializar o socket
-    inicializaSocket(&serv_addr, &sockfd, config);
-
-    char buffer[256];
+    initializeSocket(&serv_addr, &sockfd, config);
 
     for (;;) {
         // Aceitar ligação
-        if ((newSockfd = accept(sockfd, (struct sockaddr *) 0, 0)) < 0)
+        if ((newSockfd = accept(sockfd, (struct sockaddr *) 0, 0)) < 0) {
+            // erro ao aceitar ligacao
             err_dump(config.logPath, 0, 0, " : accept error", EVENT_CONNECTION_SERVER_ERROR);
 
-        printf("Conexao estabelecida com um cliente\n");
+        } else {
+            printf("Conexao estabelecida com um cliente\n");
 
-        // Carregar o jogo do ficheiro JSON
-        int idJogo = 2; // Pode ser parametrizado conforme necessidade
-        int idJogador = 1; // Pode ser parametrizado conforme necessidade
-        Jogo jogo = carregaJogo(config, idJogo, idJogador);
+            // Carregar o game do ficheiro JSON
+            int idgame = 2; // Pode ser parametrizado conforme necessidade
+            int playerID = 1; // Pode ser parametrizado conforme necessidade
+            Game game = loadGame(config, idgame, playerID);
 
-        // Enviar tabuleiro ao cliente
-        enviarTabuleiro(newSockfd, &jogo);
+            // Enviar tabuleiro ao cliente
+            sendBoard(&newSockfd, &game);
 
-        // Receber e validar as linhas do cliente
-        for (int i = 0; i < 9; i++) {
-            int linhaCorreta = 0;
-            while (!linhaCorreta) {
-                memset(buffer, 0, sizeof(buffer));
-
-                // Receber linha do cliente
-                if (receberLinhaDoCliente(newSockfd, buffer) <= 0) {
-                    printf("Conexao terminada com o cliente\n");
-                    close(newSockfd);
-                    break;
-                }
-
-                // **Adicionei print para verificar a linha recebida**
-                printf("Linha recebida do cliente: %s\n", buffer); 
-
-                printf("Verificando linha %d...\n", i + 1);
-
-                // Validar linha
-                if (validarLinha(buffer) != 0) {
-                    strcpy(buffer, "incorreto: A linha deve ter exatamente 9 digitos e ser numerica");
-                    send(newSockfd, buffer, strlen(buffer), 0);
-                    enviarTabuleiro(newSockfd, &jogo);
-                    continue;
-                }
-
-                // Converte a linha recebida em valores inteiros
-                int linhaInserida[9];
-                for (int j = 0; j < 9; j++) {
-                    linhaInserida[j] = buffer[j] - '0';
-                }
-
-                // Verificar a linha recebida com a função verificaLinha
-                linhaCorreta = verificaLinha(config.logPath, buffer, &jogo, linhaInserida, i, idJogador);
-
-                // Enviar resposta ao cliente
-                if (linhaCorreta) {
-                    strcpy(buffer, "correto");
-                } else {
-                    strcpy(buffer, "incorreto: Valores incorretos na linha, tente novamente");
-                }
-                send(newSockfd, buffer, strlen(buffer), 0);
-                enviarTabuleiro(newSockfd, &jogo);
-            }
+            receiveLines(&newSockfd, &game, playerID, config);
         }
 
         // Fechar o socket do cliente

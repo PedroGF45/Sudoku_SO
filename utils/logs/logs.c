@@ -5,7 +5,7 @@
 #include "../parson/parson.h"
 
 // novo log JSON
-void writeLogJSON(const char *filename, int idJogo, int idJogador, const char *logMessage) {
+void writeLogJSON(const char *filename, int gameID, int playerID, const char *logMessage) {
     // Abrir o ficheiro JSON existente
     JSON_Value *rootValue = json_parse_file(filename);
     JSON_Object *rootObject = NULL;
@@ -41,9 +41,9 @@ void writeLogJSON(const char *filename, int idJogo, int idJogador, const char *l
 
     // Preencher os campos do log
     json_object_set_string(logObject, "timestamp", timestamp);
-    json_object_set_number(logObject, "idJogo", idJogo);
-    json_object_set_number(logObject, "idJogador", idJogador);
-    json_object_set_string(logObject, "mensagem", logMessage);
+    json_object_set_number(logObject, "gameID", gameID);
+    json_object_set_number(logObject, "playerID", playerID);
+    json_object_set_string(logObject, "message", logMessage);
 
     // Adicionar o novo log ao array de logs
     json_array_append_value(logsArray, logValue);

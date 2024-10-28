@@ -31,6 +31,6 @@ struct log {
 };
 
 // wirte log in JSON format
-void writeLogJSON(const char *filename, int idJogo, int idJogador, const char *logMessage);
+void writeLogJSON(const char *filename, int gameID, int playerID, const char *logMessage);
 
 #endif
