@@ -15,6 +15,7 @@
 #define EVENT_MESSAGE_SERVER_RECEIVED           "Mensagem recebida do cliente"
 #define EVENT_MESSAGE_SERVER_NOT_RECEIVED       "Erro ao receber mensagem do cliente"
 #define EVENT_CONNECTION_SERVER_ERROR           "Erro na conexao do servidor"
+#define EVENT_CONNECTION_SERVER_ESTABLISHED     "Conexao estabelecida com o cliente"
 
 /* client */
 #define EVENT_CONNECTION_CLIENT_ESTABLISHED     "Conexao estabelecida com o servidor"
