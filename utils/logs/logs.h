@@ -17,6 +17,7 @@
 #define EVENT_CONNECTION_SERVER_ERROR           "Erro na conexao do servidor"
 #define EVENT_CONNECTION_SERVER_ESTABLISHED     "Conexao estabelecida com o cliente"
 #define EVENT_SERVER_THREAD_ERROR               "Erro ao criar thread"
+#define EVENT_SERVER_CONNECTION_FINISH          "Conexao terminada com o cliente"
 
 /* client */
 #define EVENT_CONNECTION_CLIENT_ESTABLISHED     "Conexao estabelecida com o servidor"

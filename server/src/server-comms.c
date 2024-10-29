@@ -50,6 +50,9 @@ void *handleClient(void *arg) {
 
     // fechar a ligação com o cliente
     close(newSockfd);
+    printf("Conexao terminada com o cliente %d\n", playerID);
+    writeLogJSON(config.logPath, 0, playerID, EVENT_SERVER_CONNECTION_FINISH );
+
 
     // terminar a thread
     pthread_exit(NULL);

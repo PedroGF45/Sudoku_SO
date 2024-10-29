@@ -629,6 +629,24 @@
             "gameID": 2,
             "playerID": 789,
             "message": "Tabuleiro do jogo mostrado"
+        },
+        {
+            "timestamp": "29-10-2024 18:21:41",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Erro ao estabelecer conexao com o servidor: can't connect to server"
+        },
+        {
+            "timestamp": "29-10-2024 18:21:53",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "29-10-2024 18:21:53",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Mensagem enviada para o servidor: Client ID 789"
         }
     ]
 }

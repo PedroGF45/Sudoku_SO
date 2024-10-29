@@ -1043,6 +1043,24 @@
             "gameID": 2,
             "playerID": 789,
             "message": "Conexao com o servidor fechada"
+        },
+        {
+            "timestamp": "29-10-2024 18:21:50",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "29-10-2024 18:21:53",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao estabelecida com o cliente"
+        },
+        {
+            "timestamp": "29-10-2024 18:21:56",
+            "gameID": 0,
+            "playerID": 789,
+            "message": "Conexao terminada com o cliente"
         }
     ]
 }
