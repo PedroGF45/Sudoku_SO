@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 #include "../../utils/logs/logs.h"
 #include "../../utils/network/network.h"
 #include "../config/config.h"
@@ -13,8 +14,16 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    // Garante que os ids aleatórios são diferentes
+    srand(time(NULL));
+
     // Carrega a configuracao do cliente
     clientConfig config = getClientConfig(argv[1]);
+
+    // Se o ID do cliente for 0 gera um ID aleatório
+    if (config.clientID == 0) {
+        config.clientID = rand() % 1000; 
+    }
 
     printf("IP do servidor: %s\n", config.serverIP);
     printf("Porta do servidor: %d\n", config.serverPort);
