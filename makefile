@@ -1,50 +1,67 @@
 CC = gcc
 CFLAGS = -g -c -Wall -Werror
 
+# Paths
+CLIENT_SRC = client/src
+CLIENT_CONFIG = client/config
+SERVER_SRC = server/src
+SERVER_CONFIG = server/config
+UTILS_LOGS = utils/logs
+UTILS_PARSON = utils/parson
+UTILS_NETWORK = utils/network
+
+# Object files for client, server, and utilities
+CLIENT_OBJS = $(CLIENT_SRC)/client.o $(CLIENT_SRC)/client-comms.o $(CLIENT_SRC)/client-game.o $(CLIENT_CONFIG)/config.o
+SERVER_OBJS = $(SERVER_SRC)/server.o $(SERVER_SRC)/server-comms.o $(SERVER_SRC)/server-game.o $(SERVER_CONFIG)/config.o
+UTIL_OBJS = $(UTILS_LOGS)/logs.o $(UTILS_PARSON)/parson.o $(UTILS_NETWORK)/network.o
+
+# Targets
 all: server client
 
-# compilar o cliente
-client: client/src/client.o client/src/client-comms.o client/config/config.o utils/logs/logs.o utils/parson/parson.o utils/network/network.o
-	$(CC) -o client.exe client/src/client.o client/src/client-comms.o client/config/config.o utils/logs/logs.o utils/parson/parson.o utils/network/network.o
+# Client build
+client: $(CLIENT_OBJS) $(UTIL_OBJS)
+	$(CC) -o client.exe $(CLIENT_OBJS) $(UTIL_OBJS)
 
-# compila o client.c e confic.c
-client/src/client.o: client/src/client.c
-	$(CC) $(CFLAGS) client/src/client.c -o client/src/client.o
+# Server build
+server: $(SERVER_OBJS) $(UTIL_OBJS)
+	$(CC) -o server.exe $(SERVER_OBJS) $(UTIL_OBJS)
 
-client/src/client-comms.o: client/src/client-comms.c client/src/client-comms.h
-	$(CC) $(CFLAGS) client/src/client-comms.c -o client/src/client-comms.o
+# Compile client object files
+$(CLIENT_SRC)/client.o: $(CLIENT_SRC)/client.c $(CLIENT_CONFIG)/config.h
+	$(CC) $(CFLAGS) $(CLIENT_SRC)/client.c -o $@
 
-client/config/config.o: client/config/config.c client/config/config.h
-	$(CC) $(CFLAGS) client/config/config.c -o client/config/config.o
+$(CLIENT_SRC)/client-comms.o: $(CLIENT_SRC)/client-comms.c $(CLIENT_SRC)/client-comms.h
+	$(CC) $(CFLAGS) $(CLIENT_SRC)/client-comms.c -o $@
 
-# Compilar o servidor
-server: server/src/server.o server/src/server-comms.o server/src/server-game.o server/config/config.o utils/logs/logs.o utils/parson/parson.o utils/network/network.o
-	$(CC) -o server.exe server/src/server.o server/src/server-comms.o server/src/server-game.o server/config/config.o utils/logs/logs.o utils/parson/parson.o utils/network/network.o
+$(CLIENT_SRC)/client-game.o: $(CLIENT_SRC)/client-game.c $(CLIENT_SRC)/client-game.h
+	$(CC) $(CFLAGS) $(CLIENT_SRC)/client-game.c -o $@
 
-# Compila server.c, server-game.c, server-comms.c logs.c e config.c para (.o)
-server/src/server.o: server/src/server.c
-	$(CC) $(CFLAGS) server/src/server.c -o server/src/server.o
+$(CLIENT_CONFIG)/config.o: $(CLIENT_CONFIG)/config.c $(CLIENT_CONFIG)/config.h
+	$(CC) $(CFLAGS) $(CLIENT_CONFIG)/config.c -o $@
 
-server/src/server-comms.o: server/src/server-comms.c server/src/server-comms.h
-	$(CC) $(CFLAGS) server/src/server-comms.c -o server/src/server-comms.o
+# Compile server object files
+$(SERVER_SRC)/server.o: $(SERVER_SRC)/server.c $(SERVER_CONFIG)/config.h $(SERVER_SRC)/server-comms.h $(SERVER_SRC)/server-game.h
+	$(CC) $(CFLAGS) $(SERVER_SRC)/server.c -o $@
 
-server/src/server-game.o: server/src/server-game.c server/src/server-game.h 
-	$(CC) $(CFLAGS) server/src/server-game.c -o server/src/server-game.o
+$(SERVER_SRC)/server-comms.o: $(SERVER_SRC)/server-comms.c $(SERVER_SRC)/server-comms.h
+	$(CC) $(CFLAGS) $(SERVER_SRC)/server-comms.c -o $@
 
-server/config/config.o: server/config/config.c server/config/config.h 
-	$(CC) $(CFLAGS) server/config/config.c -o server/config/config.o
+$(SERVER_SRC)/server-game.o: $(SERVER_SRC)/server-game.c $(SERVER_SRC)/server-game.h 
+	$(CC) $(CFLAGS) $(SERVER_SRC)/server-game.c -o $@
 
-# compila funções utilitárias
-utils/logs/logs.o: utils/logs/logs.c utils/logs/logs.h 
-	$(CC) $(CFLAGS) utils/logs/logs.c -o utils/logs/logs.o
+$(SERVER_CONFIG)/config.o: $(SERVER_CONFIG)/config.c $(SERVER_CONFIG)/config.h 
+	$(CC) $(CFLAGS) $(SERVER_CONFIG)/config.c -o $@
 
-utils/parson/parson.o: utils/parson/parson.c utils/parson/parson.h
-	$(CC) $(CFLAGS) utils/parson/parson.c -o utils/parson/parson.o
+# Compile utility object files
+$(UTILS_LOGS)/logs.o: $(UTILS_LOGS)/logs.c $(UTILS_LOGS)/logs.h 
+	$(CC) $(CFLAGS) $(UTILS_LOGS)/logs.c -o $@
 
-utils/network/network.o: utils/network/network.c utils/network/network.h
-	$(CC) $(CFLAGS) utils/network/network.c -o utils/network/network.o
+$(UTILS_PARSON)/parson.o: $(UTILS_PARSON)/parson.c $(UTILS_PARSON)/parson.h
+	$(CC) $(CFLAGS) $(UTILS_PARSON)/parson.c -o $@
 
-# Limpar os ficheiros .o e os executáveis
+$(UTILS_NETWORK)/network.o: $(UTILS_NETWORK)/network.c $(UTILS_NETWORK)/network.h
+	$(CC) $(CFLAGS) $(UTILS_NETWORK)/network.c -o $@
+
+# Clean up
 clean:
-	rm -f server/src/*.o server/config/*.o server.exe client/src/*.o client/config/*.o client.exe utils/logs/*.o utils/parson/*.o utils/network/*.o
-#	del /Q server\src\server.o server\src\server-comms.o  server\src\logs.o server\config\config.o server.exe parson.o
+	rm -f $(SERVER_SRC)/*.o $(SERVER_CONFIG)/*.o server.exe $(CLIENT_SRC)/*.o $(CLIENT_CONFIG)/*.o client.exe $(UTILS_LOGS)/*.o $(UTILS_PARSON)/*.o $(UTILS_NETWORK)/*.o
