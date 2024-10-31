@@ -88,10 +88,10 @@ void showPlayMenu(int *socketfd, clientConfig config) {
         // switch the option
         switch (option) {
             case 1:
-                showNewGameMenu(socketfd, config);
+                showSinglePLayerMenu(socketfd, config);
                 break;
             case 2:
-                checkExistingGames(socketfd, config);
+                showMultiPlayerMenu(socketfd, config);
                 break;
             case 3:
                 showMenu(socketfd, config);
@@ -107,7 +107,7 @@ void showPlayMenu(int *socketfd, clientConfig config) {
     } while (option < 1 || option > 4);
 }
 
-void showNewGameMenu(int *socketfd, clientConfig config) {
+void showSinglePLayerMenu(int *socketfd, clientConfig config) {
 
     int option;
     
@@ -126,7 +126,7 @@ void showNewGameMenu(int *socketfd, clientConfig config) {
         switch (option) {
             case 1:
                 // choose a random game
-                playRandomGame(socketfd, config);
+                playRandomSinglePlayerGame(socketfd, config);
                 break;
             case 2:
                 //showGames();
@@ -145,10 +145,10 @@ void showNewGameMenu(int *socketfd, clientConfig config) {
     } while (option < 1 || option > 4);
 }
 
-void playRandomGame(int *socketfd, clientConfig config) {
+void playRandomSinglePlayerGame(int *socketfd, clientConfig config) {
 
     // ask server for a random game
-    if (send(*socketfd, "newRandomGame", strlen("newRandomGame"), 0) < 0) {
+    if (send(*socketfd, "newRandomSinglePLayerGame", strlen("newRandomSinglePLayerGame"), 0) < 0) {
         err_dump(config.logPath, 0, config.clientID, "can't send random game request to server", EVENT_MESSAGE_CLIENT_NOT_SENT);
     } else {
         printf("Requesting a new random game...\n");
@@ -164,6 +164,11 @@ void playRandomGame(int *socketfd, clientConfig config) {
 
         } else {
             
+            if (strcmp(buffer, "No rooms available") == 0) {
+                printf("No rooms available\n");
+                return;
+            }
+
             // show the board
             showBoard(buffer, config.logPath, config.clientID);
 
@@ -172,6 +177,142 @@ void playRandomGame(int *socketfd, clientConfig config) {
 }
 
 void checkExistingGames(int *socketfd, clientConfig config) {
+    // ask server for existing games
+    if (send(*socketfd, "existingGames", strlen("existingGames"), 0) < 0) {
+        err_dump(config.logPath, 0, config.clientID, "can't send existing games request to server", EVENT_MESSAGE_CLIENT_NOT_SENT);
+    } else {
+        printf("Requesting existing games...\n");
+
+        // receive the games from the server
+        char buffer[BUFFER_SIZE];
+        memset(buffer, 0, sizeof(buffer));
+
+        if (recv(*socketfd, buffer, sizeof(buffer), 0) < 0) {
+
+            // error receiving games from server
+            err_dump(config.logPath, 0, config.clientID, "can't receive games from server", EVENT_MESSAGE_CLIENT_NOT_RECEIVED);
+
+        } else {
+
+            // show the games
+            printf("Existing games:\n%s\n", buffer);
+            
+        }
+    }
+}
+
+void showMultiPlayerMenu(int *socketfd, clientConfig config) {
+    
+    int option;
+
+    do {
+        // ask for creating a room or joining a room
+        printf(INTERFACE_SELECT_MULTIPLAYER_GAME);
+
+        // Get the option from the user
+        if (scanf("%d", &option) != 1) {
+            printf("Invalid input. Please enter a number.\n");
+            fflush(stdin); // Clear the input buffer
+            continue;
+        }
+
+        // switch the option
+        switch (option) {
+            case 1:
+                // create a room
+                createNewMultiplayerGame(socketfd, config);
+                break;
+            case 2:
+                // join a room
+                showMultiplayerGames(socketfd, config);
+                break;
+            case 3:
+                showPlayMenu(socketfd, config);
+                break;
+            case 4:
+                printf("Exiting...\n");
+                exit(0);
+                break;
+            default:
+                printf("Invalid option\n");
+                break;
+        }
+    } while (option < 1 || option > 4);
+}
+
+void createNewMultiplayerGame(int *socketfd, clientConfig config) {
+    // create a new multiplayer game
+
+    int option;
+
+    do {
+        // ask for creating a room or joining a room
+        printf(INTERFACE_SELECT_GAME);
+
+        // Get the option from the user
+        if (scanf("%d", &option) != 1) {
+            printf("Invalid input. Please enter a number.\n");
+            fflush(stdin); // Clear the input buffer
+            continue;
+        }
+
+        // switch the option
+        switch (option) {
+            case 1:
+                // create a new random multiplayer game
+                playRandomMultiPlayerGame(socketfd, config);
+                break;
+            case 2:
+                // create a new specific multiplayer game
+                //showGames();
+                break;
+            case 3:
+                showMultiPlayerMenu(socketfd, config);
+                break;
+            case 4:
+                printf("Exiting...\n");
+                exit(0);
+                break;
+            default:
+                printf("Invalid option\n");
+                break;
+        }
+    } while (option < 1 || option > 4);
+}
+
+// play a random multiplayer game
+void playRandomMultiPlayerGame(int *socketfd, clientConfig config) {
+
+    // ask server for a random game
+    if (send(*socketfd, "newRandomMultiPlayerGame", strlen("newRandomMultiPlayerGame"), 0) < 0) {
+        err_dump(config.logPath, 0, config.clientID, "can't send random multiplayer game request to server", EVENT_MESSAGE_CLIENT_NOT_SENT);
+    } else {
+        printf("Requesting a new random multiplayer game...\n");
+
+        // receive the board from the server
+        char buffer[BUFFER_SIZE];
+        memset(buffer, 0, sizeof(buffer));
+
+        if (recv(*socketfd, buffer, sizeof(buffer), 0) < 0) {
+
+            // error receiving board from server
+            err_dump(config.logPath, 0, config.clientID, "can't receive board from server", EVENT_MESSAGE_CLIENT_NOT_RECEIVED);
+
+        } else {
+
+            if (strcmp(buffer, "No rooms available") == 0) {
+                printf("No rooms available\n");
+                return;
+            }
+            
+            // show the board
+            showBoard(buffer, config.logPath, config.clientID);
+
+        }
+    }
+}
+
+void showMultiplayerGames(int *socketfd, clientConfig config) {
     // ask server for existing games
     if (send(*socketfd, "existingGames", strlen("existingGames"), 0) < 0) {
         err_dump(config.logPath, 0, config.clientID, "can't send existing games request to server", EVENT_MESSAGE_CLIENT_NOT_SENT);
