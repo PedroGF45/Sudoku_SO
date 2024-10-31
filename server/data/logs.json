@@ -1061,6 +1061,18 @@
             "gameID": 0,
             "playerID": 789,
             "message": "Conexao terminada com o cliente"
+        },
+        {
+            "timestamp": "30-10-2024 19:43:31",
+            "gameID": 0,
+            "playerID": 976,
+            "message": "Conexao terminada com o cliente"
+        },
+        {
+            "timestamp": "30-10-2024 19:43:34",
+            "gameID": 0,
+            "playerID": 302,
+            "message": "Conexao terminada com o cliente"
         }
     ]
 }

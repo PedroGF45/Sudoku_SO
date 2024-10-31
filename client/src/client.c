@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 #include "../../utils/logs/logs.h"
 #include "../../utils/network/network.h"
 #include "../config/config.h"
@@ -12,6 +13,9 @@ int main(int argc, char *argv[]) {
         printf("Erro: Faltam argumentos de configuracao!\n");
         return 1;
     }
+
+    // Garante que os ids aleatórios são diferentes
+    srand(time(NULL));
 
     // Carrega a configuracao do cliente
     clientConfig config = getClientConfig(argv[1]);
