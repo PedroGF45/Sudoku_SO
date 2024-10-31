@@ -4,6 +4,9 @@
         "logs.h": "c",
         "network.h": "c",
         "string.h": "c",
-        "server-comms.h": "c"
+        "server-comms.h": "c",
+        "pthread.h": "c",
+        "config.h": "c",
+        "server-game.h": "c"
     }
 }

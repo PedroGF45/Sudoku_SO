@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
     }
 
     // Carrega a configuracao do servidor
-    ServerConfig config = getServerConfig(argv[1]);
+    ServerConfig *config = getServerConfig(argv[1]);
 
     // Inicializa variáveis para socket
     int sockfd, newSockfd;
@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
         // Aceitar ligação
         if ((newSockfd = accept(sockfd, (struct sockaddr *) 0, 0)) < 0) {
             // erro ao aceitar ligacao
-            err_dump(config.logPath, 0, 0, "accept error", EVENT_CONNECTION_SERVER_ERROR);
+            err_dump(config->logPath, 0, 0, "accept error", EVENT_CONNECTION_SERVER_ERROR);
 
         } else {
 
@@ -43,8 +43,10 @@ int main(int argc, char *argv[]) {
             pthread_t thread;
             if (pthread_create(&thread, NULL, handleClient, (void *)clientData) != 0) {
                 // erro ao criar thread
-                err_dump(config.logPath, 0, 0, "can't create thread", EVENT_SERVER_THREAD_ERROR);
+                err_dump(config->logPath, 0, 0, "can't create thread", EVENT_SERVER_THREAD_ERROR);
             }
+            
+            // detach the thread
             pthread_detach(thread);
         }
     }
