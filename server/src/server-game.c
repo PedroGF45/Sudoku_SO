@@ -203,8 +203,13 @@ Room *createRoom(ServerConfig *config) {
     memset(room, 0, sizeof(Room));  // Initialize Room struct
 
     room->id = generateUniqueId();
-    room->players = (int *)malloc(config->maxPlayers * sizeof(int));
+    room->players = (int *)malloc(config->maxPlayersPerRoom * sizeof(int));
     memset(config->rooms, 0, sizeof(Room) * config->maxRooms); // Ensures all fields in rooms are set to 0
+
+
+    // increase the number of rooms
+    config->numRooms++;
+    
     writeLogJSON(config->logPath, 0, 0, EVENT_ROOM_LOAD);
     return room;
 }

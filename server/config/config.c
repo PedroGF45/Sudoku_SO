@@ -53,7 +53,7 @@ ServerConfig *getServerConfig(char *configPath) {
     if (fgets(line, sizeof(line), file) != NULL) {
         // Remover a nova linha, se houver
         line[strcspn(line, "\n")] = 0;
-        sscanf(line, "MAX_PLAYERS_PER_ROOM = %d", &config->maxPlayers);
+        sscanf(line, "MAX_PLAYERS_PER_ROOM = %d", &config->maxPlayersPerRoom);
     }
 
     // Inicializa as salas
@@ -76,7 +76,7 @@ ServerConfig *getServerConfig(char *configPath) {
     printf("PORTA DO SERVIDOR: %d\n", config->serverPort);
     printf("PATH DO JOGO: %s\n", config->gamePath);
     printf("PATH DO LOG: %s\n", config->logPath);
-    printf("MAXIMO DE JOGADORES POR SALA: %d\n", config->maxPlayers);
+    printf("MAXIMO DE JOGADORES POR SALA: %d\n", config->maxPlayersPerRoom);
     printf("MAXIMO DE SALAS: %d\n", config->maxRooms);
 
     // Retorna a variável config
