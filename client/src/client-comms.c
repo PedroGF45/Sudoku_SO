@@ -91,7 +91,7 @@ void showPlayMenu(int *socketfd, clientConfig config) {
                 showNewGameMenu(socketfd, config);
                 break;
             case 2:
-                //checkExistingGames();
+                checkExistingGames(socketfd, config);
                 break;
             case 3:
                 showMenu(socketfd, config);
@@ -148,10 +148,10 @@ void showNewGameMenu(int *socketfd, clientConfig config) {
 void playRandomGame(int *socketfd, clientConfig config) {
 
     // ask server for a random game
-    if (send(*socketfd, "randomGame", strlen("randomGame"), 0) < 0) {
+    if (send(*socketfd, "newRandomGame", strlen("newRandomGame"), 0) < 0) {
         err_dump(config.logPath, 0, config.clientID, "can't send random game request to server", EVENT_MESSAGE_CLIENT_NOT_SENT);
     } else {
-        printf("Requesting a random game...\n");
+        printf("Requesting a new random game...\n");
 
         // receive the board from the server
         char buffer[BUFFER_SIZE];
@@ -171,47 +171,29 @@ void playRandomGame(int *socketfd, clientConfig config) {
     }
 }
 
-void showBoard(char *buffer, char * logFileName, int playerID) {
+void checkExistingGames(int *socketfd, clientConfig config) {
+    // ask server for existing games
+    if (send(*socketfd, "existingGames", strlen("existingGames"), 0) < 0) {
+        err_dump(config.logPath, 0, config.clientID, "can't send existing games request to server", EVENT_MESSAGE_CLIENT_NOT_SENT);
+    } else {
+        printf("Requesting existing games...\n");
 
-    // get the JSON object from the buffer
-    JSON_Value *root_value = json_parse_string(buffer);
-    JSON_Object *root_object = json_value_get_object(root_value);
+        // receive the games from the server
+        char buffer[BUFFER_SIZE];
+        memset(buffer, 0, sizeof(buffer));
 
-    // get the game ID
-    int gameID = (int)json_object_get_number(root_object, "id");
+        if (recv(*socketfd, buffer, sizeof(buffer), 0) < 0) {
 
-    // print the board
-    printf("-------------------------------------\n");
-    printf("BOARD ID: %d\n", gameID);
-    printf("-------------------------------------\n");
+            // error receiving games from server
+            err_dump(config.logPath, 0, config.clientID, "can't receive games from server", EVENT_MESSAGE_CLIENT_NOT_RECEIVED);
 
-    // get the board array from the JSON object
-    JSON_Array *board_array = json_object_get_array(root_object, "board");
+        } else {
 
-    for (int i = 0; i < json_array_get_count(board_array); i++) {
-
-        // get the line array from the board array
-        JSON_Array *linha_array = json_array_get_array(board_array, i);
-
-        printf("| line %d -> | ", i + 1);
-
-        // print the line array
-        for (int j = 0; j < 9; j++) {
-            printf("%d ", (int)json_array_get_number(linha_array, j));
-            if ((j + 1) % 3 == 0) {
-                printf("| ");
-            }
-        }
-        printf("\n");
-        if ((i + 1) % 3 == 0) {
-            printf("-------------------------------------\n");
+            // show the games
+            printf("Existing games:\n%s\n", buffer);
+            
         }
     }
-
-    // free the JSON object
-    json_value_free(root_value);
-
-    writeLogJSON(logFileName, gameID, playerID, EVENT_BOARD_SHOW);
 }
 
 void sendLines(int *socketfd, clientConfig config) {
@@ -223,8 +205,13 @@ void sendLines(int *socketfd, clientConfig config) {
     for (int i = 0; i < 9; i++) {
         int validLine = 0;  // Variável para controlar se a linha está correta
         while (!validLine) {
-            printf("Insira valores para a linha %d do board (exactamente 9 digitos):\n", i + 1);
-            scanf("%s", buffer);
+
+            if (config.isManual) {
+                printf("Insira valores para a linha %d do board (exactamente 9 digitos):\n", i + 1);
+                scanf("%s", buffer);
+            } else {
+                getRandomLine(buffer);
+            }
 
             // Enviar a linha ao servidor
             send(*socketfd, buffer, strlen(buffer), 0);

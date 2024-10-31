@@ -4,65 +4,121 @@
 #include "../../utils/logs/logs.h"
 #include "server-comms.h"
 
+
+static int nextPlayerID = 1;
+
+int generateUniqueClientId() {
+    return nextPlayerID++;
+}
+
 void *handleClient(void *arg) {
+
     // Obter dados do cliente
     ClientData *clientData = (ClientData *) arg;
-    ServerConfig config = clientData->config;
+    ServerConfig *config = clientData->config;
     int newSockfd = clientData->socket_fd;
 
     // receber buffer do cliente
     char buffer[BUFFER_SIZE];
     memset(buffer, 0, sizeof(buffer));
 
+    int playerID;
+
     // Receber ID do jogador
     if (recv(newSockfd, buffer, sizeof(buffer), 0) < 0) {
+
         // erro ao receber ID do jogador
-        err_dump(config.logPath, 0, 0, "can't receive player ID from client", EVENT_MESSAGE_SERVER_NOT_RECEIVED);
+        err_dump(config->logPath, 0, 0, "can't receive question for client ID", EVENT_MESSAGE_SERVER_NOT_RECEIVED);
+
+    } else if (strcmp(buffer, "clientID") == 0) {
+
+        printf("Conexao estabelecida com um novo cliente\n");
+
+        // enviar ID do jogador
+        playerID = generateUniqueClientId();
+        sprintf(buffer, "%d", playerID);
+
+        if (send(newSockfd, buffer, strlen(buffer), 0) < 0) {
+
+            // erro ao enviar ID do jogador
+            err_dump(config->logPath, 0, 0, "can't send client ID", EVENT_MESSAGE_SERVER_NOT_SENT);
+        }
+
+        printf("ID atribuido ao novo cliente: %d\n", playerID);
+        writeLogJSON(config->logPath, 0, playerID, EVENT_CONNECTION_SERVER_ESTABLISHED);
     }
-
-    // ID do jogador
-    int playerID = atoi(buffer);
-
-    printf("Conexao estabelecida com o cliente %d\n", playerID);
-    writeLogJSON(config.logPath, 0, playerID, EVENT_CONNECTION_SERVER_ESTABLISHED);
 
     // Receber menu status
     if (recv(newSockfd, buffer, sizeof(buffer), 0) < 0) {
         // erro ao receber modo de jogo
-        err_dump(config.logPath, 0, playerID, "can't receive menu status", EVENT_MESSAGE_SERVER_NOT_RECEIVED);
+        err_dump(config->logPath, 0, playerID, "can't receive menu status", EVENT_MESSAGE_SERVER_NOT_RECEIVED);
     } else {
         
-        if (strcmp(buffer, "randomGame") == 0) {
+        // cliente quer um novo jogo random
+        if (strcmp(buffer, "newRandomGame") == 0) {
+
+            // Create Room 
+            Room *room = createRoom(config);
+
+            // Adicionar sala ao config
+            config->rooms[room->id - 1] = room;
 
             // Escolher um jogo aleatório
-            Game game = loadRandomGame(config, playerID);
+            Game *game = loadRandomGame(config, playerID);
+
+            if (game == NULL) {
+                fprintf(stderr, "Error loading random game\n");
+                exit(1);
+            }
+
+            // Adicionar jogo à sala
+            room->game = game;
+
+            // Associar jogador ao jogo
+            room->players[0] = playerID;
+
+            printf("Novo jogo aleatório criado para o cliente %d com o jogo %d\n", playerID, room->game->id);
 
             // Enviar tabuleiro ao cliente
-            sendBoard(&newSockfd, &game);
+            sendBoard(&newSockfd, game);
 
             // Receber linhas do cliente
-            receiveLines(&newSockfd, &game, playerID, config);
-        } 
-    }
+            receiveLines(&newSockfd, game, playerID, config);
 
-    // libertar a memória alocada
-    free(clientData);
+        // cliente quer ver jogos existentes
+        } else if (strcmp(buffer, "existingGames") == 0) {
+            
+            // Receber jogos existentes
+            char buffer[BUFFER_SIZE];
+            memset(buffer, 0, sizeof(buffer));
+
+            // Obter jogos existentes
+            char *games = getExistingGames(config);
+
+            // Enviar jogos existentes ao cliente
+            send(newSockfd, games, strlen(games), 0);
+
+            // escrever no log
+            writeLogJSON(config->logPath, 0, playerID, EVENT_SERVER_GAMES_SENT);
+        }
+    }
 
     // fechar a ligação com o cliente
     close(newSockfd);
+    // libertar a memória alocada
+    free(clientData);
     printf("Conexao terminada com o cliente %d\n", playerID);
-    writeLogJSON(config.logPath, 0, playerID, EVENT_SERVER_CONNECTION_FINISH );
-
+    writeLogJSON(config->logPath, 0, playerID, EVENT_SERVER_CONNECTION_FINISH );
 
     // terminar a thread
     pthread_exit(NULL);
 }
 
-void initializeSocket(struct sockaddr_in *serv_addr, int *sockfd, ServerConfig config) {
+void initializeSocket(struct sockaddr_in *serv_addr, int *sockfd, ServerConfig *config) {
 
     // Criar socket
     if ((*sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-        err_dump(config.logPath, 0, 0, "can't open stream socket", EVENT_CONNECTION_SERVER_ERROR);
+        err_dump(config->logPath, 0, 0, "can't open stream socket", EVENT_CONNECTION_SERVER_ERROR);
     }
 
     // Limpar a estrutura do socket
@@ -71,15 +127,15 @@ void initializeSocket(struct sockaddr_in *serv_addr, int *sockfd, ServerConfig c
     // Preencher a estrutura do socket
     serv_addr->sin_family = AF_INET;
     serv_addr->sin_addr.s_addr = htonl(INADDR_ANY);
-    serv_addr->sin_port = htons(config.serverPort);
+    serv_addr->sin_port = htons(config->serverPort);
 
     // Associar o socket a um endereco qualquer
     if (bind(*sockfd, (struct sockaddr *)serv_addr, sizeof(*serv_addr)) < 0) {
-        err_dump(config.logPath, 0, 0, "can't bind local address", EVENT_CONNECTION_SERVER_ERROR);
+        err_dump(config->logPath, 0, 0, "can't bind local address", EVENT_CONNECTION_SERVER_ERROR);
     }
 
     // Ouvir o socket
-    listen(*sockfd, 2);
+    listen(*sockfd, 1);
 }
 
 void sendBoard(int *socket, Game *game) {
@@ -106,7 +162,7 @@ void sendBoard(int *socket, Game *game) {
     json_value_free(root_value);
 }
 
-void receiveLines(int *newSockfd, Game *game, int playerID, ServerConfig config) {
+void receiveLines(int *newSockfd, Game *game, int playerID, ServerConfig *config) {
 
     char buffer[256];
 
@@ -120,7 +176,7 @@ void receiveLines(int *newSockfd, Game *game, int playerID, ServerConfig config)
 
             // Receber linha do cliente
             if (receiveLine(newSockfd, buffer) <= 0) {
-                closeClientConnection(newSockfd, config.logPath, game->id, playerID, EVENT_CONNECTION_CLIENT_CLOSED);
+                closeClientConnection(newSockfd, config->logPath, game->id, playerID, EVENT_CONNECTION_CLIENT_CLOSED);
                 return;
             }
 
@@ -130,13 +186,15 @@ void receiveLines(int *newSockfd, Game *game, int playerID, ServerConfig config)
                 insertLine[j] = buffer[j] - '0';
             }
 
-            // Verificar a linha recebida com a função verifyLine
-            correctLine = verifyLine(config.logPath, buffer, game, insertLine, i, playerID);
+            printf("-----------------------------------------------------\n");
 
             // **Adicionei print para verificar a linha recebida**
-            printf("Linha recebida do cliente: %s\n", buffer); 
+            printf("Linha recebida do cliente %d: %s\n", playerID, buffer); 
 
             printf("Verificando linha %d...\n", i + 1);
+
+            // Verificar a linha recebida com a função verifyLine
+            correctLine = verifyLine(config->logPath, buffer, game, insertLine, i, playerID);
 
             // Enviar resposta ao cliente
             if (correctLine) {
