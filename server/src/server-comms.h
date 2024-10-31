@@ -1,6 +1,7 @@
 #ifndef SERVER_COMMS_H
 #define SERVER_COMMS_H
 
+#include <stdbool.h>
 #include "server-game.h" // Include server-game.h to access Game struct
 
 typedef struct {
@@ -12,6 +13,8 @@ int generateUniqueClientId();
 
 // Função para lidar com o cliente
 void *handleClient(void *arg);
+
+Game *createRoomAndGame(int *newSockfd, ServerConfig *config, int playerID, bool isSinglePlayer);
 
 // Funções de comunicação do servidor
 void initializeSocket(struct sockaddr_in *serv_addr, int *sockfd, ServerConfig *config);

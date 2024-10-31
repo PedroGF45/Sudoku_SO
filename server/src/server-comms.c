@@ -55,34 +55,28 @@ void *handleClient(void *arg) {
     } else {
         
         // cliente quer um novo jogo random
-        if (strcmp(buffer, "newRandomGame") == 0) {
+        if (strcmp(buffer, "newRandomSinglePLayerGame") == 0) {
 
-            // Create Room 
-            Room *room = createRoom(config);
-
-            // Adicionar sala ao config
-            config->rooms[room->id - 1] = room;
-
-            // Escolher um jogo aleatório
-            Game *game = loadRandomGame(config, playerID);
-
-            if (game == NULL) {
-                fprintf(stderr, "Error loading random game\n");
-                exit(1);
-            }
-
-            // Adicionar jogo à sala
-            room->game = game;
-
-            // Associar jogador ao jogo
-            room->players[0] = playerID;
-
-            printf("Novo jogo aleatório criado para o cliente %d com o jogo %d\n", playerID, room->game->id);
+            // criar novo jogo single player
+            Game *game = createRoomAndGame(&newSockfd, config, playerID, true);
 
             // Enviar tabuleiro ao cliente
             sendBoard(&newSockfd, game);
 
-            // Receber linhas do cliente
+            // receber linhas do cliente
+            receiveLines(&newSockfd, game, playerID, config);
+
+
+        // cliente quer random multiplayer game
+        } else if (strcmp(buffer, "newRandomMultiPlayerGame") == 0) {
+
+            // criar novo jogo single player
+            Game *game = createRoomAndGame(&newSockfd, config, playerID, false);
+
+            // Enviar tabuleiro ao cliente
+            sendBoard(&newSockfd, game);
+
+            // receber linhas do cliente
             receiveLines(&newSockfd, game, playerID, config);
 
         // cliente quer ver jogos existentes
@@ -112,6 +106,50 @@ void *handleClient(void *arg) {
 
     // terminar a thread
     pthread_exit(NULL);
+}
+
+Game *createRoomAndGame(int *newSockfd, ServerConfig *config, int playerID, bool isSinglePlayer) {
+
+    // check if there's config->rooms is full by looping
+    if (config->numRooms == config->maxRooms) {
+        // send message to client
+        send(*newSockfd, "No rooms available", strlen("No rooms available"), 0);
+        // write log
+        writeLogJSON(config->logPath, 0, playerID, "No rooms available");
+        return NULL;
+    }
+
+    // create room
+    Room *room = createRoom(config);
+
+    // add room to config
+    config->rooms[room->id - 1] = room;
+
+    // load random game
+    Game *game = loadRandomGame(config, playerID);
+
+    if (game == NULL) {
+        fprintf(stderr, "Error loading random game\n");
+        exit(1);
+    }
+
+    // add game to room
+    room->game = game;
+
+    if (isSinglePlayer) {
+        // set max players
+        room->maxPlayers = 1;
+    } else {
+        // set max players
+        room->maxPlayers = config->maxPlayersPerRoom;
+    }
+
+    // associate player to game
+    room->players[0] = playerID;
+
+    printf("New random multiplayer game created for client %d with game %d\n", playerID, room->game->id);
+
+    return game;
 }
 
 void initializeSocket(struct sockaddr_in *serv_addr, int *sockfd, ServerConfig *config) {
