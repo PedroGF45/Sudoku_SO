@@ -2,6 +2,7 @@
 #include <stdlib.h> 
 #include <string.h> // Usar strings (strcpy(), strcmp())
 #include <time.h>   // Usar time()
+#include <stdbool.h> // Usar bool
 #include "../../utils/logs/logs.h"
 #include "../../utils/parson/parson.h"
 #include "server-game.h"
@@ -164,32 +165,54 @@ Game *loadRandomGame(ServerConfig *config, int playerID) {
 }
 
 int verifyLine(char * logFileName, char * solutionSent, Game *game, int insertLine[9], int lineNumber, int playerID) {
-    int correct = 1;
+
     char logMessage[100];
     
-    sprintf(logMessage, "%s para a linha %d: %s", EVENT_SOLUTION_SENT, lineNumber + 1, solutionSent);
+    sprintf(logMessage, "O jogador %d no jogo %d %s para a linha %d: %s", playerID, game->id, EVENT_SOLUTION_SENT, lineNumber + 1, solutionSent);
     writeLogJSON(logFileName, game->id, playerID, logMessage);
     
     for (int j = 0; j < 9; j++) {
-        if (game->board[lineNumber][j] != 0) {
-            continue;  // Ignora valores fixos
-        }
 
+        // verifica se o valor inserido é igual ao valor da solução
         if (insertLine[j] == game->solution[lineNumber][j]) {
+            
+            // se for igual, atualiza o tabuleiro
             game->board[lineNumber][j] = insertLine[j];
-        } else {
-            correct = 0;
-            printf("Erro na posição %d: esperado %d, recebido %d\n", j + 1, game->solution[lineNumber][j], insertLine[j]);
+
+        // se o valor inserido for diferente do valor da solução
+        } 
+
+        printf("Posição %d: esperado %d, recebido %d\n", j + 1, game->solution[lineNumber][j], insertLine[j]);
+    }
+
+    // limpa logMessage
+    memset(logMessage, 0, sizeof(logMessage));
+
+    // verifica se a linha está correta
+    if (isLineCorrect(game, lineNumber)) {
+
+        // linha correta
+        snprintf(logMessage, sizeof(logMessage), "Linha enviada (%s) validada como CERTA", solutionSent);
+        writeLogJSON(logFileName, game->id, playerID, logMessage);
+        return 1;
+
+    } else {
+
+        printf("Linha incorreta\n");
+        // linha incorreta
+        snprintf(logMessage, sizeof(logMessage), "Linha enviada (%s) validada como ERRADA/INCOMPLETA", solutionSent);
+        writeLogJSON(logFileName, game->id, playerID, logMessage);
+        return 0;
+    }
+}
+
+bool isLineCorrect(Game *game, int row) {
+    for (int i = 0; i < 9; i++) {
+        if (game->board[row][i] != game->solution[row][i]) {
+            return false;
         }
     }
-
-    if (correct) {
-        writeLogJSON(logFileName, game->id, playerID, "Linha validada como correct");
-    } else {
-        writeLogJSON(logFileName, game->id, playerID, "Linha invalidada, tentar novamente");
-    }
-
-    return correct;
+    return true;
 }
 
 // Criar room

@@ -61,7 +61,7 @@ void *handleClient(void *arg) {
             Game *game = createRoomAndGame(&newSockfd, config, playerID, true);
 
             // Enviar tabuleiro ao cliente
-            sendBoard(&newSockfd, game);
+            sendBoard(&newSockfd, game, config);
 
             // receber linhas do cliente
             receiveLines(&newSockfd, game, playerID, config);
@@ -74,7 +74,7 @@ void *handleClient(void *arg) {
             Game *game = createRoomAndGame(&newSockfd, config, playerID, false);
 
             // Enviar tabuleiro ao cliente
-            sendBoard(&newSockfd, game);
+            sendBoard(&newSockfd, game, config);
 
             // receber linhas do cliente
             receiveLines(&newSockfd, game, playerID, config);
@@ -176,7 +176,7 @@ void initializeSocket(struct sockaddr_in *serv_addr, int *sockfd, ServerConfig *
     listen(*sockfd, 1);
 }
 
-void sendBoard(int *socket, Game *game) {
+void sendBoard(int *socket, Game *game, ServerConfig *config) {
     // Enviar board ao cliente em formato JSON
     JSON_Value *root_value = json_value_init_object();
     JSON_Object *root_object = json_value_get_object(root_value);
@@ -195,60 +195,68 @@ void sendBoard(int *socket, Game *game) {
 
     json_object_set_value(root_object, "board", board_value);
     char *serialized_string = json_serialize_to_string(root_value);
-    send(*socket, serialized_string, strlen(serialized_string), 0);
+
+
+    if (send(*socket, serialized_string, strlen(serialized_string), 0) < 0) {
+        err_dump(config->logPath, game->id, 0, "can't send board to client", EVENT_MESSAGE_SERVER_NOT_SENT);
+        return;
+    }
+
     json_free_serialized_string(serialized_string);
     json_value_free(root_value);
 }
 
 void receiveLines(int *newSockfd, Game *game, int playerID, ServerConfig *config) {
 
-    char buffer[256];
+    char buffer[BUFFER_SIZE];
 
     // Receber e validar as linhas do cliente
     for (int i = 0; i < 9; i++) {
+
         int correctLine = 0;
 
+        char line[10];
+
         while (!correctLine) {
+
             // Limpar buffer
-            memset(buffer, 0, sizeof(buffer));
+            memset(line, '0', sizeof(line));
 
             // Receber linha do cliente
-            if (receiveLine(newSockfd, buffer) <= 0) {
-                closeClientConnection(newSockfd, config->logPath, game->id, playerID, EVENT_CONNECTION_CLIENT_CLOSED);
+            if (recv(*newSockfd, line, sizeof(line), 0) < 0) {
+                err_dump(config->logPath, game->id, playerID, "can't receive line from client", EVENT_MESSAGE_SERVER_NOT_RECEIVED);
                 return;
-            }
-
-            // Converte a linha recebida em valores inteiros
-            int insertLine[9];
-            for (int j = 0; j < 9; j++) {
-                insertLine[j] = buffer[j] - '0';
-            }
-
-            printf("-----------------------------------------------------\n");
-
-            // **Adicionei print para verificar a linha recebida**
-            printf("Linha recebida do cliente %d: %s\n", playerID, buffer); 
-
-            printf("Verificando linha %d...\n", i + 1);
-
-            // Verificar a linha recebida com a função verifyLine
-            correctLine = verifyLine(config->logPath, buffer, game, insertLine, i, playerID);
-
-            // Enviar resposta ao cliente
-            if (correctLine) {
-                strcpy(buffer, "correto");
             } else {
-                strcpy(buffer, "incorreto: Valores incorretos na linha, tente novamente");
-            }
 
-            send(*newSockfd, buffer, strlen(buffer), 0);
-            sendBoard(newSockfd, game);
+                printf("-----------------------------------------------------\n");
+                // **Adicionei print para verificar a linha recebida**
+                printf("Linha recebida do cliente %d: %s\n", playerID, line); 
+
+                // Converte a linha recebida em valores inteiros
+                int insertLine[9];
+                for (int j = 0; j < 9; j++) {
+                    insertLine[j] = line[j] - '0';
+                }
+                
+                // Verificar a linha recebida com a função verifyLine
+                correctLine = verifyLine(config->logPath, buffer, game, insertLine, i, playerID);
+
+                if (correctLine == 1) {
+                    // linha correta
+                    printf("Linha %d correta\n", i + 1);
+                } else {
+                    // linha incorreta
+                    printf("Linha %d incorreta\n", i + 1);
+                }
+
+                // wait for client to receive the line
+                sleep(1);
+
+                // Enviar o tabuleiro atualizado ao cliente
+                sendBoard(newSockfd, game, config);
+            }
         }
     }
-}
-
-int receiveLine(int *socket, char *buffer) {
-    return recv(*socket, buffer, 9, 0);
 }
 
 void closeClientConnection(int *socket, char *logPath, int gameID, int playerID,  char *event) {

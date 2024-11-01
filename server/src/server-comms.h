@@ -20,7 +20,7 @@ Game *createRoomAndGame(int *newSockfd, ServerConfig *config, int playerID, bool
 void initializeSocket(struct sockaddr_in *serv_addr, int *sockfd, ServerConfig *config);
 
 // Enviar tabuleiro ao cliente
-void sendBoard(int *socket, Game *game);
+void sendBoard(int *socket, Game *game, ServerConfig *config);
 
 // Receber linhas do cliente
 void receiveLines(int *newSockfd, Game *game, int playerID, ServerConfig *config);
