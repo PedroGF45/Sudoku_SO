@@ -1,3 +1,4 @@
+#include <unistd.h>
 #include "../../utils/parson/parson.h"
 #include "../../utils/network/network.h"
 #include "../../utils/logs/logs.h"
@@ -339,37 +340,38 @@ void showMultiplayerGames(int *socketfd, clientConfig config) {
 
 void sendLines(int *socketfd, clientConfig config) {
 
+    // buffer for the board
     char buffer[BUFFER_SIZE];
-    memset(buffer, 0, sizeof(buffer));
 
     // Enviar linhas inseridas pelo utilizador e receber o board atualizado
-    for (int i = 0; i < 9; i++) {
+    for (int row = 0; row < 9; row++) {
+
         int validLine = 0;  // Variável para controlar se a linha está correta
+
+        // line to send to server
+        char line[10];
+
+        // initiliaze buffer with '0' and null terminator
+        memset(line, '0', sizeof(line));
+
         while (!validLine) {
 
             if (config.isManual) {
-                printf("Insira valores para a linha %d do board (exactamente 9 digitos):\n", i + 1);
-                scanf("%s", buffer);
+
+                printf("Insira valores para a linha %d do board (exactamente 9 digitos):\n", row + 1);
+                scanf("%s", line);
+
             } else {
-                getRandomLine(buffer);
+
+                resolveLine(buffer, line, row, config.difficulty);
             }
+
+            printf("Linha envida: %s\n", line);
 
             // Enviar a linha ao servidor
-            send(*socketfd, buffer, strlen(buffer), 0);
-
-            // **Forçar a recepção do resultado do servidor antes de continuar**
-            memset(buffer, 0, sizeof(buffer));
-            if (recv(*socketfd, buffer, sizeof(buffer), 0) < 0) {
-                err_dump(config.logPath, 0, config.clientID, "can't receive validation from server", EVENT_MESSAGE_CLIENT_NOT_RECEIVED);
+            if (send(*socketfd, line, sizeof(line), 0) < 0) {
+                err_dump(config.logPath, 0, config.clientID, "can't send lines to server", EVENT_MESSAGE_CLIENT_NOT_SENT);
                 continue;
-            }
-
-            // Verificar se a linha foi validada corretamente
-            if (strcmp(buffer, "correto") == 0) {
-                printf("Linha %d está correta!\n", i + 1);
-                validLine = 1;  // A linha está correta, pode avançar para a próxima
-            } else {
-                printf("Linha %d contém erros, tente novamente.\n", i + 1);
             }
 
             // Receber o board atualizado
@@ -382,8 +384,20 @@ void sendLines(int *socketfd, clientConfig config) {
             // Exibir o board atualizado
             JSON_Value *root_value = json_parse_string(buffer);
             JSON_Object *root_object = json_value_get_object(root_value);
-            printf("-------------------------------------\n");
             JSON_Array *board_array = json_object_get_array(root_object, "board");
+
+            // check if the line is correct by comparing line and row of board
+            JSON_Array *linha_array = json_array_get_array(board_array, row);
+            for (int i = 0; i < 9; i++) {
+                if (line[i] != (int)json_array_get_number(linha_array, i) + '0') {
+                    validLine = 0;
+                    break;
+                } else {
+                    validLine = 1;
+                }
+            }
+
+            printf("-------------------------------------\n");
             for (int i = 0; i < json_array_get_count(board_array); i++) {
                 JSON_Array *linha_array = json_array_get_array(board_array, i);
                 printf("| line %d -> | ", i + 1);

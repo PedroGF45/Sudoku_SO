@@ -19,6 +19,9 @@ Game *loadRandomGame(ServerConfig *config, int playerID);
 // nova funcao para verificar linha a linha
 int verifyLine(char *logFileName, char *solutionSent, Game *game, int insertLine[9], int lineNumber, int playerID);
 
+// Verifica se a linha está correta
+bool isLineCorrect(Game *game, int row);
+
 // Criar room
 Room *createRoom(ServerConfig *config);
 
