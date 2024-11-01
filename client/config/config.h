@@ -10,6 +10,7 @@ typedef struct {
     int clientID;
     char logPath[256];
     bool isManual;
+    int difficulty;
 } clientConfig;
 
 int generateClientID();

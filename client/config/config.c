@@ -54,6 +54,12 @@ clientConfig getClientConfig(char *configPath) {
         config.isManual = isManual == 1 ? true : false;
     }
 
+    if (fgets(line, sizeof(line), file) != NULL) {
+        // Remover a nova linha, se houver
+        line[strcspn(line, "\n")] = 0;
+        sscanf(line, "DIFFICULTY = %d", &config.difficulty);
+    }
+
     // Fecha o ficheiro
     fclose(file);
 
@@ -62,7 +68,14 @@ clientConfig getClientConfig(char *configPath) {
     printf("Hostname do servidor: %s\n", config.serverHostName);
     printf("ID do cliente: %d\n", config.clientID);
     printf("Log path do cliente: %s\n", config.logPath);
-    printf("Modo manual: %d\n", config.isManual);
+    printf("Modo: %s\n", config.isManual ? "manual" : "automatico");
+    if (config.difficulty == 1) {
+        printf("Dificuldade: Facil\n");
+    } else if (config.difficulty == 2) {
+        printf("Dificuldade: Medio\n");
+    } else {
+        printf("Dificuldade: Dificil\n");
+    }
 
     // Retorna a variável config
     return config;
