@@ -14,7 +14,8 @@ int generateUniqueClientId();
 // Função para lidar com o cliente
 void *handleClient(void *arg);
 
-Game *createRoomAndGame(int *newSockfd, ServerConfig *config, int playerID, bool isSinglePlayer);
+// Criar room e jogo
+Room *createRoomAndGame(int *newSockfd, ServerConfig *config, int playerID, bool isSinglePlayer, bool isRandom, int gameID);
 
 // Funções de comunicação do servidor
 void initializeSocket(struct sockaddr_in *serv_addr, int *sockfd, ServerConfig *config);
@@ -25,10 +26,8 @@ void sendBoard(int *socket, Game *game, ServerConfig *config);
 // Receber linhas do cliente
 void receiveLines(int *newSockfd, Game *game, int playerID, ServerConfig *config);
 
-// Receber linha do cliente
-int receiveLine(int *socket, char *buffer);
+// Terminar jogo
+void finishGame(int *socket, Room *room, int playerID, ServerConfig *config);
 
-// Terminar a conexão com o cliente
-void closeClientConnection(int *socket, char *logPath, int gameID, int playerID, char *event);
 
 #endif

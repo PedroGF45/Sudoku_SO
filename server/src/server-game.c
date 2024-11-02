@@ -86,7 +86,8 @@ Game *loadGame(ServerConfig *config, int gameID, int playerID) {
             writeLogJSON(config->logPath, gameID, playerID, EVENT_GAME_LOAD);
 
             // if game has been found leave loop
-            break;
+            json_value_free(root_value);
+            return game; // Return the game immediately
         } 
     }
 
@@ -102,7 +103,8 @@ Game *loadGame(ServerConfig *config, int gameID, int playerID) {
 
         // mostra no terminal e encerra programa
         fprintf(stderr, "game com ID %d nao encontrado.\n", gameID);
-        game = NULL;
+        free(game);
+        return NULL;
     }
 
     // Limpar memoria alocada ao JSON
@@ -198,7 +200,6 @@ int verifyLine(char * logFileName, char * solutionSent, Game *game, int insertLi
 
     } else {
 
-        printf("Linha incorreta\n");
         // linha incorreta
         snprintf(logMessage, sizeof(logMessage), "Linha enviada (%s) validada como ERRADA/INCOMPLETA", solutionSent);
         writeLogJSON(logFileName, game->id, playerID, logMessage);
@@ -229,7 +230,6 @@ Room *createRoom(ServerConfig *config) {
     room->players = (int *)malloc(config->maxPlayersPerRoom * sizeof(int));
     memset(config->rooms, 0, sizeof(Room) * config->maxRooms); // Ensures all fields in rooms are set to 0
 
-
     // increase the number of rooms
     config->numRooms++;
     
@@ -237,37 +237,116 @@ Room *createRoom(ServerConfig *config) {
     return room;
 }
 
-// Obter jogos existentes
-char *getExistingGames(ServerConfig *config) {
+Room *joinRoom(ServerConfig *config, int roomID, int playerID) {
 
-    // iterar sobre as salas e obter os jogos existentes
-    char *games = (char *)malloc(256);
-    memset(games, 0, 256);
-
-    for (int i = 0; i < config->maxRooms; i++) {
-
-        // check if theres an initialized room in the server
-        if (config->rooms[i] != NULL) {          
-
-            // check if theres a game in the room
-            if (config->rooms[i]->game != NULL) {
-
-                // get the game id
-                int gameID = config->rooms[i]->game->id;
-
-                // create a menu string
-                char roomID[10];
-                sprintf(roomID, "%d", gameID);
-
-                // check if its the last room
-                if (i == config->maxRooms - 1) {
-                    strcat(games, roomID);
-                } else {
-                    strcat(games, roomID);
-                    strcat(games, ",");
-                }
-            }
-        }
+    // check if roomID is valid
+    if (roomID < 1 || roomID > config->numRooms) {
+        fprintf(stderr, "Room ID %d is invalid\n", roomID);
+        return NULL;
     }
+
+    // get the room
+    Room *room = config->rooms[roomID - 1];
+
+    // check if room is full
+    if (room->numPlayers == room->maxPlayers) {
+        fprintf(stderr, "Room %d is full\n", roomID);
+        return NULL;
+    }
+
+    // add player to room
+    room->players[room->numPlayers] = playerID;
+    room->numPlayers++;
+
+    // log player joined room
+    char logMessage[100];
+    snprintf(logMessage, sizeof(logMessage), "Player %d joined room %d", playerID, roomID);
+    writeLogJSON(config->logPath, room->game->id, playerID, logMessage);
+
+    return room;
+}
+
+// Obter jogos existentes
+char *getGames(ServerConfig *config) {
+
+    // open the file
+    FILE *file = fopen(config->gamePath, "r");
+
+    // check if file is opened
+    if (file == NULL) {
+        writeLogJSON(config->logPath, 0, 0, EVENT_GAME_NOT_LOAD);
+        exit(1);
+    }
+
+    // get the size of the file
+    fseek(file, 0, SEEK_END);
+    long file_size = ftell(file);
+    fseek(file, 0, SEEK_SET);
+
+    // read the file content
+    char *file_content = malloc(file_size + 1);
+    fread(file_content, 1, file_size, file);
+
+    // add null terminator to the end of the file content
+    file_content[file_size] = '\0';
+
+    // close the file
+    fclose(file);
+
+    // get ids of the games
+    JSON_Value *root_value = json_parse_string(file_content);
+    JSON_Object *root_object = json_value_get_object(root_value);
+
+    // free the file content
+    free(file_content);
+
+    // get the games array
+    JSON_Array *games_array = json_object_get_array(root_object, "games");
+
+    // get the number of games
+    int numberOfGames = json_array_get_count(games_array);
+
+    // create a string to store the ids of the games
+    char *games = (char *)malloc(1024);
+    memset(games, 0, 1024);
+
+    // iterate over the games array
+    for (int i = 0; i < numberOfGames; i++) {
+        JSON_Object *game_object = json_array_get_object(games_array, i);
+        int gameID = (int)json_object_get_number(game_object, "id");
+        char gameIDString[10];
+        sprintf(gameIDString, "%d", gameID);
+        strcat(games, "Game ID: ");
+        strcat(games, gameIDString);
+        strcat(games, "\n");
+    }
+
+    // free the JSON object
+    json_value_free(root_value);
+
+    // return the games
     return games;
+}
+
+char *getRooms(ServerConfig *config) {
+
+        // iterate over the rooms
+        if (config->numRooms == 0) {
+            return "No rooms available\n";
+        }
+    
+        // create a string to store the rooms
+        char *rooms = (char *)malloc(1024);
+        memset(rooms, 0, 1024);
+
+        for (int i = 0; i < config->numRooms; i++) {
+        
+            // show number of players in the room, max players in the room and the game ID
+            char roomString[100];
+            sprintf(roomString, "Room ID: %d, Players: %d/%d, Game ID: %d\n", config->rooms[i]->id, config->rooms[i]->numPlayers, config->rooms[i]->maxPlayers, config->rooms[i]->game->id);
+            strcat(rooms, roomString);
+        }
+
+        // return the rooms
+        return rooms;
 }

@@ -25,7 +25,13 @@ bool isLineCorrect(Game *game, int row);
 // Criar room
 Room *createRoom(ServerConfig *config);
 
+// entrar no jogo
+Room *joinRoom(ServerConfig *config, int roomID, int playerID);
+
 // Obter jogos existentes
-char *getExistingGames(ServerConfig *config);
+char *getGames(ServerConfig *config);
+
+// Obter salas existentes
+char *getRooms(ServerConfig *config);
 
 #endif
