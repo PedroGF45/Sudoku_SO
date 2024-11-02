@@ -41,12 +41,19 @@ void playRandomMultiPlayerGame(int *socketfd, clientConfig config);
 // show multiplayer menu with options to select
 void showMultiPlayerMenu(int *socketfd, clientConfig config);
 
-void showMultiplayerGames(int *socketfd, clientConfig config);
+// show multiplayer rooms
+void showMultiplayerRooms(int *socketfd, clientConfig config);
 
 // show statistics menu with statistics to show
 //void showStatisticsMenu(int *socketfd, clientConfig config);
 
 // send lines to server
 void sendLines(int *socketfd, clientConfig config);
+
+// show games to select
+void showGames(int *socketfd, clientConfig config, bool isSinglePlayer);
+
+// close connection
+void closeConnection(int *socketfd, clientConfig config);
 
 #endif

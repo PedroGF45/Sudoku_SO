@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
     } else {
 
         char logMessage[256];
-        sprintf(logMessage, "%s: asked for a client ID", EVENT_MESSAGE_CLIENT_SENT);
+        snprintf(logMessage, sizeof(logMessage), "%s: asked for a client ID", EVENT_MESSAGE_CLIENT_SENT);
 
         // log message sent to server
         writeLogJSON(config.logPath, 0, config.clientID, logMessage);
@@ -58,15 +58,24 @@ int main(int argc, char *argv[]) {
         err_dump(config.logPath, 0, 0, "can't receive client ID", EVENT_MESSAGE_CLIENT_NOT_RECEIVED);
     } else {
         config.clientID = atoi(buffer);
-        printf("Client ID: %d\n", config.clientID);
-        writeLogJSON(config.logPath, 0, config.clientID, EVENT_MESSAGE_CLIENT_RECEIVED);
+
+        char logMessage[256];
+        snprintf(logMessage, sizeof(logMessage), "%s: received client ID %d", EVENT_MESSAGE_CLIENT_RECEIVED, config.clientID);
+        writeLogJSON(config.logPath, 0, config.clientID, logMessage);
     }
 
-    // Imprimir menu
-    showMenu(&sockfd, config);
+    bool continueLoop = true;
 
-    // send lines to server
-    sendLines(&sockfd, config);
+    while (continueLoop) {
+
+        // Imprimir menu
+        showMenu(&sockfd, config);
+
+        // send lines to server
+        sendLines(&sockfd, config);
+
+        printf("Game finished!\n");
+    }
     
     // Fechar o socket
     close(sockfd);

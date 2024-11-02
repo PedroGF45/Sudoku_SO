@@ -10,6 +10,7 @@ typedef struct {
 typedef struct {
     int id;             // room ID
     int maxPlayers;     // max players in the room
+    int numPlayers;     // number of players in the room
     int *players;       // has the players IDs
     Game *game;         // game
 } Room;

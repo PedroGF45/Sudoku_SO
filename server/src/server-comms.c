@@ -22,7 +22,8 @@ void *handleClient(void *arg) {
     char buffer[BUFFER_SIZE];
     memset(buffer, 0, sizeof(buffer));
 
-    int playerID;
+    int playerID = 0;
+    Room *room;
 
     // Receber ID do jogador
     if (recv(newSockfd, buffer, sizeof(buffer), 0) < 0) {
@@ -47,53 +48,184 @@ void *handleClient(void *arg) {
         printf("ID atribuido ao novo cliente: %d\n", playerID);
         writeLogJSON(config->logPath, 0, playerID, EVENT_CONNECTION_SERVER_ESTABLISHED);
     }
+    bool continueLoop = true;
 
-    // Receber menu status
-    if (recv(newSockfd, buffer, sizeof(buffer), 0) < 0) {
-        // erro ao receber modo de jogo
-        err_dump(config->logPath, 0, playerID, "can't receive menu status", EVENT_MESSAGE_SERVER_NOT_RECEIVED);
-    } else {
-        
-        // cliente quer um novo jogo random
-        if (strcmp(buffer, "newRandomSinglePLayerGame") == 0) {
+    while (continueLoop) {
 
-            // criar novo jogo single player
-            Game *game = createRoomAndGame(&newSockfd, config, playerID, true);
+        bool startAgain = false;
+        memset(buffer, 0, sizeof(buffer));
 
-            // Enviar tabuleiro ao cliente
-            sendBoard(&newSockfd, game, config);
-
-            // receber linhas do cliente
-            receiveLines(&newSockfd, game, playerID, config);
-
-
-        // cliente quer random multiplayer game
-        } else if (strcmp(buffer, "newRandomMultiPlayerGame") == 0) {
-
-            // criar novo jogo single player
-            Game *game = createRoomAndGame(&newSockfd, config, playerID, false);
-
-            // Enviar tabuleiro ao cliente
-            sendBoard(&newSockfd, game, config);
-
-            // receber linhas do cliente
-            receiveLines(&newSockfd, game, playerID, config);
-
-        // cliente quer ver jogos existentes
-        } else if (strcmp(buffer, "existingGames") == 0) {
+        // Receber menu status
+        if (recv(newSockfd, buffer, sizeof(buffer), 0) < 0) {
+            // erro ao receber modo de jogo
+            err_dump(config->logPath, 0, playerID, "can't receive menu status", EVENT_MESSAGE_SERVER_NOT_RECEIVED);
+        } else {
             
-            // Receber jogos existentes
-            char buffer[BUFFER_SIZE];
-            memset(buffer, 0, sizeof(buffer));
+            // cliente quer um novo jogo random
+            if (strcmp(buffer, "newRandomSinglePLayerGame") == 0) {
 
-            // Obter jogos existentes
-            char *games = getExistingGames(config);
+                // criar novo jogo single player
+                room = createRoomAndGame(&newSockfd, config, playerID, true, true, 0);
 
-            // Enviar jogos existentes ao cliente
-            send(newSockfd, games, strlen(games), 0);
+            // cliente quer random multiplayer game
+            } else if (strcmp(buffer, "newRandomMultiPlayerGame") == 0) {
 
-            // escrever no log
-            writeLogJSON(config->logPath, 0, playerID, EVENT_SERVER_GAMES_SENT);
+                // criar novo jogo single player
+                room = createRoomAndGame(&newSockfd, config, playerID, false, true, 0);
+
+            // cliente quer ver jogos existentes
+            } else if (strcmp(buffer, "selectSinglePlayerGames") == 0 || strcmp(buffer, "selectMultiPlayerGames") == 0) {
+
+                bool isSinglePlayer = strcmp(buffer, "selectSinglePlayerGames") == 0;
+                
+                // Receber jogos existentes
+                char buffer[BUFFER_SIZE];
+                memset(buffer, 0, sizeof(buffer));
+
+                // Obter jogos existentes
+                char *games = getGames(config);
+
+                printf("Buffer: %s\n", buffer);
+                printf("Jogos existentes: %s\n", games);
+
+                bool leave = false;
+
+                while (!leave) {
+
+                    // Enviar jogos existentes ao cliente
+                    if (send(newSockfd, games, strlen(games), 0) < 0) {
+
+                        // erro ao enviar jogos existentes
+                        err_dump(config->logPath, 0, playerID, "can't send existing games to client", EVENT_MESSAGE_SERVER_NOT_SENT);
+
+                    } else {
+
+                        // escrever no log
+                        writeLogJSON(config->logPath, 0, playerID, EVENT_SERVER_GAMES_SENT);
+                    }
+
+                    printf("RECEBER IDS DOS JOGOS\n");
+                    memset(buffer, 0, sizeof(buffer));
+
+                    // receber ID do jogo
+                    if (recv(newSockfd, buffer, sizeof(buffer), 0) < 0) {
+                        // erro ao receber ID do jogo
+                        err_dump(config->logPath, 0, playerID, "can't receive game ID from client", EVENT_MESSAGE_SERVER_NOT_RECEIVED);
+
+                    // se o cliente mandar 0, voltar ao menu
+                    } else if (atoi(buffer) == 0) {
+
+                        printf("Cliente %d voltou atras no menu\n", playerID);
+                        leave = true;
+                        startAgain = true;
+
+                    } else {
+
+                        printf("Cliente %d escolheu o jogo single player com o ID: %s\n", playerID, buffer);
+
+                        // obter ID do jogo
+                        int gameID = atoi(buffer);
+
+                        // carregar jogo
+                        if (isSinglePlayer) {
+
+                            // criar novo jogo single player
+                            room = createRoomAndGame(&newSockfd, config, playerID, true, false, gameID);
+                        } else {
+
+                            // criar novo jogo multiplayer
+                            room = createRoomAndGame(&newSockfd, config, playerID, false, false, gameID);
+                        }
+
+                        // sair do loop
+                        leave = true;
+                    }
+                }
+
+                // libertar memória alocada
+                free(games);
+
+            } else if (strcmp(buffer, "existingRooms") == 0) {
+
+                // Receber jogos existentes
+                char buffer[BUFFER_SIZE];
+                memset(buffer, 0, sizeof(buffer));
+
+                // Obter jogos existentes
+                char *rooms = getRooms(config);
+
+                printf("Buffer: %s\n", buffer);
+                printf("Rooms existentes: %s\n", rooms);
+
+                bool leave = false;
+
+                while (!leave) {
+
+                    // Enviar ids das rooms existentes ao cliente
+                    if (send(newSockfd, rooms, strlen(rooms), 0) < 0) {
+
+                        // erro ao enviar jogos existentes
+                        err_dump(config->logPath, 0, playerID, "can't send existing games to client", EVENT_MESSAGE_SERVER_NOT_SENT);
+
+                    } else {
+
+                        // escrever no log
+                        writeLogJSON(config->logPath, 0, playerID, EVENT_SERVER_GAMES_SENT);
+                    }
+
+                    printf("RECEBER IDS DAS ROOMS\n");
+                    memset(buffer, 0, sizeof(buffer));
+
+                    // receber ID do jogo
+                    if (recv(newSockfd, buffer, sizeof(buffer), 0) < 0) {
+
+                        // erro ao receber ID do jogo
+                        err_dump(config->logPath, 0, playerID, "can't receive room ID from client", EVENT_MESSAGE_SERVER_NOT_RECEIVED);
+
+                    // se o cliente mandar 0, voltar ao menu
+                    } else if (atoi(buffer) == 0) {
+
+                        printf("Cliente %d voltou atras no menu\n", playerID);
+                        leave = true;
+                        startAgain = true;
+
+                    } else {
+
+                        printf("Cliente %d escolheu a sala multiplayer com o ID: %s\n", playerID, buffer);
+
+                        // obter ID do jogo
+                        int roomID = atoi(buffer);
+
+                        // entrar na sala
+                        room = joinRoom(config, roomID, playerID);
+                        
+                        // sair do loop
+                        leave = true;
+                    }
+                }
+
+                // libertar memória alocada
+                printf("Rooms: %s\n", rooms);
+                if (strcmp(rooms, "No rooms available") == 0) {
+                    free(rooms);
+                }
+            } else if (strcmp(buffer, "closeConnection") == 0) {
+                continueLoop = false;
+                break;
+            }
+
+            if (!startAgain) {
+
+                // Enviar tabuleiro ao cliente
+                sendBoard(&newSockfd, room->game, config);
+
+                // receber linhas do cliente
+                receiveLines(&newSockfd, room->game, playerID, config);
+
+                // terminar o jogo
+                finishGame(&newSockfd, room, playerID, config);
+
+            }
         }
     }
 
@@ -108,7 +240,7 @@ void *handleClient(void *arg) {
     pthread_exit(NULL);
 }
 
-Game *createRoomAndGame(int *newSockfd, ServerConfig *config, int playerID, bool isSinglePlayer) {
+Room *createRoomAndGame(int *newSockfd, ServerConfig *config, int playerID, bool isSinglePlayer, bool isRandom, int gameID) {
 
     // check if there's config->rooms is full by looping
     if (config->numRooms == config->maxRooms) {
@@ -125,8 +257,14 @@ Game *createRoomAndGame(int *newSockfd, ServerConfig *config, int playerID, bool
     // add room to config
     config->rooms[room->id - 1] = room;
 
-    // load random game
-    Game *game = loadRandomGame(config, playerID);
+    // load game
+    Game *game;
+
+    if (isRandom) {
+        game = loadRandomGame(config, playerID);
+    } else {
+        game = loadGame(config, gameID, playerID);
+    }
 
     if (game == NULL) {
         fprintf(stderr, "Error loading random game\n");
@@ -146,10 +284,11 @@ Game *createRoomAndGame(int *newSockfd, ServerConfig *config, int playerID, bool
 
     // associate player to game
     room->players[0] = playerID;
+    room->numPlayers = 1;
 
-    printf("New random multiplayer game created for client %d with game %d\n", playerID, room->game->id);
+    printf("New game created for client %d with game %d\n", playerID, room->game->id);
 
-    return game;
+    return room;
 }
 
 void initializeSocket(struct sockaddr_in *serv_addr, int *sockfd, ServerConfig *config) {
@@ -213,13 +352,15 @@ void receiveLines(int *newSockfd, Game *game, int playerID, ServerConfig *config
     // Receber e validar as linhas do cliente
     for (int i = 0; i < 9; i++) {
 
+        memset(buffer, 0, sizeof(buffer));
+
         int correctLine = 0;
 
         char line[10];
 
         while (!correctLine) {
 
-            // Limpar buffer
+            // Limpar linha
             memset(line, '0', sizeof(line));
 
             // Receber linha do cliente
@@ -259,14 +400,23 @@ void receiveLines(int *newSockfd, Game *game, int playerID, ServerConfig *config
     }
 }
 
-void closeClientConnection(int *socket, char *logPath, int gameID, int playerID,  char *event) {
+void finishGame(int *socket, Room *room, int playerID, ServerConfig *config) {
 
-    // fechar a ligação com o cliente
-    close(*socket);
+    // Remove players from room
+    for (int i = 0; i < room->maxPlayers; i++) {
+        room->players[i] = 0;
+    }
 
-    // escrever na consola a mensagem
-    printf("Conexao terminada com o cliente %d e o jogo %d\n", playerID, gameID);
+    // Reset number of players
+    room->numPlayers = 0;
+    room->maxPlayers = 0;
+    
+    // free game
+    free(room->game);
 
-    // escrever no log a mensagem 
-    writeLogJSON(logPath, gameID, playerID, event);
+    // free room
+    free(room);
+
+    // decrement number of rooms
+    config->numRooms--;
 }
