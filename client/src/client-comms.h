@@ -11,49 +11,50 @@
 #define INTERFACE_SELECT_GAME "1. New Random Game\n2. New Specific Game\n3. Back\n4. Exit\nChoose an option: "
 #define INTERFACE_SELECT_MULTIPLAYER_GAME "1. Create a New Multiplayer Game\n2. Join a Multiplayer Game\n3. Back\n4. Exit\nChoose an option: "
 
-// connect to server
+
+// Estabelece uma ligação TCP com o servidor.
 void connectToServer(struct sockaddr_in *serv_addr, int *socketfd, clientConfig config);
 
-// show main menu
+// Exibe o menu principal e processa as opções do utilizador.
 void showMenu(int *socketfd, clientConfig config);
 
-// show play menu with games to select
+// Exibe o menu de opções de jogo e processa as escolhas.
 void showPlayMenu(int *socketfd, clientConfig config);
 
-// show new game menu with options to select
+// Exibe o menu para iniciar um novo jogo single player.
 void showSinglePLayerMenu(int *socketfd, clientConfig config);
 
-// play random game
+// Inicia um jogo single player aleatório.
 void playRandomSinglePlayerGame(int *socketfd, clientConfig config);
 
-// check existing games
+// Verifica e exibe jogos existentes para seleção.
 void checkExistingGames(int *socketfd, clientConfig config);
 
-// show multiplayer menu with options to select
+// Exibe o menu de opções multiplayer.
 void showMultiPlayerMenu(int *socketfd, clientConfig config);
 
-// create new multiplayer game
+// Permite ao utilizador criar ou entrar num novo jogo multiplayer.
 void createNewMultiplayerGame(int *socketfd, clientConfig config);
 
-// play random multiplayer game
+// Inicia um jogo multiplayer aleatório.
 void playRandomMultiPlayerGame(int *socketfd, clientConfig config);
 
-// show multiplayer menu with options to select
+// Exibe o menu de opções multiplayer.
 void showMultiPlayerMenu(int *socketfd, clientConfig config);
 
-// show multiplayer rooms
+// Solicita e exibe as salas multiplayer disponíveis.
 void showMultiplayerRooms(int *socketfd, clientConfig config);
 
 // show statistics menu with statistics to show
 //void showStatisticsMenu(int *socketfd, clientConfig config);
 
-// send lines to server
+// Envia linhas de jogo ao servidor e processa o tabuleiro atualizado.
 void sendLines(int *socketfd, clientConfig config);
 
-// show games to select
+// Exibe jogos disponíveis para o utilizador selecionar.
 void showGames(int *socketfd, clientConfig config, bool isSinglePlayer);
 
-// close connection
+// Envia uma mensagem para fechar a conexão com o servidor.
 void closeConnection(int *socketfd, clientConfig config);
 
 #endif

@@ -4,6 +4,27 @@
 #include <errno.h>
 #include "config.h"
 
+
+/**
+ * Carrega as configurações do cliente a partir de um ficheiro de configuração especificado.
+ *
+ * @param configPath O caminho para o ficheiro de configuração que contém as definições do cliente.
+ * @return Uma estrutura `clientConfig` preenchida com as configurações do cliente.
+ *
+ * @details A função realiza as seguintes operações:
+ * - Abre o ficheiro de configuração em modo de leitura. Se o ficheiro não puder ser aberto, o programa termina.
+ * - Lê cada linha do ficheiro e extrai as configurações usando `sscanf`:
+ *   - Endereço IP do servidor (`SERVER_IP`).
+ *   - Porta do servidor (`SERVER_PORT`).
+ *   - Nome do host do servidor (`SERVER_HOSTNAME`).
+ *   - Caminho para o ficheiro de log (`LOG_PATH`).
+ *   - Modo de jogo (manual ou automático) convertido para booleano (`IS_MANUAL`).
+ *   - Nível de dificuldade do jogo (`DIFFICULTY`).
+ * - Remove caracteres de nova linha de cada linha lida para garantir que os dados são processados corretamente.
+ * - Imprime as configurações carregadas no terminal.
+ * - Fecha o ficheiro de configuração e retorna a estrutura `clientConfig`.
+ */
+
 clientConfig getClientConfig(char *configPath) {
 
     // Cria uma variável do tipo serverConfig

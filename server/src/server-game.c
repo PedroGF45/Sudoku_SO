@@ -9,11 +9,43 @@
 
 static int nextRoomID = 1;
 
+
+/**
+ * Gera um identificador único para uma nova sala de jogo.
+ *
+ * @return Um identificador único para a sala, incrementando o valor de `nextRoomID`.
+ *
+ * @details Esta função utiliza uma variável estática `nextRoomID` para gerar IDs únicos 
+ * e sequenciais para as salas de jogo.
+ * Cada vez que a função é chamada, o valor de `nextRoomID` é retornado e, em seguida, incrementado,
+ * garantindo que cada sala criada tenha um ID exclusivo.
+ */
+
 int generateUniqueId() {
     return nextRoomID++;
 }
 
-// Funcao que vai carregar um dos games do ficheiro 'games.json' de acordo com o ID do game
+
+/**
+ * Carrega um jogo a partir do ficheiro 'games.json' com base no ID do jogo.
+ *
+ * @param config Um pointer para a estrutura `ServerConfig` que contém o caminho 
+ * para o ficheiro 'games.json' e o ficheiro de log.
+ * @param gameID O identificador do jogo que se pretende carregar.
+ * @param playerID O identificador do jogador que está a tentar carregar o jogo, 
+ * usado para o registo no log.
+ * @return Um pointer para a estrutura `Game` carregada, ou NULL se o jogo não for encontrado ou ocorrer um erro.
+ *
+ * @details Esta função faz o seguinte:
+ * - Aloca memória para a estrutura `Game` e inicializa-a a zeros.
+ * - Abre o ficheiro 'games.json' e lê o seu conteúdo. Se ocorrer um erro, regista-o no log e devolve NULL.
+ * - Faz o parse do conteúdo JSON e percorre o array de jogos para encontrar o jogo com o ID correspondente.
+ * - Se o jogo for encontrado, preenche o tabuleiro (`board`) e a solução (`solution`) na estrutura `Game`.
+ * - Regista o carregamento bem-sucedido no log e devolve o pointer para o jogo.
+ * - Se o jogo não for encontrado, regista o erro no log, imprime uma mensagem de erro no terminal, e devolve NULL.
+ * - Liberta a memória alocada para o conteúdo JSON e a estrutura `Game` em caso de falha.
+ */
+
 Game *loadGame(ServerConfig *config, int gameID, int playerID) {
 
     Game *game = (Game *)malloc(sizeof(Game));
@@ -113,6 +145,26 @@ Game *loadGame(ServerConfig *config, int gameID, int playerID) {
     return game;
 }
 
+
+/**
+ * Carrega um jogo aleatório a partir do ficheiro 'games.json'.
+ *
+ * @param config Um pointer para a estrutura `ServerConfig` que contém o caminho 
+ * para o ficheiro 'games.json' e o caminho do log.
+ * @param playerID O identificador do jogador que está a solicitar um jogo aleatório, 
+ * usado para o registo no log.
+ * @return Um pointer para a estrutura `Game` carregada, ou NULL se ocorrer um erro.
+ *
+ * @details Esta função faz o seguinte:
+ * - Abre o ficheiro 'games.json' para leitura. Se o ficheiro não puder ser aberto, 
+ * regista um erro no log e termina o programa.
+ * - Lê o conteúdo do ficheiro e garante que a string termina com um caractere nulo.
+ * - Faz o parse do conteúdo JSON e obtém o array de jogos.
+ * - Usa uma semente baseada no tempo atual para gerar um ID de jogo aleatório.
+ * - Chama a função `loadGame` para carregar o jogo aleatório selecionado.
+ * - Liberta a memória alocada para o conteúdo JSON e retorna o jogo carregado.
+ */
+
 Game *loadRandomGame(ServerConfig *config, int playerID) {
 
     // open the file
@@ -166,6 +218,27 @@ Game *loadRandomGame(ServerConfig *config, int playerID) {
     return loadGame(config, randomGameID, playerID);
 }
 
+
+/**
+ * Verifica se uma linha inserida pelo jogador está correta em relação à solução do jogo.
+ *
+ * @param logFileName O caminho para o ficheiro de log onde os eventos são registados.
+ * @param solutionSent Uma string que representa a solução enviada pelo jogador.
+ * @param game Um pointer para a estrutura `Game` que contém o estado atual do tabuleiro e a solução correta.
+ * @param insertLine Um array de 9 inteiros que representa a linha inserida pelo jogador.
+ * @param lineNumber O número da linha a ser verificada (0-indexado).
+ * @param playerID O identificador do jogador que enviou a linha.
+ * @return 1 se a linha estiver correta, 0 se estiver incorreta ou incompleta.
+ *
+ * @details Esta função faz o seguinte:
+ * - Regista no log a solução enviada pelo jogador, incluindo o ID do jogador, o ID do jogo, e o número da linha.
+ * - Itera sobre os 9 valores da linha inserida e compara cada valor com a solução do jogo.
+ * - Se o valor estiver correto, atualiza o tabuleiro do jogo com o valor inserido.
+ * - Imprime no terminal a posição da linha, o valor esperado, e o valor recebido para facilitar o debug.
+ * - Verifica se a linha está correta usando a função `isLineCorrect`.
+ * - Regista no log se a linha foi validada como correta ou incorreta e devolve 1 ou 0, respetivamente.
+ */
+
 int verifyLine(char * logFileName, char * solutionSent, Game *game, int insertLine[9], int lineNumber, int playerID) {
 
     char logMessage[100];
@@ -207,6 +280,19 @@ int verifyLine(char * logFileName, char * solutionSent, Game *game, int insertLi
     }
 }
 
+
+/**
+ * Verifica se uma linha específica do tabuleiro do jogo está correta em relação à solução.
+ *
+ * @param game Um pointer para a estrutura `Game` que contém o tabuleiro atual e a solução correta.
+ * @param row O número da linha (0-indexado) que deve ser verificada.
+ * @return `true` se todos os valores da linha estiverem corretos, `false` caso contrário.
+ *
+ * @details Esta função percorre os 9 valores da linha especificada no tabuleiro do jogo.
+ * Se algum valor da linha atual não corresponder ao valor na solução, a função devolve `false`.
+ * Se todos os valores forem iguais, a função devolve `true`, indicando que a linha está correta.
+ */
+
 bool isLineCorrect(Game *game, int row) {
     for (int i = 0; i < 9; i++) {
         if (game->board[row][i] != game->solution[row][i]) {
@@ -216,7 +302,24 @@ bool isLineCorrect(Game *game, int row) {
     return true;
 }
 
-// Criar room
+
+/**
+ * Cria uma nova sala de jogo e inicializa os seus campos.
+ *
+ * @param config Um pointer para a estrutura `ServerConfig` que contém as configurações do servidor, 
+ * incluindo o número máximo de salas e o caminho para o ficheiro de log.
+ * @return Um pointer para a nova estrutura `Room` criada, ou NULL se a alocação de memória falhar.
+ *
+ * @details Esta função faz o seguinte:
+ * - Aloca memória para uma nova estrutura `Room` e inicializa os seus campos a zeros.
+ * - Gera um identificador único para a sala usando `generateUniqueId`.
+ * - Aloca memória para o array de jogadores da sala, com o tamanho máximo definido em `config`.
+ * - Inicializa o array `config->rooms` a zeros para garantir que todos os campos estão corretamente definidos.
+ * - Incrementa o número de salas ativas no servidor.
+ * - Regista a criação da sala no ficheiro de log.
+ * - Devolve o pointer para a sala criada, ou NULL se a alocação de memória falhar.
+ */
+
 Room *createRoom(ServerConfig *config) {
 
     Room *room = (Room *)malloc(sizeof(Room));
@@ -236,6 +339,26 @@ Room *createRoom(ServerConfig *config) {
     writeLogJSON(config->logPath, 0, 0, EVENT_ROOM_LOAD);
     return room;
 }
+
+
+/**
+ * Adiciona um jogador a uma sala de jogo existente.
+ *
+ * @param config Um pointer para a estrutura `ServerConfig` que contém as informações 
+ * de configuração do servidor, incluindo a lista de salas.
+ * @param roomID O identificador da sala que o jogador pretende entrar.
+ * @param playerID O identificador do jogador que deseja juntar-se à sala.
+ * @return Um pointer para a sala `Room` se o jogador for adicionado com sucesso, 
+ * ou NULL se a sala estiver cheia ou se o `roomID` for inválido.
+ *
+ * @details Esta função faz o seguinte:
+ * - Verifica se o `roomID` fornecido é válido (dentro dos limites das salas existentes).
+ * - Obtém a sala correspondente a partir da lista de salas no servidor.
+ * - Verifica se a sala já está cheia. Se estiver, devolve NULL e imprime uma mensagem de erro no terminal.
+ * - Se houver espaço na sala, adiciona o jogador ao array de jogadores da sala e incrementa o número de jogadores.
+ * - Regista no ficheiro de log que o jogador entrou na sala.
+ * - Devolve um pointer para a sala `Room` atualizada.
+ */
 
 Room *joinRoom(ServerConfig *config, int roomID, int playerID) {
 
@@ -266,7 +389,27 @@ Room *joinRoom(ServerConfig *config, int roomID, int playerID) {
     return room;
 }
 
-// Obter jogos existentes
+
+/**
+ * Obtém uma lista de identificadores de jogos a partir do ficheiro 'games.json'.
+ *
+ * @param config Um pointer para a estrutura `ServerConfig` que contém 
+ * o caminho para o ficheiro 'games.json' e o caminho do log.
+ * @return Uma string que contém os IDs de todos os jogos, formatados com 
+ * "Game ID: [ID]", ou NULL se ocorrer um erro na leitura do ficheiro.
+ *
+ * @details Esta função faz o seguinte:
+ * - Abre o ficheiro 'games.json' e lê todo o seu conteúdo. Se o ficheiro não puder ser aberto,
+ * regista o erro no log e termina o programa.
+ * - Faz o parse do conteúdo JSON para obter o array de jogos.
+ * - Itera sobre cada jogo no array e extrai o ID do jogo.
+ * - Concatena todos os IDs numa string, cada um formatado como "Game ID: [ID]".
+ * - Liberta a memória alocada para o conteúdo JSON e devolve a string que contém os IDs.
+ * 
+ * @note O tamanho da string `games` é limitado a 1024 caracteres, o que pode ser ajustado 
+ * conforme necessário para evitar overflow.
+ */
+
 char *getGames(ServerConfig *config) {
 
     // open the file
@@ -327,6 +470,27 @@ char *getGames(ServerConfig *config) {
     // return the games
     return games;
 }
+
+
+/**
+ * Obtém uma lista de salas de jogo ativas no servidor, incluindo o ID da sala, o número de jogadores, 
+ * o número máximo de jogadores, e o ID do jogo associado.
+ *
+ * @param config Um pointer para a estrutura `ServerConfig` que contém as informações sobre as salas de jogo.
+ * @return Uma string que contém a lista de salas de jogo formatada, 
+ * ou uma mensagem "No rooms available\n" se não houver salas ativas.
+ *
+ * @details Esta função faz o seguinte:
+ * - Verifica se há salas disponíveis. Se o número de salas for zero, devolve a mensagem "No rooms available\n".
+ * - Cria uma string para armazenar as informações de cada sala, incluindo o ID da sala, o número de jogadores atuais, 
+ *   o número máximo de jogadores, e o ID do jogo.
+ * - Itera sobre todas as salas e concatena as informações formatadas de cada sala na string `rooms`.
+ * - Devolve a string `rooms` contendo as informações de todas as salas. A memória alocada para esta 
+ * string deve ser libertada pelo chamador.
+ *
+ * @note O tamanho da string `rooms` é limitado a 1024 caracteres, o que pode ser ajustado
+ * se houver um número elevado de salas.
+ */
 
 char *getRooms(ServerConfig *config) {
 

@@ -7,9 +7,42 @@
 
 static int nextPlayerID = 1;
 
+
+/**
+ * Gera um ID de cliente único.
+ *
+ * @return Um ID de cliente único, incrementando o valor de `nextPlayerID`.
+ *
+ * @details Esta função usa uma variável global `nextPlayerID` para gerar IDs únicos para clientes.
+ * Cada vez que a função é chamada, o valor de `nextPlayerID` é retornado e, em seguida, incrementado.
+ * Isto garante que cada cliente receba um ID único e sequencial.
+ */
+
 int generateUniqueClientId() {
     return nextPlayerID++;
 }
+
+
+/**
+ * Função que gere a comunicação com um cliente ligado ao servidor.
+ *
+ * @param arg Um pointer genérico (void *) que é convertido para um pointer `ClientData`,
+ * contendo as informações do cliente e a configuração do servidor.
+ * @return Retorna NULL (a função é utilizada como um manipulador de threads, 
+ * por isso o valor de retorno não é usado).
+ *
+ * @details Esta função faz o seguinte:
+ * - Obtém os dados do cliente a partir do argumento `arg` e inicializa as variáveis necessárias.
+ * - Recebe o pedido de ID do cliente, gera um ID único, e envia-o de volta ao cliente.
+ * - Entra num ciclo principal onde recebe comandos do cliente e executa as ações correspondentes:
+ *   - Criar um novo jogo single player ou multiplayer.
+ *   - Listar e selecionar jogos ou salas existentes.
+ *   - Receber e enviar dados relacionados com o estado do jogo e ações do cliente.
+ * - Gere a comunicação com o cliente, incluindo o envio e a receção de mensagens, 
+ *   e regista eventos no ficheiro de log.
+ * - Trata erros de forma apropriada, terminando a conexão e a thread se necessário.
+ * - Fecha a ligação com o cliente, liberta a memória alocada e termina a execução da thread.
+ */
 
 void *handleClient(void *arg) {
 
@@ -240,6 +273,31 @@ void *handleClient(void *arg) {
     pthread_exit(NULL);
 }
 
+
+/**
+ * Cria uma nova sala de jogo e carrega um jogo associado, atribuindo-o a um jogador.
+ *
+ * @param newSockfd Um pointer para o descritor de socket do cliente, usado para enviar mensagens.
+ * @param config Um pointer para a estrutura `ServerConfig` que contém as configurações do servidor.
+ * @param playerID O identificador do jogador que irá participar na sala.
+ * @param isSinglePlayer Um valor booleano que indica se o jogo é single player (true) ou multiplayer (false).
+ * @param isRandom Um valor booleano que indica se o jogo deve ser carregado aleatoriamente (true),
+ * ou se um jogo específico deve ser carregado (false).
+ * @param gameID O identificador do jogo a ser carregado, usado se `isRandom` for false.
+ * @return Um pointer para a estrutura `Room` criada, ou NULL se não houver salas disponíveis.
+ *
+ * @details Esta função faz o seguinte:
+ * - Verifica se o número máximo de salas foi atingido. 
+ *   Se não houver salas disponíveis, envia uma mensagem ao cliente e regista o evento no ficheiro de log.
+ * - Cria uma nova sala e adiciona-a à lista de salas do servidor.
+ * - Carrega um jogo, seja de forma aleatória ou usando o `gameID` especificado.
+ * - Se o jogo for carregado com sucesso, associa-o à sala criada.
+ * - Define o número máximo de jogadores para 1 se for um jogo single player, 
+ *   ou para o valor definido na configuração se for multiplayer.
+ * - Adiciona o jogador à sala e inicializa o número de jogadores da sala.
+ * - Imprime uma mensagem de confirmação e retorna a sala criada.
+ */
+
 Room *createRoomAndGame(int *newSockfd, ServerConfig *config, int playerID, bool isSinglePlayer, bool isRandom, int gameID) {
 
     // check if there's config->rooms is full by looping
@@ -291,6 +349,24 @@ Room *createRoomAndGame(int *newSockfd, ServerConfig *config, int playerID, bool
     return room;
 }
 
+
+/**
+ * Inicializa o socket do servidor, associando-o a um endereço e porta especificados na configuração.
+ *
+ * @param serv_addr Um pointer para a estrutura `sockaddr_in` que será preenchida com as informações do endereço do servidor.
+ * @param sockfd Um pointer para o descritor de socket, que será inicializado e associado ao endereço.
+ * @param config Um pointer para a estrutura `ServerConfig` que contém as configurações do servidor, incluindo a porta.
+ *
+ * @details Esta função faz o seguinte:
+ * - Cria um socket do tipo `SOCK_STREAM` para comunicações baseadas em TCP.
+ * - Limpa a estrutura do socket com `memset` para garantir que todos os campos são inicializados corretamente.
+ * - Preenche a estrutura do socket com a família de endereços `AF_INET`, 
+ *   o endereço `INADDR_ANY` (para aceitar conexões de qualquer endereço) e a porta especificada na configuração do servidor.
+ * - Usa `bind` para associar o socket ao endereço e porta definidos. Se a operação falhar, 
+ *   a função regista um erro no log e termina o programa.
+ * - Coloca o socket em modo de escuta com a função `listen`, permitindo que o servidor aceite conexões.
+ */
+
 void initializeSocket(struct sockaddr_in *serv_addr, int *sockfd, ServerConfig *config) {
 
     // Criar socket
@@ -314,6 +390,23 @@ void initializeSocket(struct sockaddr_in *serv_addr, int *sockfd, ServerConfig *
     // Ouvir o socket
     listen(*sockfd, 1);
 }
+
+
+/**
+ * Envia o tabuleiro do jogo ao cliente em formato JSON.
+ *
+ * @param socket Um pointer para o descritor de socket utilizado para enviar o tabuleiro ao cliente.
+ * @param game Um pointer para a estrutura `Game` que contém o tabuleiro a ser enviado.
+ * @param config Um pointer para a estrutura `ServerConfig` que contém a configuração do servidor, 
+ * incluindo o caminho do ficheiro de log.
+ *
+ * @details Esta função faz o seguinte:
+ * - Cria uma estrutura JSON que representa o tabuleiro do jogo, incluindo o ID do jogo.
+ * - Converte o tabuleiro 9x9 num array de arrays em formato JSON.
+ * - Serializa o objeto JSON para uma string e envia-a ao cliente através do socket.
+ * - Em caso de erro ao enviar o tabuleiro, regista a mensagem de erro no log e termina a execução da função.
+ * - Liberta a memória alocada para a string serializada e o objeto JSON.
+ */
 
 void sendBoard(int *socket, Game *game, ServerConfig *config) {
     // Enviar board ao cliente em formato JSON
@@ -344,6 +437,27 @@ void sendBoard(int *socket, Game *game, ServerConfig *config) {
     json_free_serialized_string(serialized_string);
     json_value_free(root_value);
 }
+
+
+/**
+ * Recebe linhas do cliente, valida-as, e atualiza o tabuleiro do jogo.
+ *
+ * @param newSockfd Um pointer para o descritor de socket usado para comunicação com o cliente.
+ * @param game Um pointer para a estrutura `Game` que contém o estado atual do tabuleiro.
+ * @param playerID O identificador do jogador que está a enviar as linhas.
+ * @param config Um pointer para a estrutura `ServerConfig` que contém a configuração do servidor, 
+ * incluindo o caminho do ficheiro de log.
+ *
+ * @details Esta função faz o seguinte:
+ * - Itera sobre as 9 linhas do tabuleiro, recebendo e validando cada linha enviada pelo cliente.
+ * - Recebe cada linha do cliente como uma string de 9 caracteres e converte-a em valores inteiros.
+ * - Usa a função `verifyLine` para validar a linha recebida. Se a linha estiver correta, 
+ *   continua para a próxima; caso contrário, solicita ao cliente que envie novamente.
+ * - Se ocorrer um erro ao receber uma linha, regista o erro no ficheiro de log e termina a execução da função.
+ * - Após cada validação, envia o tabuleiro atualizado ao cliente.
+ * - Adiciona um atraso de 1 segundo (`sleep(1)`) antes de enviar o tabuleiro para garantir que o cliente tem 
+ *   tempo para processar as atualizações.
+ */
 
 void receiveLines(int *newSockfd, Game *game, int playerID, ServerConfig *config) {
 
@@ -399,6 +513,24 @@ void receiveLines(int *newSockfd, Game *game, int playerID, ServerConfig *config
         }
     }
 }
+
+
+/**
+ * Termina o jogo e limpa os recursos associados à sala de jogo.
+ *
+ * @param socket Um pointer para o descritor de socket utilizado para comunicação com o cliente 
+ * (não usado diretamente na função).
+ * @param room Um pointer para a estrutura `Room` que representa a sala de jogo que deve ser terminada.
+ * @param playerID O identificador do jogador (não usado diretamente na função).
+ * @param config Um pointer para a estrutura `ServerConfig` que contém a configuração do servidor, 
+ * incluindo o número atual de salas.
+ *
+ * @details Esta função faz o seguinte:
+ * - Remove todos os jogadores da sala, definindo os IDs dos jogadores para 0.
+ * - Restaura o número de jogadores da sala e o número máximo de jogadores a 0.
+ * - Liberta a memória alocada para o jogo e a sala, prevenindo fugas de memória.
+ * - Decrementa o contador do número de salas no servidor na configuração.
+ */
 
 void finishGame(int *socket, Room *room, int playerID, ServerConfig *config) {
 
