@@ -3,35 +3,32 @@
 
 #include "../config/config.h"
 
-/*Struct para armazenar o tabuleiro e a solucao do jogo.
-Aqui usei o typedef para criar um alias para a struct 
-(evita repetir 'struct' no código sempre que quisermos usar a struct). */
 
-// Função para gerar um ID único
+// Gera um ID único para uma sala.
 int generateUniqueId();
 
-// Carrega o jogo do ficheiro
+// Carrega um jogo específico a partir do ficheiro 'games.json'.
 Game *loadGame(ServerConfig *config, int gameID, int playerID);
 
-// Carrega um jogo aleatório
+// Carrega um jogo aleatório do ficheiro 'games.json'.
 Game *loadRandomGame(ServerConfig *config, int playerID);
 
-// nova funcao para verificar linha a linha
+// Verifica se a linha inserida pelo jogador está correta.
 int verifyLine(char *logFileName, char *solutionSent, Game *game, int insertLine[9], int lineNumber, int playerID);
 
-// Verifica se a linha está correta
+// Verifica se uma linha do tabuleiro está correta.
 bool isLineCorrect(Game *game, int row);
 
-// Criar room
+// Cria uma nova sala de jogo.
 Room *createRoom(ServerConfig *config);
 
-// entrar no jogo
+// Junta um jogador a uma sala existente.
 Room *joinRoom(ServerConfig *config, int roomID, int playerID);
 
-// Obter jogos existentes
+// Obtém uma lista de IDs dos jogos disponíveis.
 char *getGames(ServerConfig *config);
 
-// Obter salas existentes
+// Obtém uma lista das salas de jogo disponíveis.
 char *getRooms(ServerConfig *config);
 
 #endif

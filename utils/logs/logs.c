@@ -1,10 +1,20 @@
 #include <stdio.h>  // Usar FILE, fopen(), fclose()
 #include <stdlib.h> 
-#include "logs.h"  // Incluir o header com a struct e funcoes
+#include "logs.h"  
 #include <time.h>  // Usar time_t, time(), ctime()
 #include "../parson/parson.h"
 
-// novo log JSON
+
+/**
+ * Escreve uma mensagem de log num ficheiro JSON, incluindo o ID do jogo,
+ * o ID do jogador e a data/hora em que o evento ocorreu.
+ *
+ * @param filename O caminho do ficheiro JSON onde o log será escrito.
+ * @param gameID O identificador do jogo associado ao log.
+ * @param playerID O identificador do jogador associado ao log.
+ * @param logMessage A mensagem de log a ser registada.
+ */
+
 void writeLogJSON(const char *filename, int gameID, int playerID, const char *logMessage) {
     // Abrir o ficheiro JSON existente
     JSON_Value *rootValue = json_parse_file(filename);
@@ -16,15 +26,17 @@ void writeLogJSON(const char *filename, int gameID, int playerID, const char *lo
         // Se o ficheiro nao existe ou esta vazio, cria uma nova estrutura JSON
         rootValue = json_value_init_object();
         rootObject = json_value_get_object(rootValue);
-        logsArrayValue = json_value_init_array();  // Criar um array vazio para os logs
-        json_object_set_value(rootObject, "logs", logsArrayValue);  // Adicionar o array ao objeto raiz
+        // Criar um array vazio para os logs
+        logsArrayValue = json_value_init_array(); 
+        // Adicionar o array ao objeto raiz
+        json_object_set_value(rootObject, "logs", logsArrayValue);  
     } else {
         // Se o ficheiro JSON ja existe, carregar os dados existentes
         rootObject = json_value_get_object(rootValue);
         logsArrayValue = json_object_get_value(rootObject, "logs");
     }
-
-    logsArray = json_value_get_array(logsArrayValue);  // Obter o array de logs
+     // Obter o array de logs
+    logsArray = json_value_get_array(logsArrayValue); 
 
     // Obter a data e hora atual
     time_t t = time(NULL);

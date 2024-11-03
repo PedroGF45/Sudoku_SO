@@ -2,31 +2,35 @@
 #define SERVER_COMMS_H
 
 #include <stdbool.h>
-#include "server-game.h" // Include server-game.h to access Game struct
+// Inclui "server-game.h" para aceder à estrutura Game.
+#include "server-game.h" 
 
+
+// Estrutura que contém dados do cliente, incluindo o descritor de socket e a configuração do servidor.
 typedef struct {
     int socket_fd;
     ServerConfig *config;
 } ClientData;
 
+// Gera um ID único para um cliente.
 int generateUniqueClientId();
 
-// Função para lidar com o cliente
+// Função para lidar com a comunicação com um cliente.
 void *handleClient(void *arg);
 
-// Criar room e jogo
+// Cria uma sala e um jogo, configurando-os com base nos parâmetros fornecidos.
 Room *createRoomAndGame(int *newSockfd, ServerConfig *config, int playerID, bool isSinglePlayer, bool isRandom, int gameID);
 
-// Funções de comunicação do servidor
+// Inicializa o socket do servidor e associa-o a um endereço.
 void initializeSocket(struct sockaddr_in *serv_addr, int *sockfd, ServerConfig *config);
 
-// Enviar tabuleiro ao cliente
+// Envia o tabuleiro atual ao cliente em formato JSON.
 void sendBoard(int *socket, Game *game, ServerConfig *config);
 
-// Receber linhas do cliente
+// Recebe as linhas enviadas pelo cliente e processa-as.
 void receiveLines(int *newSockfd, Game *game, int playerID, ServerConfig *config);
 
-// Terminar jogo
+// Termina o jogo e limpa os recursos associados à sala.
 void finishGame(int *socket, Room *room, int playerID, ServerConfig *config);
 
 
