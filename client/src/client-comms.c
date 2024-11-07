@@ -584,8 +584,10 @@ void sendLines(int *socketfd, clientConfig config) {
 
     memset(buffer, 0, sizeof(buffer));
 
+    int currentLine = 1;
+
     // Enviar linhas inseridas pelo utilizador e receber o board atualizado
-    for (int row = 0; row < 9; row++) {
+    while (currentLine <= 9) {
 
         int validLine = 0;  // Variável para controlar se a linha está correta
 
@@ -599,21 +601,21 @@ void sendLines(int *socketfd, clientConfig config) {
 
             if (config.isManual) {
 
-                printf("Insira valores para a linha %d do board (exactamente 9 digitos):\n", row + 1);
+                printf("Insira valores para a linha %d do board (exactamente 9 digitos):\n", currentLine);
                 scanf("%s", line);
 
             } else {
 
-                resolveLine(buffer, line, row, config.difficulty);
+                resolveLine(buffer, line, currentLine - 1, config.difficulty);
             }
-
-            printf("Linha envida: %s\n", line);
 
             // Enviar a linha ao servidor
             if (send(*socketfd, line, sizeof(line), 0) < 0) {
                 err_dump(config.logPath, 0, config.clientID, "can't send lines to server", EVENT_MESSAGE_CLIENT_NOT_SENT);
                 continue;
             }
+
+            printf("Linha envida: %s\n", line);
 
             // Receber o board atualizado
             memset(buffer, 0, sizeof(buffer));
@@ -622,13 +624,15 @@ void sendLines(int *socketfd, clientConfig config) {
                 continue;
             }
 
+            printf("Board atualizado: %s\n", buffer);
+
             // Exibir o board atualizado
             JSON_Value *root_value = json_parse_string(buffer);
             JSON_Object *root_object = json_value_get_object(root_value);
             JSON_Array *board_array = json_object_get_array(root_object, "board");
 
             // check if the line is correct by comparing line and row of board
-            JSON_Array *linha_array = json_array_get_array(board_array, row);
+            JSON_Array *linha_array = json_array_get_array(board_array, currentLine-1);
             for (int i = 0; i < 9; i++) {
                 if (line[i] != (int)json_array_get_number(linha_array, i) + '0') {
                     validLine = 0;
@@ -636,6 +640,25 @@ void sendLines(int *socketfd, clientConfig config) {
                 } else {
                     validLine = 1;
                 }
+            }
+
+            // receber o numero da linha do servidor atualizado
+            char updatedLine[10];
+            memset(updatedLine, 0, sizeof(updatedLine));
+            if (recv(*socketfd, updatedLine, sizeof(updatedLine), 0) < 0) {
+                err_dump(config.logPath, 0, config.clientID, "can't receive updated line number from server", EVENT_MESSAGE_CLIENT_NOT_RECEIVED);
+                continue;
+            }
+
+            // convert the updated line number to an integer
+            int serverLine = atoi(updatedLine);
+            printf("Linha atualizada: %d\n", serverLine);
+
+            // Atualizar a linha atual
+            if (serverLine > currentLine) {
+                currentLine = serverLine;
+                validLine = 1;
+                printf("AVANCA PARA LINHA SEGUINTER\n");
             }
 
             printf("-------------------------------------\n");

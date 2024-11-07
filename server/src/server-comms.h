@@ -25,10 +25,10 @@ Room *createRoomAndGame(int *newSockfd, ServerConfig *config, int playerID, bool
 void initializeSocket(struct sockaddr_in *serv_addr, int *sockfd, ServerConfig *config);
 
 // Envia o tabuleiro atual ao cliente em formato JSON.
-void sendBoard(int *socket, Game *game, ServerConfig *config);
+void sendBoard(int *socket, Game *game, ServerConfig *config, int *currentLine);
 
 // Recebe as linhas enviadas pelo cliente e processa-as.
-void receiveLines(int *newSockfd, Game *game, int playerID, ServerConfig *config);
+void receiveLines(int *newSockfd, Game *game, int playerID, ServerConfig *config, int *currentLine);
 
 // Termina o jogo e limpa os recursos associados à sala.
 void finishGame(int *socket, Room *room, int playerID, ServerConfig *config);

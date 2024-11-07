@@ -1073,6 +1073,538 @@
             "gameID": 0,
             "playerID": 302,
             "message": "Conexao terminada com o cliente"
+        },
+        {
+            "timestamp": "07-11-2024 15:53:23",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "07-11-2024 16:08:02",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "07-11-2024 16:16:04",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "07-11-2024 16:16:26",
+            "gameID": 0,
+            "playerID": 1,
+            "message": "Conexao estabelecida com o cliente"
+        },
+        {
+            "timestamp": "07-11-2024 16:17:27",
+            "gameID": 0,
+            "playerID": 1,
+            "message": "Conexao terminada com o cliente"
+        },
+        {
+            "timestamp": "07-11-2024 16:18:01",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "07-11-2024 16:18:01",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Erro na conexao do servidor: can't bind local address"
+        },
+        {
+            "timestamp": "07-11-2024 16:18:32",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "07-11-2024 16:55:01",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "07-11-2024 16:55:01",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Erro na conexao do servidor: can't bind local address"
+        },
+        {
+            "timestamp": "07-11-2024 16:55:24",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "07-11-2024 16:55:24",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Erro na conexao do servidor: can't bind local address"
+        },
+        {
+            "timestamp": "07-11-2024 17:05:38",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "07-11-2024 17:05:38",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Erro na conexao do servidor: can't bind local address"
+        },
+        {
+            "timestamp": "07-11-2024 17:24:34",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "07-11-2024 17:24:56",
+            "gameID": 0,
+            "playerID": 1,
+            "message": "Conexao estabelecida com o cliente"
+        },
+        {
+            "timestamp": "07-11-2024 17:24:58",
+            "gameID": 0,
+            "playerID": 2,
+            "message": "Conexao estabelecida com o cliente"
+        },
+        {
+            "timestamp": "07-11-2024 17:25:01",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Sala carregada"
+        },
+        {
+            "timestamp": "07-11-2024 17:25:01",
+            "gameID": 3,
+            "playerID": 2,
+            "message": "Jogo carregado"
+        },
+        {
+            "timestamp": "07-11-2024 17:25:01",
+            "gameID": 3,
+            "playerID": 0,
+            "message": "Mensagem enviada para o cliente"
+        },
+        {
+            "timestamp": "07-11-2024 17:25:07",
+            "gameID": 0,
+            "playerID": 1,
+            "message": "Jogos enviados para o cliente"
+        },
+        {
+            "timestamp": "07-11-2024 17:25:08",
+            "gameID": 3,
+            "playerID": 1,
+            "message": "Player 1 joined room 1"
+        },
+        {
+            "timestamp": "07-11-2024 17:25:08",
+            "gameID": 3,
+            "playerID": 0,
+            "message": "Mensagem enviada para o cliente"
+        },
+        {
+            "timestamp": "07-11-2024 17:25:16",
+            "gameID": 3,
+            "playerID": 1,
+            "message": "O jogador 1 no jogo 3 Solucao recebida para a linha 1: "
+        },
+        {
+            "timestamp": "07-11-2024 17:25:16",
+            "gameID": 3,
+            "playerID": 1,
+            "message": "Linha enviada () validada como ERRADA\/INCOMPLETA"
+        },
+        {
+            "timestamp": "07-11-2024 17:25:17",
+            "gameID": 3,
+            "playerID": 0,
+            "message": "Mensagem enviada para o cliente"
+        },
+        {
+            "timestamp": "07-11-2024 17:25:25",
+            "gameID": 3,
+            "playerID": 2,
+            "message": "O jogador 2 no jogo 3 Solucao recebida para a linha 1: "
+        },
+        {
+            "timestamp": "07-11-2024 17:25:25",
+            "gameID": 3,
+            "playerID": 2,
+            "message": "Linha enviada () validada como ERRADA\/INCOMPLETA"
+        },
+        {
+            "timestamp": "07-11-2024 17:25:26",
+            "gameID": 3,
+            "playerID": 0,
+            "message": "Mensagem enviada para o cliente"
+        },
+        {
+            "timestamp": "07-11-2024 17:26:59",
+            "gameID": 3,
+            "playerID": 1,
+            "message": "O jogador 1 no jogo 3 Solucao recebida para a linha 1: "
+        },
+        {
+            "timestamp": "07-11-2024 17:26:59",
+            "gameID": 3,
+            "playerID": 1,
+            "message": "Linha enviada () validada como ERRADA\/INCOMPLETA"
+        },
+        {
+            "timestamp": "07-11-2024 17:27:00",
+            "gameID": 3,
+            "playerID": 0,
+            "message": "Mensagem enviada para o cliente"
+        },
+        {
+            "timestamp": "07-11-2024 17:27:00",
+            "gameID": 3,
+            "playerID": 1,
+            "message": "Erro ao receber mensagem do cliente: can't receive line from client"
+        },
+        {
+            "timestamp": "07-11-2024 17:27:09",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "07-11-2024 17:27:09",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Erro na conexao do servidor: can't bind local address"
+        },
+        {
+            "timestamp": "07-11-2024 17:27:33",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "07-11-2024 17:27:36",
+            "gameID": 0,
+            "playerID": 1,
+            "message": "Conexao estabelecida com o cliente"
+        },
+        {
+            "timestamp": "07-11-2024 17:27:38",
+            "gameID": 0,
+            "playerID": 2,
+            "message": "Conexao estabelecida com o cliente"
+        },
+        {
+            "timestamp": "07-11-2024 17:27:41",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Sala carregada"
+        },
+        {
+            "timestamp": "07-11-2024 17:27:41",
+            "gameID": 1,
+            "playerID": 2,
+            "message": "Jogo carregado"
+        },
+        {
+            "timestamp": "07-11-2024 17:27:41",
+            "gameID": 1,
+            "playerID": 0,
+            "message": "Mensagem enviada para o cliente"
+        },
+        {
+            "timestamp": "07-11-2024 17:27:46",
+            "gameID": 0,
+            "playerID": 1,
+            "message": "Jogos enviados para o cliente"
+        },
+        {
+            "timestamp": "07-11-2024 17:27:47",
+            "gameID": 1,
+            "playerID": 1,
+            "message": "Player 1 joined room 1"
+        },
+        {
+            "timestamp": "07-11-2024 17:27:47",
+            "gameID": 1,
+            "playerID": 0,
+            "message": "Mensagem enviada para o cliente"
+        },
+        {
+            "timestamp": "07-11-2024 17:27:50",
+            "gameID": 1,
+            "playerID": 1,
+            "message": "O jogador 1 no jogo 1 Solucao recebida para a linha 1: "
+        },
+        {
+            "timestamp": "07-11-2024 17:27:50",
+            "gameID": 1,
+            "playerID": 1,
+            "message": "Linha enviada () validada como ERRADA\/INCOMPLETA"
+        },
+        {
+            "timestamp": "07-11-2024 17:27:51",
+            "gameID": 1,
+            "playerID": 0,
+            "message": "Mensagem enviada para o cliente"
+        },
+        {
+            "timestamp": "07-11-2024 17:34:43",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "07-11-2024 17:34:43",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Erro na conexao do servidor: can't bind local address"
+        },
+        {
+            "timestamp": "07-11-2024 17:34:49",
+            "gameID": 1,
+            "playerID": 1,
+            "message": "Erro ao receber mensagem do cliente: can't receive line from client"
+        },
+        {
+            "timestamp": "07-11-2024 17:34:52",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "07-11-2024 17:34:55",
+            "gameID": 0,
+            "playerID": 1,
+            "message": "Conexao estabelecida com o cliente"
+        },
+        {
+            "timestamp": "07-11-2024 17:34:56",
+            "gameID": 0,
+            "playerID": 2,
+            "message": "Conexao estabelecida com o cliente"
+        },
+        {
+            "timestamp": "07-11-2024 17:34:59",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Sala carregada"
+        },
+        {
+            "timestamp": "07-11-2024 17:34:59",
+            "gameID": 1,
+            "playerID": 2,
+            "message": "Jogo carregado"
+        },
+        {
+            "timestamp": "07-11-2024 17:34:59",
+            "gameID": 1,
+            "playerID": 0,
+            "message": "Mensagem enviada para o cliente"
+        },
+        {
+            "timestamp": "07-11-2024 17:35:02",
+            "gameID": 0,
+            "playerID": 1,
+            "message": "Jogos enviados para o cliente"
+        },
+        {
+            "timestamp": "07-11-2024 17:35:03",
+            "gameID": 1,
+            "playerID": 1,
+            "message": "Player 1 joined room 1"
+        },
+        {
+            "timestamp": "07-11-2024 17:35:03",
+            "gameID": 1,
+            "playerID": 0,
+            "message": "Mensagem enviada para o cliente"
+        },
+        {
+            "timestamp": "07-11-2024 17:35:08",
+            "gameID": 1,
+            "playerID": 1,
+            "message": "O jogador 1 no jogo 1 Solucao recebida para a linha 1: 123456789"
+        },
+        {
+            "timestamp": "07-11-2024 17:35:08",
+            "gameID": 1,
+            "playerID": 1,
+            "message": "Linha enviada (123456789) validada como ERRADA\/INCOMPLETA"
+        },
+        {
+            "timestamp": "07-11-2024 17:35:09",
+            "gameID": 1,
+            "playerID": 0,
+            "message": "Mensagem enviada para o cliente"
+        },
+        {
+            "timestamp": "07-11-2024 17:35:39",
+            "gameID": 1,
+            "playerID": 1,
+            "message": "Erro ao receber mensagem do cliente: can't receive line from client"
+        },
+        {
+            "timestamp": "07-11-2024 17:36:29",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "07-11-2024 17:36:31",
+            "gameID": 0,
+            "playerID": 1,
+            "message": "Conexao estabelecida com o cliente"
+        },
+        {
+            "timestamp": "07-11-2024 17:36:33",
+            "gameID": 0,
+            "playerID": 2,
+            "message": "Conexao estabelecida com o cliente"
+        },
+        {
+            "timestamp": "07-11-2024 17:36:37",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Sala carregada"
+        },
+        {
+            "timestamp": "07-11-2024 17:36:37",
+            "gameID": 3,
+            "playerID": 2,
+            "message": "Jogo carregado"
+        },
+        {
+            "timestamp": "07-11-2024 17:36:37",
+            "gameID": 3,
+            "playerID": 0,
+            "message": "Mensagem enviada para o cliente"
+        },
+        {
+            "timestamp": "07-11-2024 17:36:44",
+            "gameID": 0,
+            "playerID": 1,
+            "message": "Jogos enviados para o cliente"
+        },
+        {
+            "timestamp": "07-11-2024 17:36:45",
+            "gameID": 3,
+            "playerID": 1,
+            "message": "Player 1 joined room 1"
+        },
+        {
+            "timestamp": "07-11-2024 17:36:45",
+            "gameID": 3,
+            "playerID": 0,
+            "message": "Mensagem enviada para o cliente"
+        },
+        {
+            "timestamp": "07-11-2024 17:36:52",
+            "gameID": 3,
+            "playerID": 2,
+            "message": "O jogador 2 no jogo 3 Solucao recebida para a linha 1: 123456789"
+        },
+        {
+            "timestamp": "07-11-2024 17:36:52",
+            "gameID": 3,
+            "playerID": 2,
+            "message": "Linha enviada (123456789) validada como ERRADA\/INCOMPLETA"
+        },
+        {
+            "timestamp": "07-11-2024 17:36:53",
+            "gameID": 3,
+            "playerID": 0,
+            "message": "Mensagem enviada para o cliente"
+        },
+        {
+            "timestamp": "07-11-2024 17:41:33",
+            "gameID": 3,
+            "playerID": 1,
+            "message": "O jogador 1 no jogo 3 Solucao recebida para a linha 1: 00000000002"
+        },
+        {
+            "timestamp": "07-11-2024 17:41:33",
+            "gameID": 3,
+            "playerID": 1,
+            "message": "Linha enviada (00000000002) validada como ERRADA\/INCOMPLETA"
+        },
+        {
+            "timestamp": "07-11-2024 17:41:34",
+            "gameID": 3,
+            "playerID": 2,
+            "message": "Erro ao receber mensagem do cliente: can't receive line from client"
+        },
+        {
+            "timestamp": "07-11-2024 17:41:38",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "07-11-2024 17:41:39",
+            "gameID": 0,
+            "playerID": 1,
+            "message": "Conexao estabelecida com o cliente"
+        },
+        {
+            "timestamp": "07-11-2024 17:41:41",
+            "gameID": 0,
+            "playerID": 2,
+            "message": "Conexao estabelecida com o cliente"
+        },
+        {
+            "timestamp": "07-11-2024 17:41:44",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Sala carregada"
+        },
+        {
+            "timestamp": "07-11-2024 17:41:44",
+            "gameID": 1,
+            "playerID": 2,
+            "message": "Jogo carregado"
+        },
+        {
+            "timestamp": "07-11-2024 17:41:51",
+            "gameID": 0,
+            "playerID": 1,
+            "message": "Jogos enviados para o cliente"
+        },
+        {
+            "timestamp": "07-11-2024 17:41:52",
+            "gameID": 1,
+            "playerID": 1,
+            "message": "Player 1 joined room 1"
+        },
+        {
+            "timestamp": "07-11-2024 17:41:56",
+            "gameID": 1,
+            "playerID": 1
+        },
+        {
+            "timestamp": "07-11-2024 17:41:56",
+            "gameID": 1,
+            "playerID": 1
+        },
+        {
+            "timestamp": "07-11-2024 17:41:57",
+            "gameID": 1,
+            "playerID": 0,
+            "message": "Mensagem enviada para o cliente"
+        },
+        {
+            "timestamp": "07-11-2024 17:41:57",
+            "gameID": 1,
+            "playerID": 1,
+            "message": "Erro ao receber mensagem do cliente: can't receive line from client"
         }
     ]
 }

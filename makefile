@@ -13,7 +13,7 @@ UTILS_NETWORK = utils/network
 # Object files for client, server, and utilities
 CLIENT_OBJS = $(CLIENT_SRC)/client.o $(CLIENT_SRC)/client-comms.o $(CLIENT_SRC)/client-game.o $(CLIENT_CONFIG)/config.o
 SERVER_OBJS = $(SERVER_SRC)/server.o $(SERVER_SRC)/server-comms.o $(SERVER_SRC)/server-game.o $(SERVER_CONFIG)/config.o
-UTIL_OBJS = $(UTILS_LOGS)/logs.o $(UTILS_PARSON)/parson.o $(UTILS_NETWORK)/network.o
+UTIL_OBJS = $(UTILS_LOGS)/logs.o $(UTILS_PARSON)/parson.o $(UTILS_NETWORK)/network.o 
 
 # Targets
 all: server client
@@ -24,7 +24,7 @@ client: $(CLIENT_OBJS) $(UTIL_OBJS)
 
 # Server build
 server: $(SERVER_OBJS) $(UTIL_OBJS)
-	$(CC) -o server.exe $(SERVER_OBJS) $(UTIL_OBJS)
+	$(CC) -o server.exe $(SERVER_OBJS) $(UTIL_OBJS) -lpthread
 
 # Compile client object files
 $(CLIENT_SRC)/client.o: $(CLIENT_SRC)/client.c $(CLIENT_CONFIG)/config.h

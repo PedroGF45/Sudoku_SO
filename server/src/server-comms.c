@@ -57,6 +57,7 @@ void *handleClient(void *arg) {
 
     int playerID = 0;
     Room *room;
+    int currentLine = 1;
 
     // Receber ID do jogador
     if (recv(newSockfd, buffer, sizeof(buffer), 0) < 0) {
@@ -249,11 +250,8 @@ void *handleClient(void *arg) {
 
             if (!startAgain) {
 
-                // Enviar tabuleiro ao cliente
-                sendBoard(&newSockfd, room->game, config);
-
                 // receber linhas do cliente
-                receiveLines(&newSockfd, room->game, playerID, config);
+                receiveLines(&newSockfd, room->game, playerID, config, &currentLine);
 
                 // terminar o jogo
                 finishGame(&newSockfd, room, playerID, config);
@@ -408,7 +406,7 @@ void initializeSocket(struct sockaddr_in *serv_addr, int *sockfd, ServerConfig *
  * - Liberta a memória alocada para a string serializada e o objeto JSON.
  */
 
-void sendBoard(int *socket, Game *game, ServerConfig *config) {
+void sendBoard(int *socket, Game *game, ServerConfig *config, int *currentLine) {
     // Enviar board ao cliente em formato JSON
     JSON_Value *root_value = json_value_init_object();
     JSON_Object *root_object = json_value_get_object(root_value);
@@ -428,11 +426,25 @@ void sendBoard(int *socket, Game *game, ServerConfig *config) {
     json_object_set_value(root_object, "board", board_value);
     char *serialized_string = json_serialize_to_string(root_value);
 
+    printf("Tabuleiro enviado ao cliente: %s\n", serialized_string);
 
+    // Enviar tabuleiro ao cliente
     if (send(*socket, serialized_string, strlen(serialized_string), 0) < 0) {
         err_dump(config->logPath, game->id, 0, "can't send board to client", EVENT_MESSAGE_SERVER_NOT_SENT);
         return;
     }
+
+    // Enviar inteiro com a linha atual
+    char buffer[10];
+    sprintf(buffer, "%d", *currentLine);
+    printf("Enviando linha atual: %s\n", buffer);
+    if (send(*socket, buffer, strlen(buffer), 0) < 0) {
+        err_dump(config->logPath, game->id, 0, "can't send current line to client", EVENT_MESSAGE_SERVER_NOT_SENT);
+        return;
+    }
+
+    // escrever no log
+    writeLogJSON(config->logPath, game->id, 0, EVENT_MESSAGE_SERVER_SENT);
 
     json_free_serialized_string(serialized_string);
     json_value_free(root_value);
@@ -459,59 +471,53 @@ void sendBoard(int *socket, Game *game, ServerConfig *config) {
  *   tempo para processar as atualizações.
  */
 
-void receiveLines(int *newSockfd, Game *game, int playerID, ServerConfig *config) {
+void receiveLines(int *newSockfd, Game *game, int playerID, ServerConfig *config, int *currentLine) {
 
-    char buffer[BUFFER_SIZE];
+    int correctLine = 0;
 
     // Receber e validar as linhas do cliente
-    for (int i = 0; i < 9; i++) {
-
-        memset(buffer, 0, sizeof(buffer));
-
-        int correctLine = 0;
+    do {
 
         char line[10];
 
-        while (!correctLine) {
+        // Limpar linha
+        memset(line, '0', sizeof(line));
 
-            // Limpar linha
-            memset(line, '0', sizeof(line));
+        // Receber linha do cliente
+        if (recv(*newSockfd, line, sizeof(line), 0) < 0) {
+            err_dump(config->logPath, game->id, playerID, "can't receive line from client", EVENT_MESSAGE_SERVER_NOT_RECEIVED);
+            return;
+        } else {
 
-            // Receber linha do cliente
-            if (recv(*newSockfd, line, sizeof(line), 0) < 0) {
-                err_dump(config->logPath, game->id, playerID, "can't receive line from client", EVENT_MESSAGE_SERVER_NOT_RECEIVED);
-                return;
-            } else {
+            printf("-----------------------------------------------------\n");
+            // **Adicionei print para verificar a linha recebida**
+            printf("Linha recebida do cliente %d: %s\n", playerID, line); 
 
-                printf("-----------------------------------------------------\n");
-                // **Adicionei print para verificar a linha recebida**
-                printf("Linha recebida do cliente %d: %s\n", playerID, line); 
-
-                // Converte a linha recebida em valores inteiros
-                int insertLine[9];
-                for (int j = 0; j < 9; j++) {
-                    insertLine[j] = line[j] - '0';
-                }
-                
-                // Verificar a linha recebida com a função verifyLine
-                correctLine = verifyLine(config->logPath, buffer, game, insertLine, i, playerID);
-
-                if (correctLine == 1) {
-                    // linha correta
-                    printf("Linha %d correta\n", i + 1);
-                } else {
-                    // linha incorreta
-                    printf("Linha %d incorreta\n", i + 1);
-                }
-
-                // wait for client to receive the line
-                sleep(1);
-
-                // Enviar o tabuleiro atualizado ao cliente
-                sendBoard(newSockfd, game, config);
+            // Converte a linha recebida em valores inteiros
+            int insertLine[9];
+            for (int j = 0; j < 9; j++) {
+                insertLine[j] = line[j] - '0';
             }
-        }
-    }
+            
+            // Verificar a linha recebida com a função verifyLine
+            correctLine = verifyLine(config->logPath, line, game, insertLine, *currentLine - 1, playerID);
+
+            if (correctLine == 1) {
+                // linha correta
+                printf("Linha %d correta\n", *currentLine);
+            } else {
+                // linha incorreta
+                printf("Linha %d incorreta\n", *currentLine);
+            }
+
+            // wait for client to receive the line
+            sleep(1);
+
+            // Enviar o tabuleiro atualizado ao cliente
+            sendBoard(newSockfd, game, config, currentLine);
+            
+        } 
+    } while (*currentLine < 9);
 }
 
 
