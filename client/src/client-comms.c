@@ -541,6 +541,9 @@ void sendLines(int *socketfd, clientConfig config) {
 
     printf("Linha atual: %d\n", currentLine);
 
+    
+    EstatisticasLinha estatisticas;
+
     // Enviar linhas inseridas pelo utilizador e receber o board atualizado
     while (currentLine <= 9) {
 
@@ -549,7 +552,7 @@ void sendLines(int *socketfd, clientConfig config) {
         // line to send to server
         char line[10];
 
-        // initiliaze buffer with '0' and null terminator
+        // inicializa o buffer com '0' e terminador nulo
         memset(line, '0', sizeof(line));
 
         while (!validLine) {
@@ -561,7 +564,9 @@ void sendLines(int *socketfd, clientConfig config) {
 
             } else {
 
-                resolveLine(boardSplit, line, currentLine - 1, config.difficulty);
+                // Passa a variável estatisticas para a função resolveLine
+                resolveLine(boardSplit, line, currentLine - 1, config.difficulty, &estatisticas);
+
             }
 
             // Enviar a linha ao servidor
@@ -570,7 +575,7 @@ void sendLines(int *socketfd, clientConfig config) {
                 continue;
             }
 
-            printf("Linha envida: %s\n", line);
+            printf("Linha enviada: %s\n", line);
 
             board = showBoard(socketfd, config);
             // get the current line
@@ -591,6 +596,7 @@ void sendLines(int *socketfd, clientConfig config) {
 
     free(board);
 }
+
 
 
 /**

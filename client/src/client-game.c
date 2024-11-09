@@ -53,13 +53,19 @@ int verifyLine(char *buffer) {
  * - Imprime a linha gerada no terminal.
  */
 
-void resolveLine(char *buffer, char * line, int row, int difficulty) {
-
+void resolveLine(char *buffer, char *line, int row, int difficulty, EstatisticasLinha *estatisticas) {
+    // Inicializar as estatísticas
+    estatisticas->tentativas = 0; // Iniciar com 0 tentativas
+    estatisticas->acertos = 0;
+    estatisticas->percentagemAcerto = 0.0;
+    estatisticas->tempoResolucao = 0.0;~
     // Seed random number generator
     srand(time(NULL));
 
     printf("Resolvendo linha %d...\n", row);
     printf("Buffer recebido: %s\n", buffer);
+
+ 
 
     // Parse the JSON object from the buffer
     JSON_Value *root_value = json_parse_string(buffer);
@@ -77,27 +83,43 @@ void resolveLine(char *buffer, char * line, int row, int difficulty) {
         if (cell_value == 0) {
             // Try different numbers until a valid one is found
             for (int num = 1; num <= 9; num++) {
+                estatisticas->tentativas++; // Aumenta o número de tentativas a cada tentativa de número
+
                 // Check if the number is valid for this cell
                 if (isValid(board_array, row, i, num, difficulty)) {
-
                     // Set the cell value to the number
                     line[i] = num + '0'; // Convert to character for string representation
+
+                    // Se o número for o correto, aumenta o número de acertos
+                    if (num == (int)json_array_get_number(linha_array, i)) {
+                        estatisticas->acertos++;
+                    }
+                    break; // Se for encontrado um número válido para de aumentar os acertos
                 }
             }
         } else {
             // The cell is already filled, copy the value to the line
             line[i] = cell_value + '0';
+            estatisticas->acertos++; // Aumenta o número de acertos
         }
     }
 
-    // terminate the string
+    // Terminate the string
     line[9] = '\0';
 
     // Free the JSON objects
     json_value_free(root_value);
 
-    printf("Linha gerada: %s\n", line); // Print the generated line
+    // Calcular a percentagem de acerto
+    estatisticas->percentagemAcerto = (float)estatisticas->acertos / 9 * 100;
+
+    // Exibir as estatísticas 
+     printf("Linha gerada: %s\n", line);
+     printf("Tentativas: %d\n", estatisticas->tentativas);
+     printf("Acertos: %d\n", estatisticas->acertos);
+     printf("Percentagem de acerto: %.2f%%\n", estatisticas->percentagemAcerto);
 }
+
 
 
 /**

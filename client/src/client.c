@@ -99,4 +99,4 @@ int main(int argc, char *argv[]) {
     // Fechar o socket
     close(sockfd);
     exit(0);
-}
+} 
