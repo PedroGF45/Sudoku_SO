@@ -238,27 +238,6 @@ void playRandomSinglePlayerGame(int *socketfd, clientConfig config) {
         err_dump(config.logPath, 0, config.clientID, "can't send random game request to server", EVENT_MESSAGE_CLIENT_NOT_SENT);
     } else {
         printf("Requesting a new random game...\n");
-
-        // receive the board from the server
-        char buffer[BUFFER_SIZE];
-        memset(buffer, 0, sizeof(buffer));
-
-        if (recv(*socketfd, buffer, sizeof(buffer), 0) < 0) {
-
-            // error receiving board from server
-            err_dump(config.logPath, 0, config.clientID, "can't receive board from server", EVENT_MESSAGE_CLIENT_NOT_RECEIVED);
-
-        } else {
-            
-            if (strcmp(buffer, "No rooms available") == 0) {
-                printf("No rooms available\n");
-                return;
-            }
-
-            // show the board
-            showBoard(buffer, config.logPath, config.clientID);
-
-        }
     }
 }
 
@@ -438,25 +417,6 @@ void playRandomMultiPlayerGame(int *socketfd, clientConfig config) {
     } else {
         printf("Requesting a new random multiplayer game...\n");
 
-        // receive the board from the server
-        char buffer[BUFFER_SIZE];
-        memset(buffer, 0, sizeof(buffer));
-
-        if (recv(*socketfd, buffer, sizeof(buffer), 0) < 0) {
-
-            // error receiving board from server
-            err_dump(config.logPath, 0, config.clientID, "can't receive board from server", EVENT_MESSAGE_CLIENT_NOT_RECEIVED);
-
-        } else {
-
-            if (strcmp(buffer, "No rooms available") == 0) {
-                printf("No rooms available\n");
-                return;
-            }
-            
-            // show the board
-            showBoard(buffer, config.logPath, config.clientID);
-        }
     }
 }
 
@@ -537,20 +497,6 @@ void showMultiplayerRooms(int *socketfd, clientConfig config) {
                     err_dump(config.logPath, 0, config.clientID, "can't send room ID to server", EVENT_MESSAGE_CLIENT_NOT_SENT);
                 } else {
                     printf("Requesting room with ID %s...\n", roomIDString);
-
-                    // receive the board from the server
-                    memset(buffer, 0, sizeof(buffer));
-
-                    if (recv(*socketfd, buffer, sizeof(buffer), 0) < 0) {
-
-                        // error receiving board from server
-                        err_dump(config.logPath, 0, config.clientID, "can't receive board from server", EVENT_MESSAGE_CLIENT_NOT_RECEIVED);
-
-                    } else {
-
-                        // show the board
-                        showBoard(buffer, config.logPath, config.clientID);
-                    }
                 }
             }
         }
@@ -581,10 +527,19 @@ void sendLines(int *socketfd, clientConfig config) {
 
     // buffer for the board
     char buffer[BUFFER_SIZE];
-
     memset(buffer, 0, sizeof(buffer));
 
-    int currentLine = 1;
+    printf("A jogar...\n");
+
+    char *board;
+    board = showBoard(socketfd, config);
+
+    // get the current line
+    char *boardSplit = strtok(board, "\n");
+    char *token = strtok(NULL, "\n");
+    int currentLine = atoi(token);
+
+    printf("Linha atual: %d\n", currentLine);
 
     // Enviar linhas inseridas pelo utilizador e receber o board atualizado
     while (currentLine <= 9) {
@@ -606,7 +561,7 @@ void sendLines(int *socketfd, clientConfig config) {
 
             } else {
 
-                resolveLine(buffer, line, currentLine - 1, config.difficulty);
+                resolveLine(boardSplit, line, currentLine - 1, config.difficulty);
             }
 
             // Enviar a linha ao servidor
@@ -617,68 +572,24 @@ void sendLines(int *socketfd, clientConfig config) {
 
             printf("Linha envida: %s\n", line);
 
-            // Receber o board atualizado
-            memset(buffer, 0, sizeof(buffer));
-            if (recv(*socketfd, buffer, sizeof(buffer), 0) < 0) {
-                err_dump(config.logPath, 0, config.clientID, "can't receive updated board from server", EVENT_MESSAGE_CLIENT_NOT_RECEIVED);
-                continue;
-            }
+            board = showBoard(socketfd, config);
+            // get the current line
+            boardSplit = strtok(board, "\n");
+            char *token = strtok(NULL, "\n");
+            int serverLine = atoi(token);
 
-            printf("Board atualizado: %s\n", buffer);
+            printf("Linha do servidor: %d\n", serverLine);
 
-            // Exibir o board atualizado
-            JSON_Value *root_value = json_parse_string(buffer);
-            JSON_Object *root_object = json_value_get_object(root_value);
-            JSON_Array *board_array = json_object_get_array(root_object, "board");
-
-            // check if the line is correct by comparing line and row of board
-            JSON_Array *linha_array = json_array_get_array(board_array, currentLine-1);
-            for (int i = 0; i < 9; i++) {
-                if (line[i] != (int)json_array_get_number(linha_array, i) + '0') {
-                    validLine = 0;
-                    break;
-                } else {
-                    validLine = 1;
-                }
-            }
-
-            // receber o numero da linha do servidor atualizado
-            char updatedLine[10];
-            memset(updatedLine, 0, sizeof(updatedLine));
-            if (recv(*socketfd, updatedLine, sizeof(updatedLine), 0) < 0) {
-                err_dump(config.logPath, 0, config.clientID, "can't receive updated line number from server", EVENT_MESSAGE_CLIENT_NOT_RECEIVED);
-                continue;
-            }
-
-            // convert the updated line number to an integer
-            int serverLine = atoi(updatedLine);
-            printf("Linha atualizada: %d\n", serverLine);
-
-            // Atualizar a linha atual
             if (serverLine > currentLine) {
-                currentLine = serverLine;
                 validLine = 1;
-                printf("AVANCA PARA LINHA SEGUINTER\n");
+                currentLine = serverLine;
+            } else {
+                printf("Linha %d incorreta. Tente novamente.\n", currentLine);
             }
-
-            printf("-------------------------------------\n");
-            for (int i = 0; i < json_array_get_count(board_array); i++) {
-                JSON_Array *linha_array = json_array_get_array(board_array, i);
-                printf("| line %d -> | ", i + 1);
-                for (int j = 0; j < 9; j++) {
-                    printf("%d ", (int)json_array_get_number(linha_array, j));
-                    if ((j + 1) % 3 == 0) {
-                        printf("| ");
-                    }
-                }
-                printf("\n");
-                if ((i + 1) % 3 == 0) {
-                    printf("-------------------------------------\n");
-                }
-            }
-            json_value_free(root_value);
         }
     }
+
+    free(board);
 }
 
 
@@ -771,21 +682,6 @@ void showGames(int *socketfd, clientConfig config, bool isSinglePlayer) {
                     err_dump(config.logPath, 0, config.clientID, "can't send game ID to server", EVENT_MESSAGE_CLIENT_NOT_SENT);
                 } else {
                     printf("Requesting game with ID %s...\n", gameIDString);
-
-                    // receive the board from the server
-                    memset(buffer, 0, sizeof(buffer));
-
-                    if (recv(*socketfd, buffer, sizeof(buffer), 0) < 0) {
-
-                        // error receiving board from server
-                        err_dump(config.logPath, 0, config.clientID, "can't receive board from server", EVENT_MESSAGE_CLIENT_NOT_RECEIVED);
-
-                    } else {
-
-                        // show the board
-                        showBoard(buffer, config.logPath, config.clientID);
-
-                    }
                 }
             }  
         }
@@ -815,4 +711,109 @@ void closeConnection(int *socketfd, clientConfig config) {
         printf("Closing connection...\n");
         writeLogJSON(config.logPath, 0, config.clientID, EVENT_CONNECTION_CLIENT_CLOSED);
     }
+
+    // close the socket
+    close(*socketfd);
+
+    // exit the program
+    exit(0);
+}
+
+/**
+ * Exibe o tabuleiro de jogo a partir de uma string JSON e regista o evento no log.
+ *
+ * @param buffer Uma string JSON que contém o estado do tabuleiro.
+ * @param logFileName O caminho para o ficheiro de log onde o evento será registado.
+ * @param playerID O identificador do jogador que está a visualizar o tabuleiro.
+ *
+ * @details A função faz o seguinte:
+ * - Faz o parse da string JSON para obter o objeto `board` e o `gameID`.
+ * - Imprime o tabuleiro no formato de uma grelha 9x9 com separadores visuais.
+ * - Regista o evento de visualização do tabuleiro no ficheiro de log.
+ * - Liberta a memória alocada para o objeto JSON após a operação.
+ */
+
+char *showBoard(int *socketfd, clientConfig config) {
+
+    // buffer for the board
+    // Allocate memory for buffer on the heap
+    char *buffer = (char *)malloc(BUFFER_SIZE);
+    if (buffer == NULL) {
+        perror("Failed to allocate memory");
+        return NULL;
+    }
+    memset(buffer, 0, BUFFER_SIZE);
+
+    printf("Received board from server...\n");
+
+    // receive the board from the server
+    if (recv(*socketfd, buffer, BUFFER_SIZE, 0) < 0) {
+        // error receiving board from server
+        err_dump(config.logPath, 0, config.clientID, "can't receive board from server", EVENT_MESSAGE_CLIENT_NOT_RECEIVED);
+        free(buffer);
+
+    } else {
+
+        if (strcmp(buffer, "No rooms available") == 0) {
+            printf("No rooms available\n");
+            free(buffer);
+            return NULL;
+        }
+    }
+
+    printf("Board received: %s\n", buffer);
+
+    char *board = strtok(buffer, "\n");
+    char *token = strtok(NULL, "\n");
+    int serverLine = atoi(token);
+    printf("Linha do servidor: %d\n", serverLine);
+
+    // get the JSON object from the buffer
+    JSON_Value *root_value = json_parse_string(board);
+    JSON_Object *root_object = json_value_get_object(root_value);
+
+    // get the game ID
+    int gameID = (int)json_object_get_number(root_object, "id");
+
+    // print the board
+    printf("-------------------------------------\n");
+    printf("BOARD ID: %d       PLAYER ID: %d\n", gameID, config.clientID);
+    printf("-------------------------------------\n");
+
+    // get the board array from the JSON object
+    JSON_Array *board_array = json_object_get_array(root_object, "board");
+
+    for (int i = 0; i < json_array_get_count(board_array); i++) {
+
+        // get the line array from the board array
+        JSON_Array *linha_array = json_array_get_array(board_array, i);
+
+        printf("| line %d -> | ", i + 1);
+
+        // print the line array
+        for (int j = 0; j < 9; j++) {
+            printf("%d ", (int)json_array_get_number(linha_array, j));
+            if ((j + 1) % 3 == 0) {
+                printf("| ");
+            }
+        }
+        printf("\n");
+        if ((i + 1) % 3 == 0) {
+            printf("-------------------------------------\n");
+        }
+    }
+
+    // free the JSON object
+    json_value_free(root_value);
+
+    writeLogJSON(config.logPath, gameID, config.clientID, EVENT_BOARD_SHOW);
+
+    // concatenate again board and server line
+    strcat(board, "\n");
+    char serverLineStr[10];
+    sprintf(serverLineStr, "%d", serverLine);
+    strcat(board, serverLineStr);
+    strcpy(buffer, board);
+
+    return buffer;
 }

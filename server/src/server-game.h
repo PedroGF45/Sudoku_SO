@@ -14,7 +14,7 @@ Game *loadGame(ServerConfig *config, int gameID, int playerID);
 Game *loadRandomGame(ServerConfig *config, int playerID);
 
 // Verifica se a linha inserida pelo jogador está correta.
-int verifyLine(char *logFileName, char *solutionSent, Game *game, int insertLine[9], int lineNumber, int playerID);
+int verifyLine(char *logFileName, char *solutionSent, Game *game, int insertLine[9], int playerID);
 
 // Verifica se uma linha do tabuleiro está correta.
 bool isLineCorrect(Game *game, int row);

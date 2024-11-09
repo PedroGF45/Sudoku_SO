@@ -57,4 +57,7 @@ void showGames(int *socketfd, clientConfig config, bool isSinglePlayer);
 // Envia uma mensagem para fechar a conexão com o servidor.
 void closeConnection(int *socketfd, clientConfig config);
 
+// Exibe o tabuleiro de jogo recebido do servidor.
+char *showBoard(int *socketfd, clientConfig config);
+
 #endif

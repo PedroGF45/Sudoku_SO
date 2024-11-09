@@ -406,7 +406,7 @@ void initializeSocket(struct sockaddr_in *serv_addr, int *sockfd, ServerConfig *
  * - Liberta a memória alocada para a string serializada e o objeto JSON.
  */
 
-void sendBoard(int *socket, Game *game, ServerConfig *config, int *currentLine) {
+void sendBoard(int *socket, Game *game, ServerConfig *config) {
     // Enviar board ao cliente em formato JSON
     JSON_Value *root_value = json_value_init_object();
     JSON_Object *root_object = json_value_get_object(root_value);
@@ -426,26 +426,24 @@ void sendBoard(int *socket, Game *game, ServerConfig *config, int *currentLine) 
     json_object_set_value(root_object, "board", board_value);
     char *serialized_string = json_serialize_to_string(root_value);
 
-    printf("Tabuleiro enviado ao cliente: %s\n", serialized_string);
-
-    // Enviar tabuleiro ao cliente
-    if (send(*socket, serialized_string, strlen(serialized_string), 0) < 0) {
-        err_dump(config->logPath, game->id, 0, "can't send board to client", EVENT_MESSAGE_SERVER_NOT_SENT);
-        return;
-    }
-
-    // Enviar inteiro com a linha atual
+    //adicionar a linha atual como um inteiro à string
     char buffer[10];
-    sprintf(buffer, "%d", *currentLine);
-    printf("Enviando linha atual: %s\n", buffer);
-    if (send(*socket, buffer, strlen(buffer), 0) < 0) {
-        err_dump(config->logPath, game->id, 0, "can't send current line to client", EVENT_MESSAGE_SERVER_NOT_SENT);
+    sprintf(buffer, "\n%d", game->currentLine);
+    char *temp = malloc(strlen(serialized_string) + strlen(buffer) + 1);
+    strcpy(temp, serialized_string);
+    strcat(temp, buffer);
+
+    printf("Enviando board e linha atual: %s\n", temp);
+    // Enviar tabuleiro e linha atual ao cliente
+    if (send(*socket, temp, strlen(temp), 0) < 0) {
+        err_dump(config->logPath, game->id, 0, "can't send board and line to client", EVENT_MESSAGE_SERVER_NOT_SENT);
         return;
     }
 
     // escrever no log
     writeLogJSON(config->logPath, game->id, 0, EVENT_MESSAGE_SERVER_SENT);
 
+    free(temp);
     json_free_serialized_string(serialized_string);
     json_value_free(root_value);
 }
@@ -475,8 +473,13 @@ void receiveLines(int *newSockfd, Game *game, int playerID, ServerConfig *config
 
     int correctLine = 0;
 
+    // Enviar o tabuleiro atualizado ao cliente
+    sendBoard(newSockfd, game, config);
+
     // Receber e validar as linhas do cliente
-    do {
+    while (game->currentLine <= 9) {
+
+        //printf("Recebendo linha %d do cliente %d\n", *currentLine, playerID);
 
         char line[10];
 
@@ -500,24 +503,25 @@ void receiveLines(int *newSockfd, Game *game, int playerID, ServerConfig *config
             }
             
             // Verificar a linha recebida com a função verifyLine
-            correctLine = verifyLine(config->logPath, line, game, insertLine, *currentLine - 1, playerID);
+            correctLine = verifyLine(config->logPath, line, game, insertLine, playerID);
 
             if (correctLine == 1) {
                 // linha correta
-                printf("Linha %d correta\n", *currentLine);
+                printf("Linha %d correta\n", game->currentLine);
+                (game->currentLine)++;
             } else {
                 // linha incorreta
-                printf("Linha %d incorreta\n", *currentLine);
+                printf("Linha %d incorreta\n", game->currentLine);
             }
 
             // wait for client to receive the line
             sleep(1);
 
             // Enviar o tabuleiro atualizado ao cliente
-            sendBoard(newSockfd, game, config, currentLine);
+            sendBoard(newSockfd, game, config);
             
         } 
-    } while (*currentLine < 9);
+    } 
 }
 
 

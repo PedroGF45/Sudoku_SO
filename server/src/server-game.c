@@ -102,6 +102,9 @@ Game *loadGame(ServerConfig *config, int gameID, int playerID) {
             // set game id as currentID
             game->id = currentID;
 
+            // set current line as 1
+            game->currentLine = 1;
+
              // Obter o board e a solution do JSON
             for (int row = 0; row < 9; row++) {
 
@@ -239,32 +242,32 @@ Game *loadRandomGame(ServerConfig *config, int playerID) {
  * - Regista no log se a linha foi validada como correta ou incorreta e devolve 1 ou 0, respetivamente.
  */
 
-int verifyLine(char * logFileName, char * solutionSent, Game *game, int insertLine[9], int lineNumber, int playerID) {
+int verifyLine(char * logFileName, char * solutionSent, Game *game, int insertLine[9], int playerID) {
 
     char logMessage[100];
     
-    sprintf(logMessage, "O jogador %d no jogo %d %s para a linha %d: %s", playerID, game->id, EVENT_SOLUTION_SENT, lineNumber + 1, solutionSent);
+    sprintf(logMessage, "O jogador %d no jogo %d %s para a linha %d: %s", playerID, game->id, EVENT_SOLUTION_SENT, game->currentLine, solutionSent);
     writeLogJSON(logFileName, game->id, playerID, logMessage);
     
     for (int j = 0; j < 9; j++) {
 
         // verifica se o valor inserido é igual ao valor da solução
-        if (insertLine[j] == game->solution[lineNumber][j]) {
+        if (insertLine[j] == game->solution[game->currentLine - 1][j]) {
             
             // se for igual, atualiza o tabuleiro
-            game->board[lineNumber][j] = insertLine[j];
+            game->board[game->currentLine - 1][j] = insertLine[j];
 
         // se o valor inserido for diferente do valor da solução
         } 
 
-        printf("Posição %d: esperado %d, recebido %d\n", j + 1, game->solution[lineNumber][j], insertLine[j]);
+        printf("Posição %d: esperado %d, recebido %d\n", j + 1, game->solution[game->currentLine - 1][j], insertLine[j]);
     }
 
     // limpa logMessage
     memset(logMessage, 0, sizeof(logMessage));
 
     // verifica se a linha está correta
-    if (isLineCorrect(game, lineNumber)) {
+    if (isLineCorrect(game, game->currentLine - 1)) {
 
         // linha correta
         snprintf(logMessage, sizeof(logMessage), "Linha enviada (%s) validada como CERTA", solutionSent);
@@ -279,7 +282,6 @@ int verifyLine(char * logFileName, char * solutionSent, Game *game, int insertLi
         return 0;
     }
 }
-
 
 /**
  * Verifica se uma linha específica do tabuleiro do jogo está correta em relação à solução.

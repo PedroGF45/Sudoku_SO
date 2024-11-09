@@ -9,12 +9,14 @@
  * @param id O identificador único do jogo.
  * @param board O tabuleiro de jogo, representado como uma matriz de 9x9.
  * @param solution A solução correta do jogo, também representada como uma matriz de 9x9.
+ * @param currentLine O número da linha atual a resolver no jogo.
  */
 
 typedef struct {
     int id;        
     char board[9][9];
     char solution[9][9];
+    int currentLine;
 } Game;
 
 
