@@ -18,6 +18,9 @@ void connectToServer(struct sockaddr_in *serv_addr, int *socketfd, clientConfig 
 // Exibe o menu principal e processa as opções do utilizador.
 void showMenu(int *socketfd, clientConfig config);
 
+void showStatisticsMenu(int *socketfd, clientConfig config);
+
+
 // Exibe o menu de opções de jogo e processa as escolhas.
 void showPlayMenu(int *socketfd, clientConfig config);
 
@@ -41,9 +44,6 @@ void showMultiPlayerMenu(int *socketfd, clientConfig config);
 
 // Solicita e exibe as salas multiplayer disponíveis.
 void showMultiplayerRooms(int *socketfd, clientConfig config);
-
-// show statistics menu with statistics to show
-//void showStatisticsMenu(int *socketfd, clientConfig config);
 
 // Envia linhas de jogo ao servidor e processa o tabuleiro atualizado.
 void sendLines(int *socketfd, clientConfig config);

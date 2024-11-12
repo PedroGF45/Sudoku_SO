@@ -6,6 +6,8 @@
 
 
 
+void showStatisticsMenu(int *socketfd, clientConfig config);//Se não pusesse aqui não estava a dar 
+
 /**
  * Estabelece uma ligação TCP ao servidor especificado na configuração do cliente.
  *
@@ -98,7 +100,7 @@ void showMenu(int *socketfd, clientConfig config) {
                 showPlayMenu(socketfd, config);
                 break;
             case 2:
-                // showStatisticsMenu();
+                 showStatisticsMenu(socketfd, config);
                 break;
             case 3:
                 closeConnection(socketfd, config);
@@ -108,7 +110,67 @@ void showMenu(int *socketfd, clientConfig config) {
     } while (option < 1 || option > 3);
 }
 
+void showStatisticsMenu(int *socketfd, clientConfig config) {
 
+    int option;
+
+    do {
+        // Pergunta ao utilizador sobre qual estatística ele quer visualizar
+        printf("\n========= Menu de Estatísticas =========\n");
+        printf("1. Tempo Total de Jogo\n");
+        printf("2. Ver percentagem de acerto\n");
+        printf("3. Voltar ao Menu Principal\n");
+        printf("4. Fechar Conexão\n");
+
+        // Obtem a opção do utilizador
+        if (scanf("%d", &option) != 1) {
+            printf("Entrada inválida. Por favor, insira um número.\n");
+            fflush(stdin);  // Limpar o buffer de entrada
+            continue;
+        }
+
+        // Processa a opção escolhida
+        switch (option) {
+            case 1:
+                // Exibir o tempo total de jogo
+               // printf("Tempo total de jogo: %.2f segundos\n", config.totalGameTime);
+
+                // Perguntar se deseja voltar ao menu principal
+                printf("\n1.  Voltar ao Menu Principal\n");
+                int backOption;
+                if (scanf("%d", &backOption) != 1) {
+                    printf("Entrada inválida. Por favor, insira um número.\n");
+                    fflush(stdin);
+                    continue;
+                }
+
+                if (backOption == 1) {
+                     // Voltar ao menu principal
+                    showMenu(socketfd, config);
+                    return;
+                } else {
+                    printf("Opção inválida. Tentando novamente...\n");
+                    continue;
+                }
+                break;
+            case 2:
+                // Mostrar outras estatísticas, tipo depois escolhemos
+                printf("Podemos meter outras estatísticas.\n");
+                break;
+            case 3:
+                // Voltar ao menu principal
+                showMenu(socketfd, config);
+                return;
+            case 4:
+                // Fechar a conexão
+                closeConnection(socketfd, config);
+                return;
+            default:
+                printf("Opção inválida. Tente novamente.\n");
+                break;
+        }
+    } while (option < 1 || option > 4);
+}
 /**
  * Exibe o menu de jogo e processa as opções selecionadas pelo utilizador.
  *

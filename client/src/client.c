@@ -26,7 +26,7 @@
  * - Fecha o socket e termina o programa de forma limpa.
  */
 
-int main(int argc, char *argv[]) {
+ int main(int argc, char *argv[]) {
     
     if (argc < 2) {
         printf("Erro: Faltam argumentos de configuracao!\n");
@@ -35,6 +35,10 @@ int main(int argc, char *argv[]) {
 
     // Garante que os ids aleatórios são diferentes
     srand(time(NULL));
+
+    // Marca o tempo de início do jogo
+    time_t startTime = time(NULL);
+
 
     // Carrega a configuracao do cliente
     clientConfig config = getClientConfig(argv[1]);
@@ -93,10 +97,20 @@ int main(int argc, char *argv[]) {
         // send lines to server
         sendLines(&sockfd, config);
 
+        // Marca o tempo de término do jogo
+        time_t endTime = time(NULL);
+
+        // Calcula o tempo de resolução em segundos
+        double totalTime = difftime(endTime, startTime);
+        printf("Tempo de resolução do jogo: %.2f segundos\n", totalTime);
+        // Imprime o tempo total de resolução
         printf("Game finished!\n");
+       
+
+
     }
     
     // Fechar o socket
     close(sockfd);
     exit(0);
-} 
+}  
