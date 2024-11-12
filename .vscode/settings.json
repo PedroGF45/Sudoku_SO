@@ -7,6 +7,8 @@
         "server-comms.h": "c",
         "pthread.h": "c",
         "config.h": "c",
-        "server-game.h": "c"
+        "server-game.h": "c",
+        "time.h": "c",
+        "parson.h": "c"
     }
 }
