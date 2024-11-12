@@ -17,6 +17,10 @@ int verifyLine(char *buffer);
 // Função para resolver uma linha
 void resolveLine(char *buffer, char *line, int row, int difficulty, EstatisticasLinha *estatisticas);
 
+// Função para verificar se um número pode ser colocado numa célula específica do tabuleiro
 bool isValid(JSON_Array *board_array, int row, int col, int num, int difficulty);
+
+// Função para mostrar timer update
+int showTimerUpdate(char *buffer, int timeLeft);
 
 #endif // CLIENT_GAME_H

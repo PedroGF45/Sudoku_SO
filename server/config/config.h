@@ -1,7 +1,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-
+#include <stdbool.h>
 
 /**
  * Estrutura que representa um jogo, incluindo o tabuleiro e a solução correta.
@@ -35,6 +35,9 @@ typedef struct {
     int maxPlayers;
     int numPlayers;
     int *players;
+    int *clientSockets;
+    int timer;
+    bool isGameRunning;
     Game *game;
 } Room;
 

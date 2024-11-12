@@ -21,6 +21,9 @@ void *handleClient(void *arg);
 // Cria uma sala e um jogo, configurando-os com base nos parâmetros fornecidos.
 Room *createRoomAndGame(int *newSockfd, ServerConfig *config, int playerID, bool isSinglePlayer, bool isRandom, int gameID);
 
+// Junta um jogador a uma sala existente.
+Room *joinRoom(int *socketfd, ServerConfig *config, int roomID, int playerID);
+
 // Inicializa o socket do servidor e associa-o a um endereço.
 void initializeSocket(struct sockaddr_in *serv_addr, int *sockfd, ServerConfig *config);
 
@@ -33,5 +36,10 @@ void receiveLines(int *newSockfd, Game *game, int playerID, ServerConfig *config
 // Termina o jogo e limpa os recursos associados à sala.
 void finishGame(int *socket, Room *room, int playerID, ServerConfig *config);
 
+// Trata o temporizador de espera do cliente.
+void handleTimer(int *newSockfd, Room *room, int playerID, ServerConfig *config);
+
+// Envia uma mensagem de atualização do temporizador ao cliente.
+void sendTimerUpdate(int *newSockfd, Room *room, int playerID, ServerConfig *config);
 
 #endif

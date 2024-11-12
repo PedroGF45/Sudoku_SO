@@ -20,10 +20,7 @@ int verifyLine(char *logFileName, char *solutionSent, Game *game, int insertLine
 bool isLineCorrect(Game *game, int row);
 
 // Cria uma nova sala de jogo.
-Room *createRoom(ServerConfig *config);
-
-// Junta um jogador a uma sala existente.
-Room *joinRoom(ServerConfig *config, int roomID, int playerID);
+Room *createRoom(ServerConfig *config, int playerID);
 
 // Obtém uma lista de IDs dos jogos disponíveis.
 char *getGames(ServerConfig *config);

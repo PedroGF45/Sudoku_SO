@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <stdbool.h>
 #include "../../utils/logs/logs.h"
 #include "../../utils/parson/parson.h"
 #include "client-game.h"
@@ -58,7 +57,7 @@ void resolveLine(char *buffer, char *line, int row, int difficulty, Estatisticas
     estatisticas->tentativas = 0; // Iniciar com 0 tentativas
     estatisticas->acertos = 0;
     estatisticas->percentagemAcerto = 0.0;
-    estatisticas->tempoResolucao = 0.0;~
+    estatisticas->tempoResolucao = 0.0;
     // Seed random number generator
     srand(time(NULL));
 
@@ -176,4 +175,24 @@ bool isValid(JSON_Array *board_array, int row, int col, int num, int difficulty)
         }
     }
     return true;
+}
+
+int showTimerUpdate(char *buffer, int timeLeft) {
+
+    //printf("Recebido: %s\n", buffer);
+    // Parse the received message
+    strtok(buffer, "\n");
+    timeLeft = atoi(strtok(NULL, "\n"));
+    //printf("Tempo restante: %d segundos\n", timeLeft);
+    int roomId = atoi(strtok(NULL, "\n"));
+    //printf("ID da sala: %d\n", roomId);
+    int gameId = atoi(strtok(NULL, "\n"));
+    //printf("ID do jogo: %d\n", gameId);
+    int numPlayers = atoi(strtok(NULL, "\n"));
+    //printf("Jogadores na sala: %d\n", numPlayers);
+
+    // show the timer update
+    printf("Time left: %d seconds - Room ID: %d - Game ID: %d - Players joined: %d\n", timeLeft, roomId, gameId, numPlayers);
+
+    return --timeLeft;
 }
