@@ -20,6 +20,7 @@
 #define EVENT_SERVER_CONNECTION_FINISH          "Conexao terminada com o cliente"
 #define EVENT_SERVER_GAMES_SENT                 "Jogos enviados para o cliente"
 #define EVENT_ROOM_LOAD                         "Sala carregada"
+#define EVENT_ROOM_NOT_LOAD                     "Sala nao carregada"
 
 /* client */
 #define EVENT_CONNECTION_CLIENT_ESTABLISHED     "Conexao estabelecida com o servidor"
@@ -30,6 +31,8 @@
 #define EVENT_MESSAGE_CLIENT_RECEIVED           "Mensagem recebida do servidor"
 #define EVENT_MESSAGE_CLIENT_NOT_RECEIVED       "Erro ao receber mensagem do servidor"
 
+#define BUFFER_SIZE 1024
+
 struct log {
     int id;
     char event[32];
@@ -38,5 +41,8 @@ struct log {
 
 // wirte log in JSON format
 void writeLogJSON(const char *filename, int gameID, int playerID, const char *logMessage);
+
+// Função externa para registar um erro no log e terminar o programa.
+void err_dump(char *logPath, int idJogo, int idJogador, char *msg, char *event);
 
 #endif

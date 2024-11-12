@@ -103,32 +103,3 @@ int readline(int fd, char *ptr, int maxlen)
 	   com o \n ou \0 */
 	return (n);
 }
-
-
-/**
- * Regista uma mensagem de erro no log, imprime a mensagem de erro no stderr,
- * e termina o programa com um código de erro.
- *
- * @param logPath O caminho do ficheiro de log onde a mensagem de erro será escrita.
- * @param idJogo O identificador do jogo associado ao erro.
- * @param idJogador O identificador do jogador associado ao erro.
- * @param msg A mensagem de erro a ser registada e impressa.
- * @param event O evento específico associado à mensagem de erro.
- */
-
-void err_dump(char *logPath, int idJogo, int idJogador, char *msg, char *event)
-{
-	// buffer para a mensagem de erro
-	char logMessage[BUFFER_SIZE];
-	memset(logMessage, 0, sizeof(logMessage));
-
-	// concatenar o evento com a mensagem de erro
-	snprintf(logMessage, sizeof(logMessage), "%s: %s", event, msg);
-
-	// escreve no log a mensagem de erro
-	writeLogJSON(logPath, idJogo, idJogador, logMessage);
-
-	// imprime a mensagem de erro e termina o programa
-	perror(msg);
-	exit(1);
-}

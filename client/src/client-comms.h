@@ -27,9 +27,6 @@ void showSinglePLayerMenu(int *socketfd, clientConfig config);
 // Inicia um jogo single player aleatório.
 void playRandomSinglePlayerGame(int *socketfd, clientConfig config);
 
-// Verifica e exibe jogos existentes para seleção.
-void checkExistingGames(int *socketfd, clientConfig config);
-
 // Exibe o menu de opções multiplayer.
 void showMultiPlayerMenu(int *socketfd, clientConfig config);
 
@@ -60,4 +57,7 @@ void closeConnection(int *socketfd, clientConfig config);
 // Exibe o tabuleiro de jogo recebido do servidor.
 char *showBoard(int *socketfd, clientConfig config);
 
-#endif
+// Recebe um temporizador do servidor e atualiza o tempo restante.
+void receiveTimer(int *socketfd, clientConfig config);
+
+#endif // CLIENT_COMMS_H

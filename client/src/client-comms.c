@@ -254,32 +254,6 @@ void playRandomSinglePlayerGame(int *socketfd, clientConfig config) {
  * - Exibe a lista de jogos.
  */
 
-void checkExistingGames(int *socketfd, clientConfig config) {
-    // ask server for existing games
-    if (send(*socketfd, "existingGames", strlen("existingGames"), 0) < 0) {
-        err_dump(config.logPath, 0, config.clientID, "can't send existing games request to server", EVENT_MESSAGE_CLIENT_NOT_SENT);
-    } else {
-        printf("Requesting existing games...\n");
-
-        // receive the games from the server
-        char buffer[BUFFER_SIZE];
-        memset(buffer, 0, sizeof(buffer));
-
-        if (recv(*socketfd, buffer, sizeof(buffer), 0) < 0) {
-
-            // error receiving games from server
-            err_dump(config.logPath, 0, config.clientID, "can't receive games from server", EVENT_MESSAGE_CLIENT_NOT_RECEIVED);
-
-        } else {
-
-            // show the games
-            printf("Existing games:\n%s\n", buffer);
-            
-        }
-    }
-}
-
-
 /**
  * Exibe o menu de jogo multiplayer e processa as opções selecionadas pelo utilizador.
  *
@@ -417,9 +391,12 @@ void playRandomMultiPlayerGame(int *socketfd, clientConfig config) {
     } else {
         printf("Requesting a new random multiplayer game...\n");
 
+        // receive timer from server
+        receiveTimer(socketfd, config);
+
+        printf("JOGO INICIADO\n");
     }
 }
-
 
 /**
  * Solicita ao servidor a lista de salas multiplayer existentes e permite ao utilizador 
@@ -498,6 +475,10 @@ void showMultiplayerRooms(int *socketfd, clientConfig config) {
                 } else {
                     printf("Requesting room with ID %s...\n", roomIDString);
                 }
+
+                // receive timer from server
+                receiveTimer(socketfd, config);
+
             }
         }
     }
@@ -822,4 +803,26 @@ char *showBoard(int *socketfd, clientConfig config) {
     strcpy(buffer, board);
 
     return buffer;
+}
+
+void receiveTimer(int *socketfd, clientConfig config) {
+
+    char buffer[BUFFER_SIZE];
+    memset(buffer, 0, sizeof(buffer));
+
+    // receive at 60, 50, 40, 30, 20, 10, 5, 4, 3, 2, 1 seconds
+    int timeLeft = 60;
+
+    while (timeLeft > 0) {
+        if (recv(*socketfd, buffer, sizeof(buffer), 0) < 0) {
+
+            // error receiving timer from server
+            err_dump(config.logPath, 0, config.clientID, "can't receive timer from server", EVENT_MESSAGE_CLIENT_NOT_RECEIVED);
+
+        } else {
+            printf("Buffer: %s\n", buffer);
+
+            timeLeft = showTimerUpdate(buffer, timeLeft);
+        }
+    }
 }

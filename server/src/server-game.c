@@ -322,7 +322,7 @@ bool isLineCorrect(Game *game, int row) {
  * - Devolve o pointer para a sala criada, ou NULL se a alocação de memória falhar.
  */
 
-Room *createRoom(ServerConfig *config) {
+Room *createRoom(ServerConfig *config, int playerID) {
 
     Room *room = (Room *)malloc(sizeof(Room));
     if (room == NULL) {
@@ -333,64 +333,17 @@ Room *createRoom(ServerConfig *config) {
 
     room->id = generateUniqueId();
     room->players = (int *)malloc(config->maxPlayersPerRoom * sizeof(int));
+    room->clientSockets = (int *)malloc(config->maxPlayersPerRoom * sizeof(int));
+    room->timer = 60;
+    room->isGameRunning = false;
     memset(config->rooms, 0, sizeof(Room) * config->maxRooms); // Ensures all fields in rooms are set to 0
 
     // increase the number of rooms
     config->numRooms++;
     
-    writeLogJSON(config->logPath, 0, 0, EVENT_ROOM_LOAD);
+    writeLogJSON(config->logPath, 0, playerID, EVENT_ROOM_LOAD);
     return room;
 }
-
-
-/**
- * Adiciona um jogador a uma sala de jogo existente.
- *
- * @param config Um pointer para a estrutura `ServerConfig` que contém as informações 
- * de configuração do servidor, incluindo a lista de salas.
- * @param roomID O identificador da sala que o jogador pretende entrar.
- * @param playerID O identificador do jogador que deseja juntar-se à sala.
- * @return Um pointer para a sala `Room` se o jogador for adicionado com sucesso, 
- * ou NULL se a sala estiver cheia ou se o `roomID` for inválido.
- *
- * @details Esta função faz o seguinte:
- * - Verifica se o `roomID` fornecido é válido (dentro dos limites das salas existentes).
- * - Obtém a sala correspondente a partir da lista de salas no servidor.
- * - Verifica se a sala já está cheia. Se estiver, devolve NULL e imprime uma mensagem de erro no terminal.
- * - Se houver espaço na sala, adiciona o jogador ao array de jogadores da sala e incrementa o número de jogadores.
- * - Regista no ficheiro de log que o jogador entrou na sala.
- * - Devolve um pointer para a sala `Room` atualizada.
- */
-
-Room *joinRoom(ServerConfig *config, int roomID, int playerID) {
-
-    // check if roomID is valid
-    if (roomID < 1 || roomID > config->numRooms) {
-        fprintf(stderr, "Room ID %d is invalid\n", roomID);
-        return NULL;
-    }
-
-    // get the room
-    Room *room = config->rooms[roomID - 1];
-
-    // check if room is full
-    if (room->numPlayers == room->maxPlayers) {
-        fprintf(stderr, "Room %d is full\n", roomID);
-        return NULL;
-    }
-
-    // add player to room
-    room->players[room->numPlayers] = playerID;
-    room->numPlayers++;
-
-    // log player joined room
-    char logMessage[100];
-    snprintf(logMessage, sizeof(logMessage), "Player %d joined room %d", playerID, roomID);
-    writeLogJSON(config->logPath, room->game->id, playerID, logMessage);
-
-    return room;
-}
-
 
 /**
  * Obtém uma lista de identificadores de jogos a partir do ficheiro 'games.json'.
@@ -506,11 +459,18 @@ char *getRooms(ServerConfig *config) {
         memset(rooms, 0, 1024);
 
         for (int i = 0; i < config->numRooms; i++) {
-        
-            // show number of players in the room, max players in the room and the game ID
-            char roomString[100];
-            sprintf(roomString, "Room ID: %d, Players: %d/%d, Game ID: %d\n", config->rooms[i]->id, config->rooms[i]->numPlayers, config->rooms[i]->maxPlayers, config->rooms[i]->game->id);
-            strcat(rooms, roomString);
+            // can only join rooms that are not running
+            if (config->rooms[i]->isGameRunning == false) {
+                // show number of players in the room, max players in the room and the game ID
+                char roomString[100];
+                sprintf(roomString, "Room ID: %d, Players: %d/%d, Game ID: %d\n", config->rooms[i]->id, config->rooms[i]->numPlayers, config->rooms[i]->maxPlayers, config->rooms[i]->game->id);
+                strcat(rooms, roomString);
+            }
+        }
+
+        // if no rooms are available
+        if (strlen(rooms) == 0) {
+            return "No rooms available\n";
         }
 
         // return the rooms

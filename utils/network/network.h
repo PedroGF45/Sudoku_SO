@@ -8,8 +8,6 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <arpa/inet.h>
-#define BUFFER_SIZE 1024
-
 
 // Declarações de variáveis externas usadas para operações de I/O.
 extern int fd;
@@ -24,9 +22,6 @@ extern int writen(int fd, char *ptr, int nbytes);
 
 // Função externa para ler uma linha de um descritor de ficheiro.
 extern int readline(int fd, char *ptr, int maxlen);
-
-// Função externa para registar um erro no log e terminar o programa.
-extern void err_dump(char *logPath, int idJogo, int idJogador, char *msg, char *event);
 
 // Função externa para gerir a comunicação cliente-servidor.
 extern void str_cli(FILE *fp, int sockfd);
