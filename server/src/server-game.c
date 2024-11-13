@@ -9,6 +9,15 @@
 
 static int nextRoomID = 1;
 
+void saveRoomStatistics(int roomId, double elapsedTime) {
+    FILE *file = fopen("room_stats.log", "a");  // Abre o ficheiro em modo de append
+    if (file != NULL) {
+        fprintf(file, "Sala %d - Tempo de resolução: %.2f segundos\n", roomId, elapsedTime);
+        fclose(file);
+    } else {
+        printf("Erro ao abrir o ficheiro de estatísticas.\n");
+    }
+}
 
 /**
  * Gera um identificador único para uma nova sala de jogo.

@@ -4,9 +4,28 @@
 #include "../../utils/network/network.h"
 #include "../../utils/logs/logs.h"
 #include "server-comms.h"
+#include <time.h>
 
 static int nextPlayerID = 1;
 
+void sendRoomStatistics(int clientSocket) {
+    FILE *file = fopen("room_stats.log", "r");
+    if (file == NULL) {
+        const char *errorMsg = "Erro: Não foi possível abrir o ficheiro de estatísticas.\n";
+        send(clientSocket, errorMsg, strlen(errorMsg), 0);
+        return;
+    }
+
+    char line[256];
+    char stats[1024] = "";  // Buffer para enviar todas as estatísticas
+    while (fgets(line, sizeof(line), file) != NULL) {
+        strncat(stats, line, sizeof(stats) - strlen(stats) - 1);  // Adiciona cada linha ao buffer
+    }
+    fclose(file);
+
+    // Envia as estatísticas ao cliente
+    send(clientSocket, stats, strlen(stats), 0);
+}
 /**
  * Gera um ID de cliente único.
  *
@@ -94,7 +113,10 @@ void *handleClient(void *arg) {
         } else {
             
             // cliente quer um novo jogo random
-            if (strcmp(buffer, "newRandomSinglePLayerGame") == 0) {
+            if(strcmp(buffer, "GET_STATUS")==0){
+                sendRoomStatistics(newSockfd);
+
+            }else if (strcmp(buffer, "newRandomSinglePLayerGame") == 0) {
 
                 // criar novo jogo single player
                 room = createRoomAndGame(&newSockfd, config, playerID, true, true, 0);
@@ -331,6 +353,8 @@ Room *createRoomAndGame(int *newSockfd, ServerConfig *config, int playerID, bool
 
     // add game to room
     room->game = game;
+    room->startTime = time(NULL);
+    printf("Jogo na sala %d iniciado às %s\n", room->id, ctime(&room->startTime));
 
     if (isSinglePlayer) {
         // set max players
@@ -607,6 +631,22 @@ void receiveLines(int *newSockfd, Game *game, int playerID, ServerConfig *config
  */
 
 void finishGame(int *socket, Room *room, int playerID, ServerConfig *config) {
+
+    if (room == NULL) {
+        return;
+    }
+
+    time_t endTime = time(NULL);
+    room->elapsedTime = difftime(endTime, room->startTime);
+    printf("Jogo na sala %d terminou. Tempo total: %.2f segundos\n", room->id, room->elapsedTime);
+
+    // Envia o tempo decorrido ao cliente
+    char timeMessage[256];
+    snprintf(timeMessage, sizeof(timeMessage), "O jogo terminou! Tempo total: %.2f segundos\n", room->elapsedTime);
+    send(*socket, timeMessage, strlen(timeMessage), 0);
+
+    // Save room statistics in log
+    saveRoomStatistics(room->id, room->elapsedTime);
 
     // Remove players from room
     for (int i = 0; i < room->maxPlayers; i++) {

@@ -6,7 +6,23 @@
 
 
 
-void showStatisticsMenu(int *socketfd, clientConfig config);//Se não pusesse aqui não estava a dar 
+void showStatisticsMenu(int *socketfd) {
+    // Envia pedido de estatísticas ao servidor
+    const char *request = "GET_STATS";
+    send(*socketfd, request, strlen(request), 0);
+
+    // Recebe e exibe as estatísticas do servidor
+    char buffer[1024];
+    int bytesReceived = recv(*socketfd, buffer, sizeof(buffer) - 1, 0);
+    if (bytesReceived > 0) {
+        buffer[bytesReceived] = '\0';  // Termina a string
+        printf("Estatísticas do jogo:\n%s\n", buffer);
+    } else {
+        printf("Erro ao receber as estatísticas do servidor.\n");
+    }
+}
+
+ 
 
 /**
  * Estabelece uma ligação TCP ao servidor especificado na configuração do cliente.
@@ -100,7 +116,7 @@ void showMenu(int *socketfd, clientConfig config) {
                 showPlayMenu(socketfd, config);
                 break;
             case 2:
-                 showStatisticsMenu(socketfd, config);
+                showStatisticsMenu(socketfd);
                 break;
             case 3:
                 closeConnection(socketfd, config);
@@ -110,7 +126,7 @@ void showMenu(int *socketfd, clientConfig config) {
     } while (option < 1 || option > 3);
 }
 
-void showStatisticsMenu(int *socketfd, clientConfig config) {
+/*void showStatisticsMenu(int *socketfd, clientConfig config) {
 
     int option;
 
@@ -170,7 +186,7 @@ void showStatisticsMenu(int *socketfd, clientConfig config) {
                 break;
         }
     } while (option < 1 || option > 4);
-}
+}*/
 /**
  * Exibe o menu de jogo e processa as opções selecionadas pelo utilizador.
  *
@@ -300,6 +316,10 @@ void playRandomSinglePlayerGame(int *socketfd, clientConfig config) {
         err_dump(config.logPath, 0, config.clientID, "can't send random game request to server", EVENT_MESSAGE_CLIENT_NOT_SENT);
     } else {
         printf("Requesting a new random game...\n");
+         // receive timer from server
+        receiveTimer(socketfd, config);
+
+        printf("JOGO INICIADO\n");
     }
 }
 

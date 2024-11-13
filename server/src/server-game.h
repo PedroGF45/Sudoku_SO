@@ -7,6 +7,8 @@
 // Gera um ID único para uma sala.
 int generateUniqueId();
 
+void saveRoomStatistics(int roomId, double elapsedTime);
+
 // Carrega um jogo específico a partir do ficheiro 'games.json'.
 Game *loadGame(ServerConfig *config, int gameID, int playerID);
 

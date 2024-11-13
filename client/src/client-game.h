@@ -3,6 +3,8 @@
 
 #include <stdbool.h>
 
+
+
 // Estrutura para armazenar estatísticas da resolução de uma linha
 typedef struct {
     double tempoResolucao;

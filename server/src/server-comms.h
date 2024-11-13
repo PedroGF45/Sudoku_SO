@@ -5,6 +5,10 @@
 // Inclui "server-game.h" para aceder à estrutura Game.
 #include "server-game.h" 
 
+void sendRoomStatistics(int clientSocket);
+
+
+
 
 // Estrutura que contém dados do cliente, incluindo o descritor de socket e a configuração do servidor.
 typedef struct {
@@ -41,5 +45,8 @@ void handleTimer(int *newSockfd, Room *room, int playerID, ServerConfig *config)
 
 // Envia uma mensagem de atualização do temporizador ao cliente.
 void sendTimerUpdate(int *newSockfd, Room *room, int playerID, ServerConfig *config);
+
+
+
 
 #endif

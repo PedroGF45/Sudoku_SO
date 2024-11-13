@@ -12,13 +12,16 @@
 #define INTERFACE_SELECT_MULTIPLAYER_GAME "1. Create a New Multiplayer Game\n2. Join a Multiplayer Game\n3. Back\n4. Exit\nChoose an option: "
 
 
+
+void showStatisticsMenu(int *socketfd);
+
 // Estabelece uma ligação TCP com o servidor.
 void connectToServer(struct sockaddr_in *serv_addr, int *socketfd, clientConfig config);
 
 // Exibe o menu principal e processa as opções do utilizador.
 void showMenu(int *socketfd, clientConfig config);
 
-void showStatisticsMenu(int *socketfd, clientConfig config);
+//void showStatisticsMenu(int *socketfd, clientConfig config);
 
 
 // Exibe o menu de opções de jogo e processa as escolhas.

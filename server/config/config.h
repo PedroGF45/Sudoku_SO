@@ -39,6 +39,8 @@ typedef struct {
     int timer;
     bool isGameRunning;
     Game *game;
+    time_t startTime;
+    double elapsedTime;
 } Room;
 
 
