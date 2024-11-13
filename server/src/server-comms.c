@@ -667,7 +667,7 @@ void finishGame(int *socket, Room *room, int playerID, ServerConfig *config) {
 
     // decrement number of rooms
     config->numRooms--;
-}
+}  
 
 // Função que lida com o timer de 1 minuto para os jogadores se juntarem
 void handleTimer(int *newSockfd, Room *room, int playerID, ServerConfig *config) {
