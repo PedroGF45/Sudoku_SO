@@ -94,7 +94,6 @@ ServerConfig *getServerConfig(char *configPath) {
     fclose(file);
 
     writeLogJSON(config->logPath, 0, 0, EVENT_SERVER_START);
-    printf("Server Started\n");
     printf("PORTA DO SERVIDOR: %d\n", config->serverPort);
     printf("PATH DO JOGO: %s\n", config->gamePath);
     printf("PATH DO LOG: %s\n", config->logPath);

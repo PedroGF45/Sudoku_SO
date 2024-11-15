@@ -60,11 +60,16 @@ int main(int argc, char *argv[]) {
         if ((newSockfd = accept(sockfd, (struct sockaddr *) 0, 0)) < 0) {
             // erro ao aceitar ligacao
             err_dump(config->logPath, 0, 0, "accept error", EVENT_CONNECTION_SERVER_ERROR);
-
         } else {
 
             // elements to pass to thread: config, playerID, newSockfd
             ClientData *clientData = (ClientData *) malloc(sizeof(ClientData));
+            if (clientData == NULL) {
+                // erro ao alocar memoria
+                err_dump(config->logPath, 0, 0, "can't allocate memory", MEMORY_ERROR);
+                close(newSockfd);
+                continue;
+            }
             clientData->config = config;
             clientData->socket_fd = newSockfd;
 
@@ -73,6 +78,9 @@ int main(int argc, char *argv[]) {
             if (pthread_create(&thread, NULL, handleClient, (void *)clientData) != 0) {
                 // erro ao criar thread
                 err_dump(config->logPath, 0, 0, "can't create thread", EVENT_SERVER_THREAD_ERROR);
+                free(clientData);
+                close(newSockfd);
+                continue;
             }
             
             // detach the thread
@@ -81,5 +89,6 @@ int main(int argc, char *argv[]) {
     }
 
     close(sockfd);
+    free(config);
     return 0;
 }

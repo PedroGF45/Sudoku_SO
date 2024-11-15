@@ -3,12 +3,22 @@
 #include <string.h> // Usar strings (strcpy(), strcmp())
 #include <time.h>   // Usar time()
 #include <stdbool.h> // Usar bool
+#include <pthread.h>
 #include "../../utils/logs/logs.h"
 #include "../../utils/parson/parson.h"
 #include "server-game.h"
 
 static int nextRoomID = 1;
 
+void saveRoomStatistics(int roomId, double elapsedTime) {
+    FILE *file = fopen("room_stats.log", "a");  // Abre o ficheiro em modo de append
+    if (file != NULL) {
+        fprintf(file, "Sala %d - Tempo de resolução: %.2f segundos\n", roomId, elapsedTime);
+        fclose(file);
+    } else {
+        printf("Erro ao abrir o ficheiro de estatísticas.\n");
+    }
+}
 
 /**
  * Gera um identificador único para uma nova sala de jogo.
@@ -24,7 +34,6 @@ static int nextRoomID = 1;
 int generateUniqueId() {
     return nextRoomID++;
 }
-
 
 /**
  * Carrega um jogo a partir do ficheiro 'games.json' com base no ID do jogo.
@@ -322,27 +331,61 @@ bool isLineCorrect(Game *game, int row) {
  * - Devolve o pointer para a sala criada, ou NULL se a alocação de memória falhar.
  */
 
-Room *createRoom(ServerConfig *config, int playerID) {
+Room *createRoom(ServerConfig *config, int playerID, bool isSinglePlayer) {
 
     Room *room = (Room *)malloc(sizeof(Room));
     if (room == NULL) {
-        fprintf(stderr, "Memory allocation failed\n");
+        err_dump(config->logPath, 0, playerID, "Memory allocation failed", EVENT_ROOM_NOT_LOAD);
         return NULL;
     }
     memset(room, 0, sizeof(Room));  // Initialize Room struct
 
     room->id = generateUniqueId();
+    printf("Room ID na criação da room: %d\n", room->id);
     room->players = (int *)malloc(config->maxPlayersPerRoom * sizeof(int));
     room->clientSockets = (int *)malloc(config->maxPlayersPerRoom * sizeof(int));
     room->timer = 60;
     room->isGameRunning = false;
-    memset(config->rooms, 0, sizeof(Room) * config->maxRooms); // Ensures all fields in rooms are set to 0
+    room->isFinished = false;
+    room->isSinglePlayer = isSinglePlayer;
 
-    // increase the number of rooms
-    config->numRooms++;
-    
+    // initialize mutex
+    pthread_mutex_init(&room->mutex, NULL);
+
+    // initialize semaphore with MAX_PLAYERS_PER_ROOM
+    sem_init(&room->beginSemaphore, 0, config->maxPlayersPerRoom);
+
+    // add the room to the list of rooms and increment the number of rooms
+    config->rooms[config->numRooms++] = room;
+
+    // log room creation
     writeLogJSON(config->logPath, 0, playerID, EVENT_ROOM_LOAD);
     return room;
+}
+
+void deleteRoom(ServerConfig *config, int roomID) {
+    for (int i = 0; i < config->numRooms; i++) {
+        if (config->rooms[i]->id == roomID) {
+            free(config->rooms[i]->players);
+            free(config->rooms[i]->clientSockets);
+            free(config->rooms[i]->game);
+            pthread_mutex_destroy(&config->rooms[i]->mutex);
+            sem_destroy(&config->rooms[i]->beginSemaphore);
+            free(config->rooms[i]);
+
+            // shift all rooms to the left
+            for (int j = i; j < config->numRooms - 1; j++) {
+                config->rooms[j] = config->rooms[j + 1];
+            }
+
+            // decrement number of rooms
+            config->numRooms--;
+            break;
+        }
+    }
+
+    // log room deletion
+    writeLogJSON(config->logPath, roomID, 0, EVENT_ROOM_DELETE);
 }
 
 /**
@@ -426,7 +469,6 @@ char *getGames(ServerConfig *config) {
     return games;
 }
 
-
 /**
  * Obtém uma lista de salas de jogo ativas no servidor, incluindo o ID da sala, o número de jogadores, 
  * o número máximo de jogadores, e o ID do jogo associado.
@@ -455,10 +497,13 @@ char *getRooms(ServerConfig *config) {
         }
     
         // create a string to store the rooms
-        char *rooms = (char *)malloc(1024);
+        char *rooms = (char *)malloc(BUFFER_SIZE);
         memset(rooms, 0, 1024);
 
         for (int i = 0; i < config->numRooms; i++) {
+            if (config->rooms[i] == NULL) {
+                continue;
+            }
             // can only join rooms that are not running
             if (config->rooms[i]->isGameRunning == false) {
                 // show number of players in the room, max players in the room and the game ID
@@ -475,4 +520,88 @@ char *getRooms(ServerConfig *config) {
 
         // return the rooms
         return rooms;
+}
+
+void updateGameStatistics(ServerConfig *config, int gameID, int elapsedTime, float accuracy) {
+
+    FILE *file = fopen(config->gamePath, "r");
+
+    // Ler o ficheiro JSON
+    fseek(file, 0, SEEK_END);
+    long file_size = ftell(file);
+    fseek(file, 0, SEEK_SET);
+
+    char *file_content = malloc(file_size + 1);
+    if (file_content == NULL) {
+        fclose(file);
+        err_dump(config->logPath, gameID, 0, "memory allocation failed when updating statistics", MEMORY_ERROR);
+        return;
+    }
+
+    fread(file_content, 1, file_size, file);
+    file_content[file_size] = '\0';
+    fclose(file);
+
+    // Parse do JSON
+    JSON_Value *root_value = json_parse_string(file_content);
+    JSON_Object *root_object = json_value_get_object(root_value);
+    free(file_content);
+
+    // Get the "games" array
+    JSON_Array *games_array = json_object_get_array(root_object, "games");
+
+    // iterate over the games array
+    for (int i = 0; i < json_array_get_count(games_array); i++) {
+
+        JSON_Object *game_object = json_array_get_object(games_array, i);
+        int currentID = (int)json_object_get_number(game_object, "id");
+
+        // if the game is found
+        if (currentID == gameID) {
+
+            int previousTimeRecord = (int)json_object_get_number(game_object, "timeRecord");
+            float previousAccuracyRecord = (float)json_object_get_number(game_object, "accuracyRecord");
+            
+            // if elapsed time is less than the current one store it
+            if (elapsedTime < previousTimeRecord || previousTimeRecord == 0) {
+                json_object_set_number(game_object, "timeRecord", elapsedTime);
+
+                // write to log
+                char logMessage[100];
+                snprintf(logMessage, sizeof(logMessage), "%s: Tempo recorde atualizado para %d segundos no jogo %d", EVENT_NEW_RECORD, elapsedTime, gameID);
+                writeLogJSON(config->logPath, gameID, 0, logMessage);
+
+                printf("Tempo recorde atualizado de %d para %d segundos no jogo %d\n", previousTimeRecord, elapsedTime, gameID);
+            }
+
+            // if accuracy is greater than the current one store it
+            if (accuracy > previousAccuracyRecord || previousAccuracyRecord == 0) {
+                json_object_set_number(game_object, "accuracyRecord", accuracy);
+
+                // write to log
+                char logMessage[100];
+                snprintf(logMessage, sizeof(logMessage), "%s: Precisão recorde atualizada para %f no jogo %d", EVENT_NEW_RECORD, accuracy, gameID);
+                writeLogJSON(config->logPath, gameID, 0, logMessage);
+
+                printf("Precisão recorde atualizada de %.2f para %.2f no jogo %d\n", previousAccuracyRecord, accuracy, gameID);
+            }
+            break;
+        }
+    }
+
+    // write the updated JSON to the file
+    file = fopen(config->gamePath, "w");
+    if (file == NULL) {
+        err_dump(config->logPath, gameID, 0, "can't open file to write updated statistics", MEMORY_ERROR);
+        json_value_free(root_value);
+        return;
+    }
+
+    char *serialized_string = json_serialize_to_string_pretty(root_value);
+    fwrite(serialized_string, 1, strlen(serialized_string), file);
+    fclose(file);
+    free(serialized_string);
+
+    // free the JSON object
+    json_value_free(root_value);
 }

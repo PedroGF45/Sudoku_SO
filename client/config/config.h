@@ -15,13 +15,10 @@ typedef struct {
     char logPath[256];          /**< Caminho para o ficheiro de log. */
     bool isManual;              /**< Define se o jogo será jogado em modo manual. */
     int difficulty;             /**< Nível de dificuldade do jogo (ex.: 1 - fácil, 2 - médio, 3 - difícil). */
-    double totalGameTime;       /**< Tempo total de jogo. */
+    //double totalGameTime;       /**< Tempo total de jogo. */
 } clientConfig;
 
-// Gera um ID único para o cliente.
-int generateClientID();
-
 // Carrega as configurações do cliente a partir de um ficheiro de configuração.
-clientConfig getClientConfig(char *configPath);
+clientConfig *getClientConfig(char *configPath);
 
 #endif // CONFIG_H

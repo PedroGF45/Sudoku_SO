@@ -2,6 +2,8 @@
 #define CONFIG_H
 
 #include <stdbool.h>
+#include <semaphore.h>
+#include <pthread.h>
 
 /**
  * Estrutura que representa um jogo, incluindo o tabuleiro e a solução correta.
@@ -38,7 +40,13 @@ typedef struct {
     int *clientSockets;
     int timer;
     bool isGameRunning;
+    bool isSinglePlayer;
+    bool isFinished;
     Game *game;
+    time_t startTime;
+    double elapsedTime;
+    pthread_mutex_t mutex;
+    sem_t beginSemaphore;
 } Room;
 
 

@@ -5,6 +5,10 @@
 // Inclui "server-game.h" para aceder à estrutura Game.
 #include "server-game.h" 
 
+void sendRoomStatistics(int clientSocket);
+
+
+
 
 // Estrutura que contém dados do cliente, incluindo o descritor de socket e a configuração do servidor.
 typedef struct {
@@ -31,7 +35,7 @@ void initializeSocket(struct sockaddr_in *serv_addr, int *sockfd, ServerConfig *
 void sendBoard(int *socket, Game *game, ServerConfig *config);
 
 // Recebe as linhas enviadas pelo cliente e processa-as.
-void receiveLines(int *newSockfd, Game *game, int playerID, ServerConfig *config, int *currentLine);
+void receiveLines(int *newSockfd, Room *room, int playerID, ServerConfig *config, int *currentLine);
 
 // Termina o jogo e limpa os recursos associados à sala.
 void finishGame(int *socket, Room *room, int playerID, ServerConfig *config);
@@ -41,5 +45,8 @@ void handleTimer(int *newSockfd, Room *room, int playerID, ServerConfig *config)
 
 // Envia uma mensagem de atualização do temporizador ao cliente.
 void sendTimerUpdate(int *newSockfd, Room *room, int playerID, ServerConfig *config);
+
+
+
 
 #endif
