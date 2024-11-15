@@ -18,10 +18,7 @@ typedef struct {
     //double totalGameTime;       /**< Tempo total de jogo. */
 } clientConfig;
 
-// Gera um ID único para o cliente.
-int generateClientID();
-
 // Carrega as configurações do cliente a partir de um ficheiro de configuração.
-clientConfig getClientConfig(char *configPath);
+clientConfig *getClientConfig(char *configPath);
 
 #endif // CONFIG_H

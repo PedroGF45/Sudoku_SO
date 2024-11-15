@@ -25,10 +25,15 @@
  * - Fecha o ficheiro de configuração e retorna a estrutura `clientConfig`.
  */
 
-clientConfig getClientConfig(char *configPath) {
+clientConfig *getClientConfig(char *configPath) {
 
-    // Cria uma variável do tipo serverConfig
-    clientConfig config;
+    // Cria uma variável do tipo clientConfig
+    clientConfig *config = (clientConfig *)malloc(sizeof(clientConfig));
+    if (config == NULL) {
+        fprintf(stderr, "Memory allocation failed\n");
+        return NULL;
+    }
+    memset(config, 0, sizeof(clientConfig));  // Inicializa a estrutura clientConfig
 
     // Abre o ficheiro 'config.txt' em modo de leitura
     FILE *file;
@@ -44,25 +49,25 @@ clientConfig getClientConfig(char *configPath) {
     if (fgets(line, sizeof(line), file) != NULL) {
         // Remover a nova linha, se houver
         line[strcspn(line, "\n")] = 0;
-        sscanf(line, "SERVER_IP = %s", config.serverIP);
+        sscanf(line, "SERVER_IP = %s", config->serverIP);
     }
 
     if (fgets(line, sizeof(line), file) != NULL) {
         // Remover a nova linha, se houver
         line[strcspn(line, "\n")] = 0;
-        sscanf(line, "SERVER_PORT = %d", &config.serverPort);
+        sscanf(line, "SERVER_PORT = %d", &config->serverPort);
     }
 
     if (fgets(line, sizeof(line), file) != NULL) {
         // Remover a nova linha, se houver
         line[strcspn(line, "\n")] = 0;
-        sscanf(line, "SERVER_HOSTNAME = %s", config.serverHostName);
+        sscanf(line, "SERVER_HOSTNAME = %s", config->serverHostName);
     }
 
     if (fgets(line, sizeof(line), file) != NULL) {
         // Remover a nova linha, se houver
         line[strcspn(line, "\n")] = 0;
-        sscanf(line, "LOG_PATH = %s", config.logPath);
+        sscanf(line, "LOG_PATH = %s", config->logPath);
     }
     
     if (fgets(line, sizeof(line), file) != NULL) {
@@ -72,27 +77,30 @@ clientConfig getClientConfig(char *configPath) {
         sscanf(line, "IS_MANUAL = %d", &isManual);
 
         // Converte o valor lido para booleano
-        config.isManual = isManual == 1 ? true : false;
+        config->isManual = isManual == 1 ? true : false;
     }
 
     if (fgets(line, sizeof(line), file) != NULL) {
         // Remover a nova linha, se houver
         line[strcspn(line, "\n")] = 0;
-        sscanf(line, "DIFFICULTY = %d", &config.difficulty);
+        sscanf(line, "DIFFICULTY = %d", &config->difficulty);
     }
+
+    // id to 0
+    config->clientID = 0;
 
     // Fecha o ficheiro
     fclose(file);
 
-    printf("IP do servidor: %s\n", config.serverIP);
-    printf("Porta do servidor: %d\n", config.serverPort);
-    printf("Hostname do servidor: %s\n", config.serverHostName);
-    printf("ID do cliente: %d\n", config.clientID);
-    printf("Log path do cliente: %s\n", config.logPath);
-    printf("Modo: %s\n", config.isManual ? "manual" : "automatico");
-    if (config.difficulty == 1) {
+    printf("IP do servidor: %s\n", config->serverIP);
+    printf("Porta do servidor: %d\n", config->serverPort);
+    printf("Hostname do servidor: %s\n", config->serverHostName);
+    printf("ID do cliente: %d\n", config->clientID);
+    printf("Log path do cliente: %s\n", config->logPath);
+    printf("Modo: %s\n", config->isManual ? "manual" : "automatico");
+    if (config->difficulty == 1) {
         printf("Dificuldade: Facil\n");
-    } else if (config.difficulty == 2) {
+    } else if (config->difficulty == 2) {
         printf("Dificuldade: Medio\n");
     } else {
         printf("Dificuldade: Dificil\n");
