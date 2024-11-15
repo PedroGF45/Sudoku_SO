@@ -37,7 +37,7 @@
     srand(time(NULL));
 
     // Carrega a configuracao do cliente
-    clientConfig config = getClientConfig(argv[1]);
+    clientConfig *config = getClientConfig(argv[1]);
 
     /* inicializa variaveis para socket
     socket descriptor
@@ -59,7 +59,7 @@
 
     if (send(sockfd, buffer, strlen(buffer), 0) < 0) {
         // erro ao enviar ID do cliente para o servidor
-        err_dump(config.logPath, 0, 0, "can't ask for a client ID", EVENT_MESSAGE_CLIENT_NOT_SENT);
+        err_dump(config->logPath, 0, 0, "can't ask for a client ID", EVENT_MESSAGE_CLIENT_NOT_SENT);
 
     } else {
 
@@ -67,20 +67,20 @@
         snprintf(logMessage, sizeof(logMessage), "%s: asked for a client ID", EVENT_MESSAGE_CLIENT_SENT);
 
         // log message sent to server
-        writeLogJSON(config.logPath, 0, config.clientID, logMessage);
+        writeLogJSON(config->logPath, 0, config->clientID, logMessage);
     }
 
     // receive client ID from server
     memset(buffer, 0, sizeof(buffer));
     if (recv(sockfd, buffer, sizeof(buffer), 0) < 0) {
         // erro ao receber ID do cliente do servidor
-        err_dump(config.logPath, 0, 0, "can't receive client ID", EVENT_MESSAGE_CLIENT_NOT_RECEIVED);
+        err_dump(config->logPath, 0, 0, "can't receive client ID", EVENT_MESSAGE_CLIENT_NOT_RECEIVED);
     } else {
-        config.clientID = atoi(buffer);
+        config->clientID = atoi(buffer);
 
         char logMessage[256];
-        snprintf(logMessage, sizeof(logMessage), "%s: received client ID %d", EVENT_MESSAGE_CLIENT_RECEIVED, config.clientID);
-        writeLogJSON(config.logPath, 0, config.clientID, logMessage);
+        snprintf(logMessage, sizeof(logMessage), "%s: received client ID %d", EVENT_MESSAGE_CLIENT_RECEIVED, config->clientID);
+        writeLogJSON(config->logPath, 0, config->clientID, logMessage);
     }
 
     bool continueLoop = true;
@@ -91,12 +91,13 @@
         showMenu(&sockfd, config);
 
         // send lines to server
-        sendLines(&sockfd, config);
-
-        printf("Game finished!\n");
+        playGame(&sockfd, config);
     }
     
     // Fechar o socket
     close(sockfd);
+
+    free(config);
+
     exit(0);
 } 

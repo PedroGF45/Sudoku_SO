@@ -61,10 +61,8 @@ void resolveLine(char *buffer, char *line, int row, int difficulty, Estatisticas
     // Seed random number generator
     srand(time(NULL));
 
-    printf("Resolvendo linha %d...\n", row);
-    printf("Buffer recebido: %s\n", buffer);
-
- 
+    printf("Resolvendo linha %d...\n", row + 1);
+    //printf("Buffer recebido: %s\n", buffer);
 
     // Parse the JSON object from the buffer
     JSON_Value *root_value = json_parse_string(buffer);
@@ -113,10 +111,10 @@ void resolveLine(char *buffer, char *line, int row, int difficulty, Estatisticas
     estatisticas->percentagemAcerto = (float)estatisticas->acertos / 9 * 100;
 
     // Exibir as estatísticas 
-     printf("Linha gerada: %s\n", line);
-     printf("Tentativas: %d\n", estatisticas->tentativas);
-     printf("Acertos: %d\n", estatisticas->acertos);
-     printf("Percentagem de acerto: %.2f%%\n", estatisticas->percentagemAcerto);
+    //printf("Linha gerada: %s\n", line);
+    printf("Tentativas: %d\n", estatisticas->tentativas);
+    printf("Acertos: %d\n", estatisticas->acertos);
+    printf("Percentagem de acerto: %.2f%%\n", estatisticas->percentagemAcerto);
 }
 
 
