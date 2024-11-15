@@ -35,7 +35,7 @@ void initializeSocket(struct sockaddr_in *serv_addr, int *sockfd, ServerConfig *
 void sendBoard(int *socket, Game *game, ServerConfig *config);
 
 // Recebe as linhas enviadas pelo cliente e processa-as.
-void receiveLines(int *newSockfd, Game *game, int playerID, ServerConfig *config, int *currentLine);
+void receiveLines(int *newSockfd, Room *room, int playerID, ServerConfig *config, int *currentLine);
 
 // Termina o jogo e limpa os recursos associados à sala.
 void finishGame(int *socket, Room *room, int playerID, ServerConfig *config);

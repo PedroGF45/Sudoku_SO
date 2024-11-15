@@ -22,12 +22,17 @@ int verifyLine(char *logFileName, char *solutionSent, Game *game, int insertLine
 bool isLineCorrect(Game *game, int row);
 
 // Cria uma nova sala de jogo.
-Room *createRoom(ServerConfig *config, int playerID);
+Room *createRoom(ServerConfig *config, int playerID, bool isSinglePlayer);
+
+void deleteRoom(ServerConfig *config, int roomID);
 
 // Obtém uma lista de IDs dos jogos disponíveis.
 char *getGames(ServerConfig *config);
 
 // Obtém uma lista das salas de jogo disponíveis.
 char *getRooms(ServerConfig *config);
+
+// update game statistics
+void updateGameStatistics(ServerConfig *config, int roomID, int elapsedTime, float accuracy);
 
 #endif
