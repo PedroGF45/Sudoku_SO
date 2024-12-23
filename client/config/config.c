@@ -92,12 +92,19 @@ clientConfig *getClientConfig(char *configPath) {
     // Fecha o ficheiro
     fclose(file);
 
+    
+
+    // Atribui um valor aleatório para isPremium (0 ou 1)
+    config->isPremium = rand() % 2 == 0;  // 50% de chance para ser true ou false
+
     printf("IP do servidor: %s\n", config->serverIP);
     printf("Porta do servidor: %d\n", config->serverPort);
     printf("Hostname do servidor: %s\n", config->serverHostName);
     printf("ID do cliente: %d\n", config->clientID);
     printf("Log path do cliente: %s\n", config->logPath);
     printf("Modo: %s\n", config->isManual ? "manual" : "automatico");
+    printf("Cliente %s premium.\n", config->isPremium ? "é" : "não é");
+
     if (config->difficulty == 1) {
         printf("Dificuldade: Facil\n");
     } else if (config->difficulty == 2) {

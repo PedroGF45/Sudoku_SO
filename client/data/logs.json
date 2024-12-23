@@ -1775,6 +1775,234 @@
             "gameID": 0,
             "playerID": 1,
             "message": "Conexao com o servidor fechada"
+        },
+        {
+            "timestamp": "21-12-2024 15:29:42",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "21-12-2024 15:29:42",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Mensagem enviada para o servidor: asked for a client ID"
+        },
+        {
+            "timestamp": "21-12-2024 15:29:42",
+            "gameID": 0,
+            "playerID": 1,
+            "message": "Mensagem recebida do servidor: received client ID 1"
+        },
+        {
+            "timestamp": "21-12-2024 15:29:46",
+            "gameID": 0,
+            "playerID": 1,
+            "message": "Conexao com o servidor fechada"
+        },
+        {
+            "timestamp": "21-12-2024 16:20:01",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "21-12-2024 16:20:01",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Mensagem enviada para o servidor: asked for a client ID"
+        },
+        {
+            "timestamp": "21-12-2024 16:20:01",
+            "gameID": 0,
+            "playerID": 1,
+            "message": "Mensagem recebida do servidor: received client ID 1"
+        },
+        {
+            "timestamp": "21-12-2024 16:20:22",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "21-12-2024 16:20:22",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Mensagem enviada para o servidor: asked for a client ID"
+        },
+        {
+            "timestamp": "21-12-2024 16:20:22",
+            "gameID": 0,
+            "playerID": 2,
+            "message": "Mensagem recebida do servidor: received client ID 2"
+        },
+        {
+            "timestamp": "21-12-2024 16:20:38",
+            "gameID": 0,
+            "playerID": 2,
+            "message": "Mensagem enviada para o servidor: sent 0 to return to multiplayer menu"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:15",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:15",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Mensagem enviada para o servidor: asked for a client ID"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:15",
+            "gameID": 0,
+            "playerID": 1,
+            "message": "Mensagem recebida do servidor: received client ID 1"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:26",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:26",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Mensagem enviada para o servidor: asked for a client ID"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:26",
+            "gameID": 0,
+            "playerID": 2,
+            "message": "Mensagem recebida do servidor: received client ID 2"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:57",
+            "gameID": 3,
+            "playerID": 2,
+            "message": "Tabuleiro do jogo mostrado"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:57",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:57",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Mensagem enviada para o servidor: asked for a client ID"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:57",
+            "gameID": 0,
+            "playerID": 3,
+            "message": "Mensagem recebida do servidor: received client ID 3"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:57",
+            "gameID": 3,
+            "playerID": 1,
+            "message": "Tabuleiro do jogo mostrado"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:58",
+            "gameID": 3,
+            "playerID": 2,
+            "message": "Tabuleiro do jogo mostrado"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:58",
+            "gameID": 3,
+            "playerID": 1,
+            "message": "Tabuleiro do jogo mostrado"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:59",
+            "gameID": 3,
+            "playerID": 2,
+            "message": "Tabuleiro do jogo mostrado"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:59",
+            "gameID": 3,
+            "playerID": 1,
+            "message": "Tabuleiro do jogo mostrado"
+        },
+        {
+            "timestamp": "21-12-2024 16:26:00",
+            "gameID": 3,
+            "playerID": 2,
+            "message": "Tabuleiro do jogo mostrado"
+        },
+        {
+            "timestamp": "21-12-2024 16:26:00",
+            "gameID": 3,
+            "playerID": 1,
+            "message": "Tabuleiro do jogo mostrado"
+        },
+        {
+            "timestamp": "21-12-2024 16:26:01",
+            "gameID": 3,
+            "playerID": 2,
+            "message": "Tabuleiro do jogo mostrado"
+        },
+        {
+            "timestamp": "21-12-2024 16:26:01",
+            "gameID": 3,
+            "playerID": 1,
+            "message": "Tabuleiro do jogo mostrado"
+        },
+        {
+            "timestamp": "21-12-2024 16:26:02",
+            "gameID": 3,
+            "playerID": 2,
+            "message": "Tabuleiro do jogo mostrado"
+        },
+        {
+            "timestamp": "21-12-2024 16:26:02",
+            "gameID": 3,
+            "playerID": 1,
+            "message": "Tabuleiro do jogo mostrado"
+        },
+        {
+            "timestamp": "21-12-2024 16:34:07",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "21-12-2024 16:34:07",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Mensagem enviada para o servidor: asked for a client ID"
+        },
+        {
+            "timestamp": "21-12-2024 16:34:07",
+            "gameID": 0,
+            "playerID": 1,
+            "message": "Mensagem recebida do servidor: received client ID 1"
+        },
+        {
+            "timestamp": "21-12-2024 16:34:13",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Conexao estabelecida com o servidor"
+        },
+        {
+            "timestamp": "21-12-2024 16:34:13",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Mensagem enviada para o servidor: asked for a client ID"
+        },
+        {
+            "timestamp": "21-12-2024 16:34:13",
+            "gameID": 0,
+            "playerID": 2,
+            "message": "Mensagem recebida do servidor: received client ID 2"
         }
     ]
 }

@@ -5261,6 +5261,474 @@
             "gameID": -42467292,
             "playerID": 0,
             "message": "Mensagem enviada para o cliente"
+        },
+        {
+            "timestamp": "21-12-2024 15:29:19",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "21-12-2024 15:29:42",
+            "gameID": 0,
+            "playerID": 1,
+            "message": "Conexao estabelecida com o cliente"
+        },
+        {
+            "timestamp": "21-12-2024 15:29:46",
+            "gameID": 0,
+            "playerID": 1,
+            "message": "Conexao terminada com o cliente"
+        },
+        {
+            "timestamp": "21-12-2024 16:19:55",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "21-12-2024 16:20:01",
+            "gameID": 0,
+            "playerID": 1,
+            "message": "Conexao estabelecida com o cliente"
+        },
+        {
+            "timestamp": "21-12-2024 16:20:22",
+            "gameID": 0,
+            "playerID": 2,
+            "message": "Conexao estabelecida com o cliente"
+        },
+        {
+            "timestamp": "21-12-2024 16:20:37",
+            "gameID": 0,
+            "playerID": 2,
+            "message": "Jogos enviados para o cliente"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:10",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:15",
+            "gameID": 0,
+            "playerID": 1,
+            "message": "Conexao estabelecida com o cliente"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:19",
+            "gameID": 0,
+            "playerID": 1,
+            "message": "Sala carregada"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:19",
+            "gameID": 3,
+            "playerID": 1,
+            "message": "Jogo carregado"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:19",
+            "gameID": 3,
+            "playerID": 1,
+            "message": "Player 1 joined room 1"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:19",
+            "gameID": 1,
+            "playerID": 1,
+            "message": "Room created successfully"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:20",
+            "gameID": 3,
+            "playerID": 1,
+            "message": "Mensagem enviada para o cliente 1: Time left: 60 seconds - Room ID: 1 - Game ID: 3 - Players joined: 1"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:26",
+            "gameID": 0,
+            "playerID": 2,
+            "message": "Conexao estabelecida com o cliente"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:31",
+            "gameID": 3,
+            "playerID": 1,
+            "message": "Mensagem enviada para o cliente 1: Time left: 50 seconds - Room ID: 1 - Game ID: 3 - Players joined: 1"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:31",
+            "gameID": 0,
+            "playerID": 2,
+            "message": "Jogos enviados para o cliente"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:32",
+            "gameID": 3,
+            "playerID": 2,
+            "message": "Player 2 joined room 1"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:37",
+            "gameID": 3,
+            "playerID": 2,
+            "message": "Mensagem enviada para o cliente 2: Time left: 40 seconds - Room ID: 1 - Game ID: 3 - Players joined: 2"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:37",
+            "gameID": 3,
+            "playerID": 1,
+            "message": "Mensagem enviada para o cliente 1: Time left: 40 seconds - Room ID: 1 - Game ID: 3 - Players joined: 2"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:42",
+            "gameID": 3,
+            "playerID": 2,
+            "message": "Mensagem enviada para o cliente 2: Time left: 30 seconds - Room ID: 1 - Game ID: 3 - Players joined: 2"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:42",
+            "gameID": 3,
+            "playerID": 1,
+            "message": "Mensagem enviada para o cliente 1: Time left: 30 seconds - Room ID: 1 - Game ID: 3 - Players joined: 2"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:47",
+            "gameID": 3,
+            "playerID": 2,
+            "message": "Mensagem enviada para o cliente 2: Time left: 20 seconds - Room ID: 1 - Game ID: 3 - Players joined: 2"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:47",
+            "gameID": 3,
+            "playerID": 1,
+            "message": "Mensagem enviada para o cliente 1: Time left: 20 seconds - Room ID: 1 - Game ID: 3 - Players joined: 2"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:52",
+            "gameID": 3,
+            "playerID": 2,
+            "message": "Mensagem enviada para o cliente 2: Time left: 10 seconds - Room ID: 1 - Game ID: 3 - Players joined: 2"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:52",
+            "gameID": 3,
+            "playerID": 1,
+            "message": "Mensagem enviada para o cliente 1: Time left: 10 seconds - Room ID: 1 - Game ID: 3 - Players joined: 2"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:54",
+            "gameID": 3,
+            "playerID": 2,
+            "message": "Mensagem enviada para o cliente 2: Time left: 5 seconds - Room ID: 1 - Game ID: 3 - Players joined: 2"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:54",
+            "gameID": 3,
+            "playerID": 1,
+            "message": "Mensagem enviada para o cliente 1: Time left: 5 seconds - Room ID: 1 - Game ID: 3 - Players joined: 2"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:55",
+            "gameID": 3,
+            "playerID": 2,
+            "message": "Mensagem enviada para o cliente 2: Time left: 4 seconds - Room ID: 1 - Game ID: 3 - Players joined: 2"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:55",
+            "gameID": 3,
+            "playerID": 1,
+            "message": "Mensagem enviada para o cliente 1: Time left: 4 seconds - Room ID: 1 - Game ID: 3 - Players joined: 2"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:55",
+            "gameID": 3,
+            "playerID": 2,
+            "message": "Mensagem enviada para o cliente 2: Time left: 3 seconds - Room ID: 1 - Game ID: 3 - Players joined: 2"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:55",
+            "gameID": 3,
+            "playerID": 1,
+            "message": "Mensagem enviada para o cliente 1: Time left: 3 seconds - Room ID: 1 - Game ID: 3 - Players joined: 2"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:56",
+            "gameID": 3,
+            "playerID": 2,
+            "message": "Mensagem enviada para o cliente 2: Time left: 2 seconds - Room ID: 1 - Game ID: 3 - Players joined: 2"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:56",
+            "gameID": 3,
+            "playerID": 1,
+            "message": "Mensagem enviada para o cliente 1: Time left: 2 seconds - Room ID: 1 - Game ID: 3 - Players joined: 2"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:56",
+            "gameID": 3,
+            "playerID": 2,
+            "message": "Mensagem enviada para o cliente 2: Time left: 1 seconds - Room ID: 1 - Game ID: 3 - Players joined: 2"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:57",
+            "gameID": 3,
+            "playerID": 1,
+            "message": "Mensagem enviada para o cliente 1: Time left: 1 seconds - Room ID: 1 - Game ID: 3 - Players joined: 2"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:57",
+            "gameID": 3,
+            "playerID": 0,
+            "message": "Mensagem enviada para o cliente"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:57",
+            "gameID": 3,
+            "playerID": 2,
+            "message": "O jogador 2 no jogo 3 Solucao recebida para a linha 1: 141159611"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:57",
+            "gameID": 3,
+            "playerID": 2,
+            "message": "Linha enviada (141159611) validada como ERRADA\/INCOMPLETA"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:57",
+            "gameID": 0,
+            "playerID": 3,
+            "message": "Conexao estabelecida com o cliente"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:57",
+            "gameID": 3,
+            "playerID": 0,
+            "message": "Mensagem enviada para o cliente"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:57",
+            "gameID": 3,
+            "playerID": 1,
+            "message": "O jogador 1 no jogo 3 Solucao recebida para a linha 1: 242159622"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:57",
+            "gameID": 3,
+            "playerID": 1,
+            "message": "Linha enviada (242159622) validada como ERRADA\/INCOMPLETA"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:58",
+            "gameID": 3,
+            "playerID": 0,
+            "message": "Mensagem enviada para o cliente"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:58",
+            "gameID": 3,
+            "playerID": 2,
+            "message": "O jogador 2 no jogo 3 Solucao recebida para a linha 1: 343159632"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:58",
+            "gameID": 3,
+            "playerID": 2,
+            "message": "Linha enviada (343159632) validada como ERRADA\/INCOMPLETA"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:58",
+            "gameID": 3,
+            "playerID": 0,
+            "message": "Mensagem enviada para o cliente"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:58",
+            "gameID": 3,
+            "playerID": 1,
+            "message": "O jogador 1 no jogo 3 Solucao recebida para a linha 1: 743159672"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:58",
+            "gameID": 3,
+            "playerID": 1,
+            "message": "Linha enviada (743159672) validada como ERRADA\/INCOMPLETA"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:59",
+            "gameID": 3,
+            "playerID": 0,
+            "message": "Mensagem enviada para o cliente"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:59",
+            "gameID": 3,
+            "playerID": 2,
+            "message": "O jogador 2 no jogo 3 Solucao recebida para a linha 1: 843159672"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:59",
+            "gameID": 3,
+            "playerID": 2,
+            "message": "Linha enviada (843159672) validada como CERTA"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:59",
+            "gameID": 3,
+            "playerID": 0,
+            "message": "Mensagem enviada para o cliente"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:59",
+            "gameID": 3,
+            "playerID": 1,
+            "message": "O jogador 1 no jogo 3 Solucao recebida para a linha 2: 111816111"
+        },
+        {
+            "timestamp": "21-12-2024 16:25:59",
+            "gameID": 3,
+            "playerID": 1,
+            "message": "Linha enviada (111816111) validada como ERRADA\/INCOMPLETA"
+        },
+        {
+            "timestamp": "21-12-2024 16:26:00",
+            "gameID": 3,
+            "playerID": 0,
+            "message": "Mensagem enviada para o cliente"
+        },
+        {
+            "timestamp": "21-12-2024 16:26:00",
+            "gameID": 3,
+            "playerID": 2,
+            "message": "O jogador 2 no jogo 3 Solucao recebida para a linha 2: 221826222"
+        },
+        {
+            "timestamp": "21-12-2024 16:26:00",
+            "gameID": 3,
+            "playerID": 2,
+            "message": "Linha enviada (221826222) validada como ERRADA\/INCOMPLETA"
+        },
+        {
+            "timestamp": "21-12-2024 16:26:00",
+            "gameID": 3,
+            "playerID": 0,
+            "message": "Mensagem enviada para o cliente"
+        },
+        {
+            "timestamp": "21-12-2024 16:26:00",
+            "gameID": 3,
+            "playerID": 1,
+            "message": "O jogador 1 no jogo 3 Solucao recebida para a linha 2: 231836333"
+        },
+        {
+            "timestamp": "21-12-2024 16:26:00",
+            "gameID": 3,
+            "playerID": 1,
+            "message": "Linha enviada (231836333) validada como ERRADA\/INCOMPLETA"
+        },
+        {
+            "timestamp": "21-12-2024 16:26:01",
+            "gameID": 0,
+            "playerID": 3,
+            "message": "Jogos enviados para o cliente"
+        },
+        {
+            "timestamp": "21-12-2024 16:26:01",
+            "gameID": 3,
+            "playerID": 0,
+            "message": "Mensagem enviada para o cliente"
+        },
+        {
+            "timestamp": "21-12-2024 16:26:01",
+            "gameID": 3,
+            "playerID": 2,
+            "message": "O jogador 2 no jogo 3 Solucao recebida para a linha 2: 241846344"
+        },
+        {
+            "timestamp": "21-12-2024 16:26:01",
+            "gameID": 3,
+            "playerID": 2,
+            "message": "Linha enviada (241846344) validada como ERRADA\/INCOMPLETA"
+        },
+        {
+            "timestamp": "21-12-2024 16:26:01",
+            "gameID": 3,
+            "playerID": 0,
+            "message": "Mensagem enviada para o cliente"
+        },
+        {
+            "timestamp": "21-12-2024 16:26:01",
+            "gameID": 3,
+            "playerID": 1,
+            "message": "O jogador 1 no jogo 3 Solucao recebida para a linha 2: 251856354"
+        },
+        {
+            "timestamp": "21-12-2024 16:26:01",
+            "gameID": 3,
+            "playerID": 1,
+            "message": "Linha enviada (251856354) validada como ERRADA\/INCOMPLETA"
+        },
+        {
+            "timestamp": "21-12-2024 16:26:02",
+            "gameID": 3,
+            "playerID": 0,
+            "message": "Mensagem enviada para o cliente"
+        },
+        {
+            "timestamp": "21-12-2024 16:26:02",
+            "gameID": 3,
+            "playerID": 2,
+            "message": "O jogador 2 no jogo 3 Solucao recebida para a linha 2: 271876354"
+        },
+        {
+            "timestamp": "21-12-2024 16:26:02",
+            "gameID": 3,
+            "playerID": 2,
+            "message": "Linha enviada (271876354) validada como ERRADA\/INCOMPLETA"
+        },
+        {
+            "timestamp": "21-12-2024 16:26:02",
+            "gameID": 3,
+            "playerID": 0,
+            "message": "Mensagem enviada para o cliente"
+        },
+        {
+            "timestamp": "21-12-2024 16:26:02",
+            "gameID": 3,
+            "playerID": 1,
+            "message": "O jogador 1 no jogo 3 Solucao recebida para a linha 2: 291876354"
+        },
+        {
+            "timestamp": "21-12-2024 16:26:02",
+            "gameID": 3,
+            "playerID": 1,
+            "message": "Linha enviada (291876354) validada como CERTA"
+        },
+        {
+            "timestamp": "21-12-2024 16:26:03",
+            "gameID": 0,
+            "playerID": 3,
+            "message": "Jogador nao entrou na sala: Game already started in this room"
+        },
+        {
+            "timestamp": "21-12-2024 16:34:03",
+            "gameID": 0,
+            "playerID": 0,
+            "message": "Server inicializado"
+        },
+        {
+            "timestamp": "21-12-2024 16:34:07",
+            "gameID": 0,
+            "playerID": 1,
+            "message": "Conexao estabelecida com o cliente"
+        },
+        {
+            "timestamp": "21-12-2024 16:34:13",
+            "gameID": 0,
+            "playerID": 2,
+            "message": "Conexao estabelecida com o cliente"
         }
     ]
 }
