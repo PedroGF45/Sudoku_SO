@@ -83,6 +83,16 @@ clientConfig *getClientConfig(char *configPath) {
     if (fgets(line, sizeof(line), file) != NULL) {
         // Remover a nova linha, se houver
         line[strcspn(line, "\n")] = 0;
+        sscanf(line, "IS_PREMIUM = %d", &config->isPremium);
+
+        // Converte o valor lido para booleano
+        config->isPremium = config->isPremium == 1 ? true : false;
+    }
+
+
+    if (fgets(line, sizeof(line), file) != NULL) {
+        // Remover a nova linha, se houver
+        line[strcspn(line, "\n")] = 0;
         sscanf(line, "DIFFICULTY = %d", &config->difficulty);
     }
 
@@ -92,18 +102,13 @@ clientConfig *getClientConfig(char *configPath) {
     // Fecha o ficheiro
     fclose(file);
 
-    
-
-    // Atribui um valor aleatório para isPremium (0 ou 1)
-    config->isPremium = rand() % 2 == 0;  // 50% de chance para ser true ou false
-
     printf("IP do servidor: %s\n", config->serverIP);
     printf("Porta do servidor: %d\n", config->serverPort);
     printf("Hostname do servidor: %s\n", config->serverHostName);
     printf("ID do cliente: %d\n", config->clientID);
     printf("Log path do cliente: %s\n", config->logPath);
     printf("Modo: %s\n", config->isManual ? "manual" : "automatico");
-    printf("Cliente %s premium.\n", config->isPremium ? "é" : "não é");
+    printf("Cliente %s premium.\n", config->isPremium ? "SIM" : "NAO");
 
     if (config->difficulty == 1) {
         printf("Dificuldade: Facil\n");
