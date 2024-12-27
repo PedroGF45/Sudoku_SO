@@ -5,6 +5,8 @@
 #include "config.h"
 
 
+
+
 /**
  * Carrega as configurações do cliente a partir de um ficheiro de configuração especificado.
  *
@@ -81,14 +83,14 @@ clientConfig *getClientConfig(char *configPath) {
     }
 
     if (fgets(line, sizeof(line), file) != NULL) {
+        int isPremium;
         // Remover a nova linha, se houver
         line[strcspn(line, "\n")] = 0;
-        sscanf(line, "IS_PREMIUM = %d", &config->isPremium);
+        sscanf(line, "IS_PREMIUM = %d", &isPremium);
 
         // Converte o valor lido para booleano
-        config->isPremium = config->isPremium == 1 ? true : false;
+        config->isPremium = isPremium == 1 ? true : false;
     }
-
 
     if (fgets(line, sizeof(line), file) != NULL) {
         // Remover a nova linha, se houver

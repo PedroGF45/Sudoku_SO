@@ -47,6 +47,12 @@ typedef struct {
     double elapsedTime;
     pthread_mutex_t mutex;
     sem_t beginSemaphore;
+    int *premiumQueue;           // Fila de IDs de jogadores premium
+    int *nonPremiumQueue;        // Fila de IDs de jogadores não premium
+    int premiumQueueSize;        // Tamanho da fila de jogadores premium
+    int nonPremiumQueueSize;     // Tamanho da fila de jogadores não premium
+    sem_t premiumSemaphore;      // Semáforo para jogadores premium
+    sem_t nonPremiumSemaphore;   // Semáforo para jogadores não premium
 } Room;
 
 

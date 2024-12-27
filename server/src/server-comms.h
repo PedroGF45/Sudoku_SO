@@ -5,6 +5,8 @@
 // Inclui "server-game.h" para aceder à estrutura Game.
 #include "server-game.h" 
 
+
+
 void sendRoomStatistics(int clientSocket);
 
 
@@ -14,6 +16,8 @@ void sendRoomStatistics(int clientSocket);
 typedef struct {
     int socket_fd;
     ServerConfig *config;
+    bool isPremium;
+    
 } ClientData;
 
 // Gera um ID único para um cliente.
@@ -23,10 +27,10 @@ int generateUniqueClientId();
 void *handleClient(void *arg);
 
 // Cria uma sala e um jogo, configurando-os com base nos parâmetros fornecidos.
-Room *createRoomAndGame(int *newSockfd, ServerConfig *config, int playerID, bool isSinglePlayer, bool isRandom, int gameID);
+Room *createRoomAndGame(int *newSockfd, ServerConfig *config, int playerID, bool isSinglePlayer, bool isRandom, int gameID, bool isPremium);
 
 // Junta um jogador a uma sala existente.
-Room *joinRoom(int *socketfd, ServerConfig *config, int roomID, int playerID);
+Room *joinRoom(int *socketfd, ServerConfig *config, int roomID, int playerID, bool isPremium);
 
 // Inicializa o socket do servidor e associa-o a um endereço.
 void initializeSocket(struct sockaddr_in *serv_addr, int *sockfd, ServerConfig *config);
@@ -41,10 +45,10 @@ void receiveLines(int *newSockfd, Room *room, int playerID, ServerConfig *config
 void finishGame(int *socket, Room *room, int playerID, ServerConfig *config);
 
 // Trata o temporizador de espera do cliente.
-void handleTimer(int *newSockfd, Room *room, int playerID, ServerConfig *config);
+void handleTimer(int *newSockfd, Room *room, int playerID, ServerConfig *config, bool isPremium);
 
 // Envia uma mensagem de atualização do temporizador ao cliente.
-void sendTimerUpdate(int *newSockfd, Room *room, int playerID, ServerConfig *config);
+void sendTimerUpdate(int *newSockfd, Room *room, int playerID, ServerConfig *config, bool isPremium);
 
 
 

@@ -6,6 +6,7 @@
 #include "server-comms.h"
 #include <time.h>
 
+
 static int nextPlayerID = 1;
 
 void sendRoomStatistics(int clientSocket) {
@@ -68,6 +69,9 @@ void *handleClient(void *arg) {
     ServerConfig *config = clientData->config;
     int newSockfd = clientData->socket_fd;
 
+   bool isPremium = clientData->isPremium;
+
+
     // receber buffer do cliente
     char buffer[BUFFER_SIZE];
     memset(buffer, 0, sizeof(buffer));
@@ -78,12 +82,10 @@ void *handleClient(void *arg) {
 
     // Receber ID do jogador
     if (recv(newSockfd, buffer, sizeof(buffer), 0) < 0) {
-
         // erro ao receber ID do jogador
         err_dump(config->logPath, 0, 0, "can't receive question for client ID", EVENT_MESSAGE_SERVER_NOT_RECEIVED);
-
+        return NULL;
     } else if (strcmp(buffer, "clientID") == 0) {
-
         printf("Conexao estabelecida com um novo cliente\n");
 
         // enviar ID do jogador
@@ -91,7 +93,6 @@ void *handleClient(void *arg) {
         sprintf(buffer, "%d", playerID);
 
         if (send(newSockfd, buffer, strlen(buffer), 0) < 0) {
-
             // erro ao enviar ID do jogador
             err_dump(config->logPath, 0, 0, "can't send client ID", EVENT_MESSAGE_SERVER_NOT_SENT);
         }
@@ -99,6 +100,7 @@ void *handleClient(void *arg) {
         printf("ID atribuido ao novo cliente: %d\n", playerID);
         writeLogJSON(config->logPath, 0, playerID, EVENT_CONNECTION_SERVER_ESTABLISHED);
     }
+
     bool continueLoop = true;
 
     while (continueLoop) {
@@ -113,184 +115,129 @@ void *handleClient(void *arg) {
         } else {
             
             // cliente quer um novo jogo random
-            if(strcmp(buffer, "GET_STATUS")==0){
+            if(strcmp(buffer, "GET_STATUS") == 0){
                 sendRoomStatistics(newSockfd);
 
-            }else if (strcmp(buffer, "newRandomSinglePLayerGame") == 0) {
-
+            } else if (strcmp(buffer, "newRandomSinglePLayerGame") == 0) {
                 // criar novo jogo single player
-                room = createRoomAndGame(&newSockfd, config, playerID, true, true, 0);
+                room = createRoomAndGame(&newSockfd, config, playerID, true, true, 0, isPremium);
 
-            // cliente quer random multiplayer game
-            } else if (strcmp(buffer, "newRandomMultiPlayerGame") == 0) {
+            }else if(strcmp(buffer, "newRandomMultiPlayerGame") == 0) {
+    printf("Cliente %d solicitou um novo jogo multiplayer\n", playerID);
+    room = createRoomAndGame(&newSockfd, config, playerID, false, true, 0, isPremium);
 
-                // criar novo jogo single player
-                room = createRoomAndGame(&newSockfd, config, playerID, false, true, 0);
+                // adicionar timer
+                handleTimer(&newSockfd, room, playerID, config, isPremium);
 
-                // add a timer of 1 minute to the room so other players can join
-                handleTimer(&newSockfd, room, playerID, config);
-
-            // cliente quer ver jogos existentes
             } else if (strcmp(buffer, "selectSinglePlayerGames") == 0 || strcmp(buffer, "selectMultiPlayerGames") == 0) {
 
-                //printf("BUFFER: %s\n", buffer);
-
-                // verificar se o cliente quer ver jogos single player ou multiplayer
                 bool isSinglePlayer = strncmp(buffer, "selectSinglePlayerGames", strlen("selectSinglePlayerGames")) == 0;
-
-                //printf("isSinglePlayer: %d\n", isSinglePlayer);
-                
                 // Receber jogos existentes
                 char buffer[BUFFER_SIZE];
                 memset(buffer, 0, sizeof(buffer));
-
                 // Obter jogos existentes
                 char *games = getGames(config);
 
-                //printf("Buffer: %s\n", buffer);
                 printf("Jogos existentes: %s\n", games);
 
                 bool leave = false;
 
                 while (!leave) {
-
                     // Enviar jogos existentes ao cliente
                     if (send(newSockfd, games, strlen(games), 0) < 0) {
-
-                        // erro ao enviar jogos existentes
                         err_dump(config->logPath, 0, playerID, "can't send existing games to client", EVENT_MESSAGE_SERVER_NOT_SENT);
-
                     } else {
-
-                        // escrever no log
                         writeLogJSON(config->logPath, 0, playerID, EVENT_SERVER_GAMES_SENT);
                     }
 
-                    //printf("RECEBER IDS DOS JOGOS\n");
                     memset(buffer, 0, sizeof(buffer));
 
                     // receber ID do jogo
                     if (recv(newSockfd, buffer, sizeof(buffer), 0) < 0) {
-                        // erro ao receber ID do jogo
                         err_dump(config->logPath, 0, playerID, "can't receive game ID from client", EVENT_MESSAGE_SERVER_NOT_RECEIVED);
-
-                    // se o cliente mandar 0, voltar ao menu
                     } else if (atoi(buffer) == 0) {
-
                         printf("Cliente %d voltou atras no menu\n", playerID);
                         leave = true;
                         startAgain = true;
-
                     } else {
-
-                        printf("Cliente %d escolheu o jogo com o ID: %s\n", playerID, buffer);
+                          printf("Cliente %d escolheu o jogo com o ID: %s\n", playerID, buffer);
 
                         // obter ID do jogo
                         int gameID = atoi(buffer);
 
-                        // carregar jogo
                         if (isSinglePlayer) {
-
                             // criar novo jogo single player
-                            room = createRoomAndGame(&newSockfd, config, playerID, isSinglePlayer, false, gameID);
+                            room = createRoomAndGame(&newSockfd, config, playerID, isSinglePlayer, false, gameID, isPremium);
                         } else {
-
                             // criar novo jogo multiplayer
-                            room = createRoomAndGame(&newSockfd, config, playerID, isSinglePlayer, false, gameID);
-
-                            // add a timer of 1 minute to the room so other players can join
-                            handleTimer(&newSockfd, room, playerID, config);
-
+                            room = createRoomAndGame(&newSockfd, config, playerID, isSinglePlayer, false, gameID, isPremium);
+                            handleTimer(&newSockfd, room, playerID, config, isPremium);
                         }
 
-                        // sair do loop
                         leave = true;
                     }
                 }
 
-                // libertar memória alocada
                 free(games);
+                games = NULL;
 
             } else if (strcmp(buffer, "existingRooms") == 0) {
-
-                // Receber jogos existentes
+                  // Receber jogos existentes
                 char buffer[BUFFER_SIZE];
                 memset(buffer, 0, sizeof(buffer));
-
-                // Obter jogos existentes
+                // Obter salas existentes
                 char *rooms = getRooms(config);
 
-                printf("Buffer: %s\n", buffer);
                 printf("Rooms existentes: %s\n", rooms);
 
                 bool leave = false;
 
                 while (!leave) {
-
-                    // Enviar ids das rooms existentes ao cliente
+                    // Enviar salas existentes ao cliente
                     if (send(newSockfd, rooms, strlen(rooms), 0) < 0) {
-
                         free(rooms);
-                        // erro ao enviar jogos existentes
                         err_dump(config->logPath, 0, playerID, "can't send existing games to client", EVENT_MESSAGE_SERVER_NOT_SENT);
-
                     } else {
-
-                        // escrever no log
                         writeLogJSON(config->logPath, 0, playerID, EVENT_SERVER_GAMES_SENT);
                     }
-
                     printf("RECEBER IDS DAS ROOMS\n");
                     memset(buffer, 0, sizeof(buffer));
 
-                    // receber ID do jogo
+                    // receber ID da sala
                     if (recv(newSockfd, buffer, sizeof(buffer), 0) < 0) {
-
                         free(rooms);
-                        // erro ao receber ID do jogo
                         err_dump(config->logPath, 0, playerID, "can't receive room ID from client", EVENT_MESSAGE_SERVER_NOT_RECEIVED);
-                        
-                    // se o cliente mandar 0, voltar ao menu
                     } else if (atoi(buffer) == 0) {
-
                         printf("Cliente %d voltou atras no menu\n", playerID);
                         leave = true;
                         startAgain = true;
-                        
                     } else {
-
-                        printf("Cliente %d escolheu a sala multiplayer com o ID: %s\n", playerID, buffer);
-
-                        // obter ID do jogo
                         int roomID = atoi(buffer);
 
                         // entrar na sala
-                        room = joinRoom(&newSockfd, config, roomID, playerID);
+                        room = joinRoom(&newSockfd, config, roomID, playerID, isPremium);
 
                         // wait semaphore
                         sem_wait(&room->beginSemaphore);
 
                         // atualizar tempo de espera para este player
-                        handleTimer(&newSockfd, room, playerID, config);
+                        handleTimer(&newSockfd, room, playerID, config, isPremium);
 
                         // signal semaphore
                         sem_post(&room->beginSemaphore);
-                        
-                        // sair do loop
-                        leave = true;
 
+                        leave = true;
                     }
                 }
 
                 free(rooms);
-                
+
             } else if (strcmp(buffer, "closeConnection") == 0) {
                 continueLoop = false;
                 break;
             }
 
             if (!startAgain) {
-
                 room->isGameRunning = true;
                 room->startTime = time(NULL);
 
@@ -299,7 +246,6 @@ void *handleClient(void *arg) {
 
                 // terminar o jogo
                 finishGame(&newSockfd, room, playerID, config);
-
             }
         }
     }
@@ -309,7 +255,7 @@ void *handleClient(void *arg) {
     // libertar a memória alocada
     free(clientData);
     printf("Conexao terminada com o cliente %d\n", playerID);
-    writeLogJSON(config->logPath, 0, playerID, EVENT_SERVER_CONNECTION_FINISH );
+    writeLogJSON(config->logPath, 0, playerID, EVENT_SERVER_CONNECTION_FINISH);
 
     // terminar a thread
     pthread_exit(NULL);
@@ -340,7 +286,7 @@ void *handleClient(void *arg) {
  * - Imprime uma mensagem de confirmação e retorna a sala criada.
  */
 
-Room *createRoomAndGame(int *newSockfd, ServerConfig *config, int playerID, bool isSinglePlayer, bool isRandom, int gameID) {
+Room *createRoomAndGame(int *newSockfd, ServerConfig *config, int playerID, bool isSinglePlayer, bool isRandom, int gameID, bool isPremium) {
 
     // check if there's config->rooms is full by looping
     if (config->numRooms >= config->maxRooms) {
@@ -378,12 +324,38 @@ Room *createRoomAndGame(int *newSockfd, ServerConfig *config, int playerID, bool
         // set max players
         room->maxPlayers = config->maxPlayersPerRoom;
     }
+    
+    // Inicializar filas de jogadores premium e não premium
+    room->premiumQueue = malloc(sizeof(int) * room->maxPlayers);
+    room->nonPremiumQueue = malloc(sizeof(int) * room->maxPlayers);
+    room->premiumQueueSize = 0;
+    room->nonPremiumQueueSize = 0;
+    sem_init(&room->premiumSemaphore, 0, 0);
+    sem_init(&room->nonPremiumSemaphore, 0, 0);
+    
+    // Adicionar jogador à fila correspondente
+    pthread_mutex_lock(&room->mutex);
+    if (room->numPlayers == 0) {
+        // Adiciona o primeiro jogador diretamente à sala
+        room->players[room->numPlayers] = playerID;
+        room->clientSockets[room->numPlayers] = *newSockfd;
+        room->numPlayers++;
+    } else {
+        if (isPremium) {
+            room->premiumQueue[room->premiumQueueSize++] = playerID;
+            sem_post(&room->premiumSemaphore); // Sinalizar a fila de premium
+        } else {
+            room->nonPremiumQueue[room->nonPremiumQueueSize++] = playerID;
+            sem_post(&room->nonPremiumSemaphore); // Sinalizar a fila de não premium
+        }
+    }
+    pthread_mutex_unlock(&room->mutex);
 
-    // player join room
-    joinRoom(newSockfd, config, room->id, playerID);
+    // Mensagem de criação da sala
+printf("New game created by client %d with game %d. Player %d is %s.\n", 
+       playerID, room->game->id, playerID, isPremium ? "Premium" : "Non-premium");
+printf("Waiting for more players to join\n");
 
-    printf("New game created by client %d with game %d\n", playerID, room->game->id);
-    printf("Waiting for more players to join\n");
 
     return room;
 }
@@ -406,7 +378,7 @@ Room *createRoomAndGame(int *newSockfd, ServerConfig *config, int playerID, bool
  * - Regista no ficheiro de log que o jogador entrou na sala.
  * - Devolve um pointer para a sala `Room` atualizada.
  */
-Room *joinRoom(int *socketfd, ServerConfig *config, int roomID, int playerID) {
+Room *joinRoom(int *socketfd, ServerConfig *config, int roomID, int playerID, bool isPremium) {
 
     // check if roomID is valid
     if (roomID < 1) {
@@ -438,21 +410,52 @@ Room *joinRoom(int *socketfd, ServerConfig *config, int roomID, int playerID) {
         return NULL;
     }
 
-    // add player to room
+    // Adicionar jogador à fila correspondente
+    pthread_mutex_lock(&room->mutex);
+    if (room->numPlayers == 0) {
+        // Adiciona o primeiro jogador diretamente à sala
+        room->players[room->numPlayers] = playerID;
+        room->clientSockets[room->numPlayers] = *socketfd;
+        room->numPlayers++;
+    } else {
+        if (isPremium) {
+            room->premiumQueue[room->premiumQueueSize++] = playerID;
+            sem_post(&room->premiumSemaphore); // Sinalizar a fila de premium
+        } else {
+            room->nonPremiumQueue[room->nonPremiumQueueSize++] = playerID;
+            sem_post(&room->nonPremiumSemaphore); // Sinalizar a fila de não premium
+        }
+    }
+    pthread_mutex_unlock(&room->mutex);
+
+    // Processar as filas para adicionar o jogador à sala
+    pthread_mutex_lock(&room->mutex);
+    if (room->premiumQueueSize > 0) {
+        playerID = room->premiumQueue[--room->premiumQueueSize];
+    } else if (room->nonPremiumQueueSize > 0) {
+        playerID = room->nonPremiumQueue[--room->nonPremiumQueueSize];
+    } else {
+        pthread_mutex_unlock(&room->mutex);
+        err_dump(config->logPath, 0, playerID, "No players in queue", EVENT_ROOM_NOT_JOIN);
+        return NULL;
+    }
+
+    // Adicionar jogador à sala
     room->players[room->numPlayers] = playerID;
     room->clientSockets[room->numPlayers] = *socketfd;
     room->numPlayers++;
+    pthread_mutex_unlock(&room->mutex);
 
-    printf("PLYER JOINED WITH SOCKET %d\n", *socketfd);
-
-    // log player joined room
+    // Log de entrada do jogador na sala
     char logMessage[256];
-    snprintf(logMessage, sizeof(logMessage), "%s: Player %d joined room %d",EVENT_ROOM_JOIN, playerID, roomID);
+    snprintf(logMessage, sizeof(logMessage), "%s: Player %d joined room %d", EVENT_ROOM_JOIN, playerID, roomID);
     writeLogJSON(config->logPath, room->game->id, playerID, logMessage);
+
+    printf("Player %d (Premium: %s) joined room %d with socket %d\n",
+           playerID, isPremium ? "Yes" : "No", roomID, *socketfd);
 
     return room;
 }
-
 /**
  * Inicializa o socket do servidor, associando-o a um endereço e porta especificados na configuração.
  *
@@ -719,34 +722,23 @@ void finishGame(int *socket, Room *room, int playerID, ServerConfig *config) {
   
 }  
 
-// Função que lida com o timer de 1 minuto para os jogadores se juntarem
-void handleTimer(int *newSockfd, Room *room, int playerID, ServerConfig *config) {
-
+void handleTimer(int *newSockfd, Room *room, int playerID, ServerConfig *config, bool isPremium) {
     fd_set readfds;
     struct timeval tv;
 
     printf("Starting timer for room %d\n", room->id);
 
     while (room->timer > 0) {
-
-        // Clear the socket set
         FD_ZERO(&readfds);
         FD_SET(*newSockfd, &readfds);
-
-        // Set timeout to 1 second
         tv.tv_sec = 1;
         tv.tv_usec = 0;
 
-        // Wait for a message from the client
         int result = select(FD_SETSIZE, &readfds, NULL, NULL, &tv);
 
         if (result > 0) {
-            // Receive message from client
-            
-        } else if (result == 0) { // Timeout occurred
-
-            //printf("Timer: %d\n", room->timer);
-
+            // Recebe mensagem do cliente (se necessário)
+        } else if (result == 0) {
             if (room->timer == 0) {
                 break;
             }
@@ -754,66 +746,68 @@ void handleTimer(int *newSockfd, Room *room, int playerID, ServerConfig *config)
             // lock mutex
             pthread_mutex_lock(&room->mutex);
 
-            // Check if all players have joined
+            // Verificar se todos os jogadores se juntaram
             if (room->numPlayers == room->maxPlayers) {
-                // timer to 0
                 room->timer = 0;
-
                 printf("All players have joined the room %d\n", room->id);
                 printf("Starting game in room %d\n", room->id);
 
-                // Send timer update to all players
+                // Enviar atualização do timer para todos os jogadores
                 for (int i = 0; i < room->numPlayers; i++) {
                     printf("Sending timer update to player %d with the socket: %d\n", room->players[i], room->clientSockets[i]);
-                    sendTimerUpdate(&room->clientSockets[i], room, room->players[i], config);
+                    sendTimerUpdate(&room->clientSockets[i], room, room->players[i], config, isPremium);
                 }
 
-                // unlock mutex
                 pthread_mutex_unlock(&room->mutex);
                 break;
             }
 
-            // Send timer update at 10s intervals and when timer is less than 5s
+            // Enviar atualização do timer a cada 10 segundos ou quando o timer for inferior a 5 segundos
             if (room->timer % 10 == 0 || room->timer <= 5) {
-                // Send timer update to all players
                 for (int i = 0; i < room->numPlayers; i++) {
                     printf("Sending timer update to player %d with the socket: %d\n", room->players[i], room->clientSockets[i]);
-                    sendTimerUpdate(&room->clientSockets[i], room, room->players[i], config);
+                    sendTimerUpdate(&room->clientSockets[i], room, room->players[i], config,isPremium);
                 }
-            } 
+            }
 
-            // decrement timer
+            // Decrementa o timer
             room->timer--;
-            
-            // unlock mutex
-            pthread_mutex_unlock(&room->mutex);
 
+            pthread_mutex_unlock(&room->mutex);
         } else {
-            // Error occurred
             perror("select");
         }
     }
 
-    // Start game
+    // Iniciar jogo
     printf("Jogo na sala %d iniciado às %s\n", room->id, ctime(&room->startTime));
 }
 
-// Função que envia atualizações do timer para o cliente
-void sendTimerUpdate(int *newSockfd, Room *room, int playerID, ServerConfig *config) {
-
-    // show timer update, players joins, room id, game id
+// Função que envia atualizações do timer para o cliente, considerando o status premium
+void sendTimerUpdate(int *newSockfd, Room *room, int playerID, ServerConfig *config, bool isPremium) {
+    // Preparar a mensagem de atualização do timer, considerando se o jogador é premium
     char buffer[BUFFER_SIZE];
     memset(buffer, 0, sizeof(buffer));
-    sprintf(buffer, "TIMERUPDATE\n%d\n%d\n%d\n%d\n", room->timer, room->id, room->game->id, room->numPlayers);
 
+    if (isPremium) {
+        // Se o jogador for premium, pode enviar informações adicionais ou mudar a mensagem
+        sprintf(buffer, "TIMERUPDATE\n%d\n%d\n%d\n%d\nPremium User\n", room->timer, room->id, room->game->id, room->numPlayers);
+    } else {
+        // Se o jogador não for premium, a mensagem padrão
+        sprintf(buffer, "TIMERUPDATE\n%d\n%d\n%d\n%d\n", room->timer, room->id, room->game->id, room->numPlayers);
+    }
+
+    // Enviar a mensagem de atualização
     if (send(*newSockfd, buffer, strlen(buffer), 0) < 0) {
         // erro ao enviar mensagem
         err_dump(config->logPath, room->game->id, playerID, "can't send update to client", EVENT_MESSAGE_SERVER_NOT_SENT);
     }
 
-    // escrever no log
+    // Escrever no log a atualização enviada, considerando o status premium
     char logMessage[256];
-    snprintf(logMessage, sizeof(logMessage), "%s %d: Time left: %d seconds - Room ID: %d - Game ID: %d - Players joined: %d", EVENT_MESSAGE_SERVER_SENT, playerID, room->timer, room->id, room->game->id, room->numPlayers);
+    snprintf(logMessage, sizeof(logMessage), "%s %d: Time left: %d seconds - Room ID: %d - Game ID: %d - Players joined: %d%s", 
+             EVENT_MESSAGE_SERVER_SENT, playerID, room->timer, room->id, room->game->id, room->numPlayers, 
+             isPremium ? " - Premium User" : "");
     writeLogJSON(config->logPath, room->game->id, playerID, logMessage);
     printf("%s\n", logMessage);
 }
