@@ -69,7 +69,16 @@ void *handleClient(void *arg) {
     ServerConfig *config = clientData->config;
     int newSockfd = clientData->socket_fd;
 
-   bool isPremium = clientData->isPremium;
+    // Receber o estado de premium do cliente
+    int isPremium;
+    if (recv(newSockfd, &isPremium, sizeof(isPremium), 0) > 0) {
+        clientData->isPremium = isPremium == 1;  // Converte para booleano
+        printf("Cliente é %sPremium.\n", clientData->isPremium ? "" : "não ");
+    } else {
+        printf("Erro ao receber o estado de Premium do cliente.\n");
+        clientData->isPremium = false;  // Valor padrão
+    }
+    // bool isPremium = clientData->isPremium;
 
 
     // receber buffer do cliente

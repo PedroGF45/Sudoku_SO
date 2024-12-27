@@ -76,6 +76,15 @@ void connectToServer(struct sockaddr_in *serv_addr, int *socketfd, clientConfig 
     /* Print conexao estabelecida */
     printf("Conexao estabelecida com o servidor %s:%d\n", config->serverIP, config->serverPort);
     writeLogJSON(config->logPath, 0, config->clientID, EVENT_CONNECTION_CLIENT_ESTABLISHED);
+
+    /* Enviar o estado de Premium ao servidor */
+    int isPremium = config->isPremium ? 1 : 0; // Converte para inteiro
+    if (send(*socketfd, &isPremium, sizeof(isPremium), 0) < 0) {
+        perror("Erro ao enviar o estado de Premium ao servidor.");
+        err_dump(config->logPath, 0, config->clientID, "can't send premium status to server", EVENT_MESSAGE_CLIENT_NOT_SENT);
+    } else {
+        printf("Estado de Premium enviado ao servidor: %s\n", config->isPremium ? "SIM" : "NÃO");
+    }
 }
 
 
