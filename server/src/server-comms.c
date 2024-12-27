@@ -325,15 +325,8 @@ Room *createRoomAndGame(int *newSockfd, ServerConfig *config, int playerID, bool
 
     // add game to room
     room->game = game;
-
-    if (room->isSinglePlayer) {
-        // set max players
-        room->maxPlayers = 1;
-    } else {
-        // set max players
-        room->maxPlayers = config->maxPlayersPerRoom;
-    }
-    
+    room->maxPlayers = room->isSinglePlayer ? 1 : config->maxPlayersPerRoom;
+    // Qualquer coisa apagar este bloco abaixo ate ao pthread
     // Inicializar filas de jogadores premium e não premium
     room->premiumQueue = malloc(sizeof(int) * room->maxPlayers);
     room->nonPremiumQueue = malloc(sizeof(int) * room->maxPlayers);
@@ -348,8 +341,10 @@ Room *createRoomAndGame(int *newSockfd, ServerConfig *config, int playerID, bool
         // Adiciona o primeiro jogador diretamente à sala
         room->players[room->numPlayers] = playerID;
         room->clientSockets[room->numPlayers] = *newSockfd;
+        room->premiumStatus[room->numPlayers] = isPremium; // Associar estado premium
         room->numPlayers++;
     } else {
+        // Adicionar à fila de espera
         if (isPremium) {
             room->premiumQueue[room->premiumQueueSize++] = playerID;
             sem_post(&room->premiumSemaphore); // Sinalizar a fila de premium
@@ -361,9 +356,9 @@ Room *createRoomAndGame(int *newSockfd, ServerConfig *config, int playerID, bool
     pthread_mutex_unlock(&room->mutex);
 
     // Mensagem de criação da sala
-printf("New game created by client %d with game %d. Player %d is %s.\n", 
-       playerID, room->game->id, playerID, isPremium ? "Premium" : "Non-premium");
-printf("Waiting for more players to join\n");
+    printf("New game created by client %d with game %d. Player %d is %s.\n", 
+           playerID, room->game->id, playerID, isPremium ? "Premium" : "Non-premium");
+    printf("Waiting for more players to join\n");
 
 
     return room;
@@ -764,7 +759,7 @@ void handleTimer(int *newSockfd, Room *room, int playerID, ServerConfig *config,
                 // Enviar atualização do timer para todos os jogadores
                 for (int i = 0; i < room->numPlayers; i++) {
                     printf("Sending timer update to player %d with the socket: %d\n", room->players[i], room->clientSockets[i]);
-                    sendTimerUpdate(&room->clientSockets[i], room, room->players[i], config, isPremium);
+                    sendTimerUpdate(&room->clientSockets[i], room, room->players[i], config);
                 }
 
                 pthread_mutex_unlock(&room->mutex);
@@ -775,7 +770,7 @@ void handleTimer(int *newSockfd, Room *room, int playerID, ServerConfig *config,
             if (room->timer % 10 == 0 || room->timer <= 5) {
                 for (int i = 0; i < room->numPlayers; i++) {
                     printf("Sending timer update to player %d with the socket: %d\n", room->players[i], room->clientSockets[i]);
-                    sendTimerUpdate(&room->clientSockets[i], room, room->players[i], config,isPremium);
+                    sendTimerUpdate(&room->clientSockets[i], room, room->players[i], config);
                 }
             }
 
@@ -793,17 +788,28 @@ void handleTimer(int *newSockfd, Room *room, int playerID, ServerConfig *config,
 }
 
 // Função que envia atualizações do timer para o cliente, considerando o status premium
-void sendTimerUpdate(int *newSockfd, Room *room, int playerID, ServerConfig *config, bool isPremium) {
-    // Preparar a mensagem de atualização do timer, considerando se o jogador é premium
+void sendTimerUpdate(int *newSockfd, Room *room, int playerID, ServerConfig *config) {
+    // Determinar o estado de premium do jogador usando `room->premiumStatus`
+    bool isPremium = false; // Valor padrão
+    for (int i = 0; i < room->numPlayers; i++) {
+        if (room->players[i] == playerID) {
+            isPremium = room->premiumStatus[i]; // Obter o estado premium associado ao jogador
+            break;
+        }
+    }
+
+    // Preparar a mensagem de atualização do timer
     char buffer[BUFFER_SIZE];
     memset(buffer, 0, sizeof(buffer));
 
     if (isPremium) {
-        // Se o jogador for premium, pode enviar informações adicionais ou mudar a mensagem
-        sprintf(buffer, "TIMERUPDATE\n%d\n%d\n%d\n%d\nPremium User\n", room->timer, room->id, room->game->id, room->numPlayers);
+        // Se o jogador for premium
+        sprintf(buffer, "TIMERUPDATE\n%d\n%d\n%d\n%d\nPremium User\n", 
+                room->timer, room->id, room->game->id, room->numPlayers);
     } else {
-        // Se o jogador não for premium, a mensagem padrão
-        sprintf(buffer, "TIMERUPDATE\n%d\n%d\n%d\n%d\n", room->timer, room->id, room->game->id, room->numPlayers);
+        // Se o jogador não for premium
+        sprintf(buffer, "TIMERUPDATE\n%d\n%d\n%d\n%d\n", 
+                room->timer, room->id, room->game->id, room->numPlayers);
     }
 
     // Enviar a mensagem de atualização

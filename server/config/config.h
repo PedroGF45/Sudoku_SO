@@ -53,6 +53,7 @@ typedef struct {
     int nonPremiumQueueSize;     // Tamanho da fila de jogadores não premium
     sem_t premiumSemaphore;      // Semáforo para jogadores premium
     sem_t nonPremiumSemaphore;   // Semáforo para jogadores não premium
+    bool *premiumStatus;         // Estados premium de cada jogador
 } Room;
 
 

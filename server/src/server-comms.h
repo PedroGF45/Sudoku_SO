@@ -48,7 +48,7 @@ void finishGame(int *socket, Room *room, int playerID, ServerConfig *config);
 void handleTimer(int *newSockfd, Room *room, int playerID, ServerConfig *config, bool isPremium);
 
 // Envia uma mensagem de atualização do temporizador ao cliente.
-void sendTimerUpdate(int *newSockfd, Room *room, int playerID, ServerConfig *config, bool isPremium);
+void sendTimerUpdate(int *newSockfd, Room *room, int playerID, ServerConfig *config);
 
 
 

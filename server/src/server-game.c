@@ -344,6 +344,9 @@ Room *createRoom(ServerConfig *config, int playerID, bool isSinglePlayer) {
     printf("Room ID na criação da room: %d\n", room->id);
     room->players = (int *)malloc(config->maxPlayersPerRoom * sizeof(int));
     room->clientSockets = (int *)malloc(config->maxPlayersPerRoom * sizeof(int));
+    room->premiumStatus = (bool *)calloc(config->maxPlayersPerRoom, sizeof(bool)); // Inicializar premiumStatus
+    room->premiumQueue = (int *)malloc(config->maxPlayersPerRoom * sizeof(int));
+    room->nonPremiumQueue = (int *)malloc(config->maxPlayersPerRoom * sizeof(int));
     room->timer = 60;
     room->isGameRunning = false;
     room->isFinished = false;
@@ -368,9 +371,19 @@ void deleteRoom(ServerConfig *config, int roomID) {
         if (config->rooms[i]->id == roomID) {
             free(config->rooms[i]->players);
             free(config->rooms[i]->clientSockets);
+            free(config->rooms[i]->premiumStatus);       // Liberar premiumStatus
+            free(config->rooms[i]->premiumQueue);        // Liberar fila de premium
+            free(config->rooms[i]->nonPremiumQueue);     // Liberar fila de não premium
             free(config->rooms[i]->game);
+
+
+            // Destruir mutexes e semáforos
             pthread_mutex_destroy(&config->rooms[i]->mutex);
             sem_destroy(&config->rooms[i]->beginSemaphore);
+            sem_destroy(&config->rooms[i]->premiumSemaphore);
+            sem_destroy(&config->rooms[i]->nonPremiumSemaphore);
+
+
             free(config->rooms[i]);
 
             // shift all rooms to the left
