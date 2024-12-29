@@ -322,7 +322,7 @@ void showSinglePLayerMenu(int *socketfd, clientConfig *config) {
 void playRandomSinglePlayerGame(int *socketfd, clientConfig *config) {
 
     // ask server for a random game
-    if (send(*socketfd, "newRandomSinglePLayerGame", strlen("newRandomSinglePLayerGame"), 0) < 0) {
+    if (send(*socketfd, "newRandomSinglePlayerGame", strlen("newRandomSinglePlayerGame"), 0) < 0) {
         err_dump(config->logPath, 0, config->clientID, "can't send random game request to server", EVENT_MESSAGE_CLIENT_NOT_SENT);
     } else {
         printf("Requesting a new random game...\n");

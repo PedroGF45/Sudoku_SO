@@ -77,6 +77,7 @@
         err_dump(config->logPath, 0, 0, "can't receive client ID", EVENT_MESSAGE_CLIENT_NOT_RECEIVED);
     } else {
         config->clientID = atoi(buffer);
+        printf("ID do cliente: %d\n", config->clientID);
 
         char logMessage[256];
         snprintf(logMessage, sizeof(logMessage), "%s: received client ID %d", EVENT_MESSAGE_CLIENT_RECEIVED, config->clientID);

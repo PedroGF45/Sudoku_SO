@@ -107,7 +107,6 @@ clientConfig *getClientConfig(char *configPath) {
     printf("IP do servidor: %s\n", config->serverIP);
     printf("Porta do servidor: %d\n", config->serverPort);
     printf("Hostname do servidor: %s\n", config->serverHostName);
-    printf("ID do cliente: %d\n", config->clientID);
     printf("Log path do cliente: %s\n", config->logPath);
     printf("Modo: %s\n", config->isManual ? "manual" : "automatico");
     printf("Cliente %s premium.\n", config->isPremium ? "SIM" : "NAO");
