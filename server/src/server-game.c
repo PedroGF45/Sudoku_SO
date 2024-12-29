@@ -400,17 +400,6 @@ void deleteRoom(ServerConfig *config, int roomID) {
         if (config->rooms[i]->id == roomID) {
             printf("FREEING MEMORY FOR ROOM %d\n", roomID);
             
-           
-            for (int j = 0; j < config->rooms[i]->numClients; j++) {
-                //printf("NUM CLIENTS: %d\n", config->rooms[i]->numClients);
-                printf("i is %d\n", j);
-                if (config->rooms[i]->clients[j] != NULL) {
-                    printf("FREEING MEMORY FOR CLIENT %d\n", config->rooms[i]->clients[j]->clientID);
-                    free(config->rooms[i]->clients[j]);
-
-                }
-            }
-
             free(config->rooms[i]->clients); 
 
             printf("CLIENTS MEMORY FREED\n");

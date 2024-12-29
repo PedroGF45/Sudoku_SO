@@ -26,6 +26,7 @@ typedef struct {
     int socket_fd;
     int clientID;
     bool isPremium;
+    bool startAgain;
 } Client;
 
 /**

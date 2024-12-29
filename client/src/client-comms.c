@@ -548,7 +548,7 @@ void showMultiplayerRooms(int *socketfd, clientConfig *config) {
                     writeLogJSON(config->logPath, 0, config->clientID, logMessage);
                 }
 
-                // show the single player menu
+                // show the multiplayer menu
                 showMultiPlayerMenu(socketfd, config);
 
 
@@ -563,10 +563,10 @@ void showMultiplayerRooms(int *socketfd, clientConfig *config) {
                 } else {
                     printf("Requesting room with ID %s...\n", roomIDString);
                 }
-
+                    
+                printf("NOW RECEIVING TIMER\n");
                 // receive timer from server
-                receiveTimer(socketfd, config);
-
+                receiveTimer(socketfd, config);    
             }
         }
     }
@@ -919,6 +919,10 @@ void receiveTimer(int *socketfd, clientConfig *config) {
     // receive at 60, 50, 40, 30, 20, 10, 5, 4, 3, 2, 1 seconds
     int timeLeft = 60;
 
+    bool isRoomFull = false;
+
+    printf("IN RECEIVING TIMER\n");
+
     while (timeLeft > 0) {
         if (recv(*socketfd, buffer, sizeof(buffer), 0) < 0) {
 
@@ -926,10 +930,32 @@ void receiveTimer(int *socketfd, clientConfig *config) {
             err_dump(config->logPath, 0, config->clientID, "can't receive timer from server", EVENT_MESSAGE_CLIENT_NOT_RECEIVED);
 
         } else {
+
             printf("Buffer: %s\n", buffer);
 
+            // check if buffer is "Room is full"
+            if (strcmp(buffer, "Room is full") == 0) {
+                
+                isRoomFull = true;
+                char logMessage[256];
+                snprintf(logMessage, sizeof(logMessage), "%s: room is full", EVENT_MESSAGE_CLIENT_RECEIVED);
+                writeLogJSON(config->logPath, 0, config->clientID, logMessage);
+                break;
+            }
+
             timeLeft = showTimerUpdate(buffer, timeLeft);
+
+            char logMessage[256];
+            snprintf(logMessage, sizeof(logMessage), "%s: time left: %d", EVENT_MESSAGE_CLIENT_RECEIVED, timeLeft);
+            writeLogJSON(config->logPath, 0, config->clientID, logMessage);
         }
+    }
+
+    if (isRoomFull) {
+        //debug
+        printf("Room is full\n");
+        // show the multiplayer menu
+        showMultiPlayerMenu(socketfd, config);
     }
 }
 
