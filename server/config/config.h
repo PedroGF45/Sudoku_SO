@@ -21,23 +21,28 @@ typedef struct {
     int currentLine;
 } Game;
 
+// Estrutura que contém dados do cliente, incluindo o descritor de socket e a configuração do servidor.
+typedef struct {
+    int socket_fd;
+    int clientID;
+    bool isPremium;
+} Client;
 
 /**
  * Estrutura que representa uma sala de jogo.
  *
  * @param id O identificador único da sala.
- * @param maxPlayers O número máximo de jogadores que a sala pode conter.
- * @param numPlayers O número atual de jogadores na sala.
- * @param players Um pointer para um array que contém os IDs dos jogadores na sala.
+ * @param maxClients O número máximo de jogadores que a sala pode conter.
+ * @param numClients O número atual de jogadores na sala.
+ * @param Clients Um pointer para um array que contém os IDs dos jogadores na sala.
  * @param game Um pointer para o jogo associado à sala.
  */
 
 typedef struct {
     int id;
-    int maxPlayers;
-    int numPlayers;
-    int *players;
-    int *clientSockets;
+    int maxClients;
+    int numClients;
+    Client **clients;
     int timer;
     bool isGameRunning;
     bool isSinglePlayer;
@@ -45,6 +50,7 @@ typedef struct {
     Game *game;
     time_t startTime;
     double elapsedTime;
+    pthread_mutex_t timerMutex;
     pthread_mutex_t mutex;
     sem_t beginSemaphore;
     int *premiumQueue;           // Fila de IDs de jogadores premium
@@ -53,7 +59,6 @@ typedef struct {
     int nonPremiumQueueSize;     // Tamanho da fila de jogadores não premium
     sem_t premiumSemaphore;      // Semáforo para jogadores premium
     sem_t nonPremiumSemaphore;   // Semáforo para jogadores não premium
-    bool *premiumStatus;         // Estados premium de cada jogador
 } Room;
 
 
@@ -64,7 +69,7 @@ typedef struct {
  * @param gamePath O caminho para o ficheiro que contém os dados do jogo.
  * @param logPath O caminho para o ficheiro onde os logs do servidor são guardados.
  * @param maxRooms O número máximo de salas que o servidor pode gerir.
- * @param maxPlayersPerRoom O número máximo de jogadores que cada sala pode conter.
+ * @param maxClientsPerRoom O número máximo de jogadores que cada sala pode conter.
  * @param numRooms O número atual de salas criadas no servidor.
  * @param rooms Um pointer para um array de pointers de `Room`, 
  * que representa as salas de jogo geridas pelo servidor.
@@ -75,12 +80,27 @@ typedef struct {
     char gamePath[256];
     char logPath[256];
     int maxRooms;
-    int maxPlayersPerRoom;
+    int maxClientsPerRoom;
+    int maxClientsOnline;
+    int numClientsOnline;
     int numRooms;
     Room **rooms;
+    Client **clients;
 } ServerConfig;
+
+typedef struct {
+    Client *client;
+    ServerConfig *config;
+} client_data;
+
 
 // Obter a configuração do servidor
 ServerConfig *getServerConfig(char *configPath);
+
+// Adicionar um cliente à lista de clientes online
+void addClient(ServerConfig *config, Client *client);
+
+// Remover um cliente da lista de clientes online
+void removeClient(ServerConfig *config, Client *client);
 
 #endif // CONFIG_H

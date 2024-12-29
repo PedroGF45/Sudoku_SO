@@ -342,21 +342,27 @@ Room *createRoom(ServerConfig *config, int playerID, bool isSinglePlayer) {
 
     room->id = generateUniqueId();
     printf("Room ID na criação da room: %d\n", room->id);
-    room->players = (int *)malloc(config->maxPlayersPerRoom * sizeof(int));
-    room->clientSockets = (int *)malloc(config->maxPlayersPerRoom * sizeof(int));
-    room->premiumStatus = (bool *)calloc(config->maxPlayersPerRoom, sizeof(bool)); // Inicializar premiumStatus
-    room->premiumQueue = (int *)malloc(config->maxPlayersPerRoom * sizeof(int));
-    room->nonPremiumQueue = (int *)malloc(config->maxPlayersPerRoom * sizeof(int));
     room->timer = 60;
     room->isGameRunning = false;
     room->isFinished = false;
     room->isSinglePlayer = isSinglePlayer;
+    room->maxClients = room->isSinglePlayer ? 1 : config->maxClientsPerRoom;
+    room->clients = (Client **)malloc(sizeof(Client *) * room->maxClients);
+
+    // Inicializar filas de jogadores premium e não premium
+    room->premiumQueue = (int *)malloc(sizeof(int) * room->maxClients);
+    room->nonPremiumQueue = (int *)malloc(sizeof(int) * room->maxClients);
+    room->premiumQueueSize = 0;
+    room->nonPremiumQueueSize = 0;
+    sem_init(&room->premiumSemaphore, 0, 0);
+    sem_init(&room->nonPremiumSemaphore, 0, 0);
 
     // initialize mutex
     pthread_mutex_init(&room->mutex, NULL);
+    pthread_mutex_init(&room->timerMutex, NULL);
 
     // initialize semaphore with MAX_PLAYERS_PER_ROOM
-    sem_init(&room->beginSemaphore, 0, config->maxPlayersPerRoom);
+    sem_init(&room->beginSemaphore, 0, config->maxClientsPerRoom);
 
     // add the room to the list of rooms and increment the number of rooms
     config->rooms[config->numRooms++] = room;
@@ -366,19 +372,59 @@ Room *createRoom(ServerConfig *config, int playerID, bool isSinglePlayer) {
     return room;
 }
 
+Room *getRoom(ServerConfig *config, int roomID, int playerID) {
+
+    // check if roomID is valid
+    if (roomID < 1) {
+        err_dump(config->logPath, 0, playerID, "Room ID is invalid", EVENT_ROOM_NOT_JOIN);
+        return NULL;
+    }
+
+    // get the room by looping through the rooms
+    Room *room = NULL;
+    for (int i = 0; i < config->numRooms; i++) {
+        //printf("i: %d\n", i);
+        //printf("NR rooms: %d\n", config->numRooms);
+        //printf("ROOM ID: %d\n", config->rooms[i]->id);
+        if (config->rooms[i]->id == roomID) {
+            room = config->rooms[i];
+            break;
+        }
+    }
+
+    return room;
+}
+
 void deleteRoom(ServerConfig *config, int roomID) {
     for (int i = 0; i < config->numRooms; i++) {
         if (config->rooms[i]->id == roomID) {
-            free(config->rooms[i]->players);
-            free(config->rooms[i]->clientSockets);
-            free(config->rooms[i]->premiumStatus);       // Liberar premiumStatus
-            free(config->rooms[i]->premiumQueue);        // Liberar fila de premium
-            free(config->rooms[i]->nonPremiumQueue);     // Liberar fila de não premium
+            printf("FREEING MEMORY FOR ROOM %d\n", roomID);
+            
+           
+            for (int j = 0; j < config->rooms[i]->numClients; j++) {
+                //printf("NUM CLIENTS: %d\n", config->rooms[i]->numClients);
+                printf("i is %d\n", j);
+                if (config->rooms[i]->clients[j] != NULL) {
+                    printf("FREEING MEMORY FOR CLIENT %d\n", config->rooms[i]->clients[j]->clientID);
+                    free(config->rooms[i]->clients[j]);
+
+                }
+            }
+
+            free(config->rooms[i]->clients); 
+
+            printf("CLIENTS MEMORY FREED\n");
+            printf("FREEING NON PREMIUM QUEUE \n");
+            free(config->rooms[i]->nonPremiumQueue);
+            printf("FREEING PREMIUM QUEUE\n");
+            free(config->rooms[i]->premiumQueue);
             free(config->rooms[i]->game);
+
 
 
             // Destruir mutexes e semáforos
             pthread_mutex_destroy(&config->rooms[i]->mutex);
+            pthread_mutex_destroy(&config->rooms[i]->timerMutex);
             sem_destroy(&config->rooms[i]->beginSemaphore);
             sem_destroy(&config->rooms[i]->premiumSemaphore);
             sem_destroy(&config->rooms[i]->nonPremiumSemaphore);
@@ -393,12 +439,15 @@ void deleteRoom(ServerConfig *config, int roomID) {
 
             // decrement number of rooms
             config->numRooms--;
+
+            // log room deletion
+            writeLogJSON(config->logPath, roomID, 0, EVENT_ROOM_DELETE);
+
             break;
         }
     }
 
-    // log room deletion
-    writeLogJSON(config->logPath, roomID, 0, EVENT_ROOM_DELETE);
+    
 }
 
 /**
@@ -521,7 +570,7 @@ char *getRooms(ServerConfig *config) {
             if (config->rooms[i]->isGameRunning == false) {
                 // show number of players in the room, max players in the room and the game ID
                 char roomString[100];
-                sprintf(roomString, "Room ID: %d, Players: %d/%d, Game ID: %d\n", config->rooms[i]->id, config->rooms[i]->numPlayers, config->rooms[i]->maxPlayers, config->rooms[i]->game->id);
+                sprintf(roomString, "Room ID: %d, Players: %d/%d, Game ID: %d\n", config->rooms[i]->id, config->rooms[i]->numClients, config->rooms[i]->maxClients, config->rooms[i]->game->id);
                 strcat(rooms, roomString);
             }
         }

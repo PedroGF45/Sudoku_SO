@@ -24,6 +24,9 @@ bool isLineCorrect(Game *game, int row);
 // Cria uma nova sala de jogo.
 Room *createRoom(ServerConfig *config, int playerID, bool isSinglePlayer);
 
+// Obtém uma sala de jogo a partir do ID.
+Room *getRoom(ServerConfig *config, int roomID, int playerID);
+
 void deleteRoom(ServerConfig *config, int roomID);
 
 // Obtém uma lista de IDs dos jogos disponíveis.

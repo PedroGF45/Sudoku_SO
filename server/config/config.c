@@ -5,8 +5,6 @@
 #include "config.h"
 #include "../../utils/logs/logs.h"
 
-
-
 /**
  * Lê as configurações do servidor a partir de um ficheiro de configuração e
  * inicializa uma estrutura `ServerConfig` com os valores lidos.
@@ -75,8 +73,17 @@ ServerConfig *getServerConfig(char *configPath) {
     if (fgets(line, sizeof(line), file) != NULL) {
         // Remover a nova linha, se houver
         line[strcspn(line, "\n")] = 0;
-        sscanf(line, "MAX_PLAYERS_PER_ROOM = %d", &config->maxPlayersPerRoom);
+        sscanf(line, "MAX_PLAYERS_PER_ROOM = %d", &config->maxClientsPerRoom);
     }
+
+    if (fgets(line, sizeof(line), file) != NULL) {
+        // Remover a nova linha, se houver
+        line[strcspn(line, "\n")] = 0;
+        sscanf(line, "MAX_PLAYERS_ON_SERVER = %d", &config->maxClientsOnline);
+    }
+
+    // Fecha o ficheiro
+    fclose(file);
 
     // Inicializa as salas
     config->rooms = (Room **)malloc(config->maxRooms * sizeof(Room));
@@ -85,21 +92,75 @@ ServerConfig *getServerConfig(char *configPath) {
         exit(1);  // Handle the error as appropriate
     }
 
-    // Optionally initialize each Room pointer to NULL
+    // initialize each Room pointer to NULL
     for (int i = 0; i < config->maxRooms; i++) {
         config->rooms[i] = NULL;  // Initialize each pointer
     }
 
-    // Fecha o ficheiro
-    fclose(file);
+    // initialize clients
+    config->clients = (Client **)malloc(config->maxClientsOnline * sizeof(Client));
+    if (config->clients == NULL) {
+        fprintf(stderr, "Memory allocation failed for clients\n");
+        exit(1);  // Handle the error as appropriate
+    }
 
+    // initialize each Client pointer to NULL
+    for (int i = 0; i < config->maxClientsOnline; i++) {
+        config->clients[i] = NULL;  // Initialize each pointer
+    }
+
+    // Inicializa o número de salas e jogadores online
+    config->numRooms = 0;
+    config->numClientsOnline = 0;
+
+    // Regista o evento de início do servidor no ficheiro de log
     writeLogJSON(config->logPath, 0, 0, EVENT_SERVER_START);
+
+    // Imprime as configurações do servidor na consola
     printf("PORTA DO SERVIDOR: %d\n", config->serverPort);
     printf("PATH DO JOGO: %s\n", config->gamePath);
     printf("PATH DO LOG: %s\n", config->logPath);
-    printf("MAXIMO DE JOGADORES POR SALA: %d\n", config->maxPlayersPerRoom);
+    printf("MAXIMO DE JOGADORES POR SALA: %d\n", config->maxClientsPerRoom);
     printf("MAXIMO DE SALAS: %d\n", config->maxRooms);
+    printf("MAXIMO DE JOGADORES ONLINE: %d\n", config->maxClientsOnline);
 
     // Retorna a variável config
     return config;
+}
+
+void addClient(ServerConfig *config, Client *client) {
+    
+    // add client to clients array
+    for (int i = 0; i < config->maxClientsOnline; i++) {
+        if (config->clients[i] == NULL) {
+            config->clients[i] = client;
+            break;
+        }
+    }
+
+    config->numClientsOnline++;
+    printf("NUMERO DE JOGADORES ONLINE: %d\n", config->numClientsOnline);
+}
+
+void removeClient(ServerConfig *config, Client *client) {
+    
+    // remove client from clients array
+    for (int i = 0; i < config->maxClientsOnline; i++) {
+        if (config->clients[i] != NULL && config->clients[i]->socket_fd == client->socket_fd) {
+            free(config->clients[i]);
+            config->clients[i] = NULL;
+            break;
+        }
+    }
+
+    // shift clients
+    for (int i = 0; i < config->maxClientsOnline; i++) {
+        if (config->clients[i] == NULL && config->clients[i + 1] != NULL) {
+            config->clients[i] = config->clients[i + 1];
+            config->clients[i + 1] = NULL;
+        }
+    }
+
+    // decrement number of clients online
+    config->numClientsOnline--;
 }

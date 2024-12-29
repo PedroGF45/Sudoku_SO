@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <pthread.h>
+#include <signal.h>
 #include "../../utils/logs/logs.h"
 #include "../../utils/network/network.h"
 #include "../config/config.h"
@@ -24,7 +25,7 @@
  * - Carrega as configurações do servidor a partir do ficheiro de configuração especificado.
  * - Inicializa o socket do servidor e configura-o para aceitar conexões de clientes.
  * - Entra num loop infinito para aceitar conexões:
- *   - Aceita uma ligação do cliente e cria uma estrutura `ClientData` que armazena as 
+ *   - Aceita uma ligação do cliente e cria uma estrutura `Client` que armazena as 
  * informações necessárias para a nova conexão.
  *   - Cria uma nova thread para gerir cada cliente, usando a função `handleClient` para 
  * processar a comunicação com o cliente.
@@ -37,21 +38,34 @@
  * O socket principal é fechado no final.
  */
 
+ServerConfig* svConfig;
+
+void handleSigInt(int sig) {
+    printf("Server shutting down...\n");
+    free(svConfig->clients);
+    free(svConfig->rooms);
+    free(svConfig);
+
+    exit(0);
+}
+
 int main(int argc, char *argv[]) {
     if (argc < 2) {
         printf("Erro: Faltam argumentos de configuracao!\n");
         return 1;
     }
 
+    signal(SIGINT, handleSigInt);
+
     // Carrega a configuracao do servidor
-    ServerConfig *config = getServerConfig(argv[1]);
+    svConfig = getServerConfig(argv[1]);
 
     // Inicializa variáveis para socket
     int sockfd, newSockfd;
     struct sockaddr_in serv_addr;
 
     // Inicializar o socket
-    initializeSocket(&serv_addr, &sockfd, config);
+    initializeSocket(&serv_addr, &sockfd, svConfig);
 
     // Aguardar por conexões indefinidamente
     for (;;) {
@@ -59,26 +73,42 @@ int main(int argc, char *argv[]) {
         // Aceitar ligação
         if ((newSockfd = accept(sockfd, (struct sockaddr *) 0, 0)) < 0) {
             // erro ao aceitar ligacao
-            err_dump(config->logPath, 0, 0, "accept error", EVENT_CONNECTION_SERVER_ERROR);
+            err_dump(svConfig->logPath, 0, 0, "accept error", EVENT_CONNECTION_SERVER_ERROR);
         } else {
 
             // elements to pass to thread: config, playerID, newSockfd
-            ClientData *clientData = (ClientData *) malloc(sizeof(ClientData));
-            if (clientData == NULL) {
+            Client *client = (Client *) malloc(sizeof(Client));
+            if (client == NULL) {
                 // erro ao alocar memoria
-                err_dump(config->logPath, 0, 0, "can't allocate memory", MEMORY_ERROR);
+                err_dump(svConfig->logPath, 0, 0, "can't allocate memory", MEMORY_ERROR);
                 close(newSockfd);
                 continue;
             }
-            clientData->config = config;
-            clientData->socket_fd = newSockfd;
 
+            client->socket_fd = newSockfd;
+            addClient(svConfig, client);
 
+            client_data *data = (client_data *) malloc(sizeof(client_data));
+            if (data == NULL) {
+                // erro ao alocar memoria
+                err_dump(svConfig->logPath, 0, 0, "can't allocate memory", MEMORY_ERROR);
+                removeClient(svConfig, client);
+                free(client);
+                close(newSockfd);
+                continue;
+            }
+
+            data->config = svConfig;
+            data->client = client;
+
+            // create a new thread to handle the client
             pthread_t thread;
-            if (pthread_create(&thread, NULL, handleClient, (void *)clientData) != 0) {
+            if (pthread_create(&thread, NULL, handleClient, (void *)data) != 0) {
                 // erro ao criar thread
-                err_dump(config->logPath, 0, 0, "can't create thread", EVENT_SERVER_THREAD_ERROR);
-                free(clientData);
+                err_dump(svConfig->logPath, 0, 0, "can't create thread", EVENT_SERVER_THREAD_ERROR);
+                removeClient(svConfig, client);
+                free(client);
+                free(data);
                 close(newSockfd);
                 continue;
             }
@@ -89,6 +119,6 @@ int main(int argc, char *argv[]) {
     }
 
     close(sockfd);
-    free(config);
+    free(svConfig);
     return 0;
 }
