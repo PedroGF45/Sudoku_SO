@@ -38,4 +38,12 @@ char *getRooms(ServerConfig *config);
 // update game statistics
 void updateGameStatistics(ServerConfig *config, int roomID, int elapsedTime, float accuracy);
 
+void acquireReadLock(Room *room);
+
+void releaseReadLock(Room *room);
+
+void acquireWriteLock(Room *room);
+
+void releaseWriteLock(Room *room);
+
 #endif

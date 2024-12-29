@@ -354,10 +354,18 @@ Room *createRoom(ServerConfig *config, int playerID, bool isSinglePlayer) {
     room->nonPremiumQueue = (int *)malloc(sizeof(int) * room->maxClients);
     room->premiumQueueSize = 0;
     room->nonPremiumQueueSize = 0;
-    sem_init(&room->premiumSemaphore, 0, 0);
-    sem_init(&room->nonPremiumSemaphore, 0, 0);
+    sem_init(&room->premiumSemaphore, 0, 0); // Inicializar semáforo para jogadores premium
+    sem_init(&room->nonPremiumSemaphore, 0, 0); // Inicializar semáforo para jogadores não premium
 
-    // initialize mutex
+    // Initialize reader-writer locks
+    sem_init(&room->writeSemaphore, 0, 1); // Inicializar semáforo para escrita e começa a aceitar 1 escritor
+    sem_init(&room->readSemaphore, 0, 1); // Inicializar semáforo para leitura e começa a aceitar 1 leitor
+    pthread_mutex_init(&room->readMutex, NULL); // Inicializar mutex para leitura
+    pthread_mutex_init(&room->writeMutex, NULL); // Inicializar mutex para escrita
+    room->readerCount = 0;
+    room->writerCount = 0;
+
+    // initialize mutexes
     pthread_mutex_init(&room->mutex, NULL);
     pthread_mutex_init(&room->timerMutex, NULL);
 
@@ -417,6 +425,8 @@ void deleteRoom(ServerConfig *config, int roomID) {
             sem_destroy(&config->rooms[i]->beginSemaphore);
             sem_destroy(&config->rooms[i]->premiumSemaphore);
             sem_destroy(&config->rooms[i]->nonPremiumSemaphore);
+            sem_destroy(&config->rooms[i]->writeSemaphore);
+            sem_destroy(&config->rooms[i]->readSemaphore);
 
 
             free(config->rooms[i]);
@@ -655,4 +665,79 @@ void updateGameStatistics(ServerConfig *config, int gameID, int elapsedTime, flo
 
     // free the JSON object
     json_value_free(root_value);
+}
+
+void acquireReadLock(Room *room) {
+    // indicate that a reader is entering the room
+    sem_wait(&room->readSemaphore);
+
+    // lock mutex
+    pthread_mutex_lock(&room->readMutex);
+
+    // increment reader count
+    room->readerCount++;
+
+    // if first reader lock the write semaphore
+    if (room->readerCount == 1) {
+        sem_wait(&room->writeSemaphore); 
+    }
+
+    // unlock mutex
+    pthread_mutex_unlock(&room->readMutex);
+
+    // unlock the reader semaphore
+    sem_post(&room->readSemaphore);
+}
+
+void releaseReadLock(Room *room) {
+    // lock mutex
+    pthread_mutex_lock(&room->readMutex);
+
+    // decrement reader count
+    room->readerCount--;
+
+    // if last reader unlock the write semaphore
+    if (room->readerCount == 0) {
+        sem_post(&room->writeSemaphore);
+    }
+
+    // unlock mutex
+    pthread_mutex_unlock(&room->readMutex);
+}
+
+void acquireWriteLock(Room *room) {
+    
+    // lock mutex for writer
+    pthread_mutex_lock(&room->writeMutex);
+
+    // increment writer count
+    room->writerCount++;
+
+    // if first writer lock the read semaphore to block readers
+    if (room->writerCount == 1) {
+        sem_wait(&room->readSemaphore);
+    }
+
+    // unlock the writer mutex
+    pthread_mutex_unlock(&room->writeMutex);
+
+    // lock the write semaphore
+    sem_wait(&room->writeSemaphore);
+}
+
+void releaseWriteLock(Room *room) {
+
+    // lock the writer mutex
+    pthread_mutex_lock(&room->writeMutex);
+
+    // decrement writer count
+    room->writerCount--;
+
+    // if last writer unlock the read semaphore
+    if (room->writerCount == 0) {
+        sem_post(&room->readSemaphore);
+    }
+
+    // unlock the writer mutex
+    pthread_mutex_unlock(&room->writeMutex);
 }

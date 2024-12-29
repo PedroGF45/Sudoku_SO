@@ -646,11 +646,17 @@ void sendBoard(ServerConfig *config, Game *game, int *socket) {
 
 void receiveLines(ServerConfig *config, Room *room, Client *client, int *currentLine) {
 
+    // pre condition reader
+    acquireReadLock(room);
+
     int correctLine = 0;
 
-    // Enviar o tabuleiro atualizado ao cliente
+    // critical section reader
     printf("Enviando tabuleiro ao cliente %d do jogo %d\n", client->clientID, room->game->id);
     sendBoard(config, room->game, &client->socket_fd);
+
+    // post condition reader
+    releaseReadLock(room);
 
     // Receber e validar as linhas do cliente
     while (room->game->currentLine <= 9) {
@@ -678,6 +684,10 @@ void receiveLines(ServerConfig *config, Room *room, Client *client, int *current
                 insertLine[j] = line[j] - '0';
             }
             
+            // pre condition writer
+            acquireWriteLock(room);
+
+            // critical section writer
             // Verificar a linha recebida com a função verifyLine
             correctLine = verifyLine(config->logPath, line, room->game, insertLine, client->clientID);
 
@@ -690,11 +700,21 @@ void receiveLines(ServerConfig *config, Room *room, Client *client, int *current
                 printf("Linha %d incorreta\n", room->game->currentLine);
             }
 
+            sem_post(&room->writeSemaphore);
+
+            // post condition writer
+            releaseWriteLock(room);
+
             // wait for client to receive the line
             sleep(1);
 
+            // pre condition reader
+            acquireReadLock(room);
+
             sendBoard(config, room->game, &client->socket_fd);
             printf("-----------------------------------------------------\n");
+            // post condition reader
+            releaseReadLock(room);
         } 
     } 
 }

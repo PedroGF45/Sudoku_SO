@@ -50,16 +50,22 @@ typedef struct {
     bool isFinished;
     Game *game;
     time_t startTime;
-    double elapsedTime;
-    pthread_mutex_t timerMutex;
-    pthread_mutex_t mutex;
-    sem_t beginSemaphore;
+    double elapsedTime; 
     int *premiumQueue;           // Fila de IDs de jogadores premium
     int *nonPremiumQueue;        // Fila de IDs de jogadores não premium
     int premiumQueueSize;        // Tamanho da fila de jogadores premium
     int nonPremiumQueueSize;     // Tamanho da fila de jogadores não premium
+    pthread_mutex_t timerMutex;
+    pthread_mutex_t mutex;
+    sem_t beginSemaphore;
     sem_t premiumSemaphore;      // Semáforo para jogadores premium
     sem_t nonPremiumSemaphore;   // Semáforo para jogadores não premium
+    pthread_mutex_t readMutex;
+    pthread_mutex_t writeMutex;
+    sem_t writeSemaphore;
+    sem_t readSemaphore;
+    int readerCount;
+    int writerCount;
 } Room;
 
 
