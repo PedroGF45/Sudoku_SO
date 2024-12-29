@@ -42,8 +42,8 @@ void acquireReadLock(Room *room);
 
 void releaseReadLock(Room *room);
 
-void acquireWriteLock(Room *room);
+void acquireWriteLock(Room *room, bool isPremium, Client *client);
 
-void releaseWriteLock(Room *room);
+void releaseWriteLock(Room *room, bool isPremium, Client *client);
 
 #endif

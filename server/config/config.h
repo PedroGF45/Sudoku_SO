@@ -51,6 +51,8 @@ typedef struct {
     Game *game;
     time_t startTime;
     double elapsedTime; 
+
+    // Filas de jogadores
     int *premiumQueue;           // Fila de IDs de jogadores premium
     int *nonPremiumQueue;        // Fila de IDs de jogadores não premium
     int premiumQueueSize;        // Tamanho da fila de jogadores premium
@@ -60,12 +62,17 @@ typedef struct {
     sem_t beginSemaphore;
     sem_t premiumSemaphore;      // Semáforo para jogadores premium
     sem_t nonPremiumSemaphore;   // Semáforo para jogadores não premium
+
+    // Reader-writer locks
     pthread_mutex_t readMutex;
     pthread_mutex_t writeMutex;
+    pthread_mutex_t premiumMutex;
     sem_t writeSemaphore;
     sem_t readSemaphore;
+    sem_t nonPremiumWriteSemaphore;
     int readerCount;
     int writerCount;
+    int premiumWriterCount;
 } Room;
 
 

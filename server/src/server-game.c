@@ -4,6 +4,7 @@
 #include <time.h>   // Usar time()
 #include <stdbool.h> // Usar bool
 #include <pthread.h>
+#include <unistd.h>
 #include "../../utils/logs/logs.h"
 #include "../../utils/parson/parson.h"
 #include "server-game.h"
@@ -269,7 +270,7 @@ int verifyLine(char * logFileName, char * solutionSent, Game *game, int insertLi
         // se o valor inserido for diferente do valor da solução
         } 
 
-        printf("Posição %d: esperado %d, recebido %d\n", j + 1, game->solution[game->currentLine - 1][j], insertLine[j]);
+        //printf("Posição %d: esperado %d, recebido %d\n", j + 1, game->solution[game->currentLine - 1][j], insertLine[j]);
     }
 
     // limpa logMessage
@@ -360,10 +361,13 @@ Room *createRoom(ServerConfig *config, int playerID, bool isSinglePlayer) {
     // Initialize reader-writer locks
     sem_init(&room->writeSemaphore, 0, 1); // Inicializar semáforo para escrita e começa a aceitar 1 escritor
     sem_init(&room->readSemaphore, 0, 1); // Inicializar semáforo para leitura e começa a aceitar 1 leitor
+    sem_init(&room->nonPremiumWriteSemaphore, 0, 1); //
     pthread_mutex_init(&room->readMutex, NULL); // Inicializar mutex para leitura
     pthread_mutex_init(&room->writeMutex, NULL); // Inicializar mutex para escrita
+    pthread_mutex_init(&room->premiumMutex, NULL); // Inicializar mutex para jogadores premium
     room->readerCount = 0;
     room->writerCount = 0;
+    room->premiumWriterCount = 0;
 
     // initialize mutexes
     pthread_mutex_init(&room->mutex, NULL);
@@ -422,12 +426,15 @@ void deleteRoom(ServerConfig *config, int roomID) {
             // Destruir mutexes e semáforos
             pthread_mutex_destroy(&config->rooms[i]->mutex);
             pthread_mutex_destroy(&config->rooms[i]->timerMutex);
+            pthread_mutex_destroy(&config->rooms[i]->readMutex);
+            pthread_mutex_destroy(&config->rooms[i]->writeMutex);
+            pthread_mutex_destroy(&config->rooms[i]->premiumMutex);
             sem_destroy(&config->rooms[i]->beginSemaphore);
             sem_destroy(&config->rooms[i]->premiumSemaphore);
             sem_destroy(&config->rooms[i]->nonPremiumSemaphore);
             sem_destroy(&config->rooms[i]->writeSemaphore);
             sem_destroy(&config->rooms[i]->readSemaphore);
-
+            sem_destroy(&config->rooms[i]->nonPremiumWriteSemaphore);
 
             free(config->rooms[i]);
 
@@ -705,8 +712,35 @@ void releaseReadLock(Room *room) {
     pthread_mutex_unlock(&room->readMutex);
 }
 
-void acquireWriteLock(Room *room) {
-    
+void acquireWriteLock(Room *room, bool isPremium, Client *client) {
+
+    // add a random delay to appear more natural
+    int delay = rand() % 3;
+    sleep(delay);
+
+    if (isPremium) {
+        
+        pthread_mutex_lock(&room->premiumMutex);
+
+        // increment premium writer count
+        room->premiumWriterCount++;
+
+        printf("Premium writer count: %d\n", room->premiumWriterCount);
+
+        // if first premium writer lock the non premium write semaphore
+        if (room->premiumWriterCount == 1) {
+            printf("PREMIUM WRTIER %d IS LOCKING NON PREMIUM WRITE SEMAPHORE\n", client->clientID);
+            sem_wait(&room->nonPremiumWriteSemaphore);
+        }
+
+        pthread_mutex_unlock(&room->premiumMutex);
+
+    } else if (!isPremium) {
+        printf("NON PREMIUM WRITER %d IS WAITING\n", client->clientID);
+        sem_wait(&room->nonPremiumWriteSemaphore);
+        printf("NON PREMIUM WRITER %d IS WRITING!!!!\n", client->clientID);
+    }
+
     // lock mutex for writer
     pthread_mutex_lock(&room->writeMutex);
 
@@ -725,7 +759,9 @@ void acquireWriteLock(Room *room) {
     sem_wait(&room->writeSemaphore);
 }
 
-void releaseWriteLock(Room *room) {
+void releaseWriteLock(Room *room, bool isPremium, Client *client) {
+
+    sem_post(&room->writeSemaphore);
 
     // lock the writer mutex
     pthread_mutex_lock(&room->writeMutex);
@@ -740,4 +776,23 @@ void releaseWriteLock(Room *room) {
 
     // unlock the writer mutex
     pthread_mutex_unlock(&room->writeMutex);
+
+    if (isPremium) {
+        pthread_mutex_lock(&room->premiumMutex);
+
+        // decrement premium writer count
+        room->premiumWriterCount--;
+
+        // if last premium writer unlock the non premium write semaphore
+        if (room->premiumWriterCount == 0) {
+            printf("PREMIUM WRITER %d IS UNLOCKING NON PREMIUM WRITE SEMAPHORE\n", client->clientID);
+            sem_post(&room->nonPremiumWriteSemaphore);
+        }
+
+        pthread_mutex_unlock(&room->premiumMutex);
+
+    } else if (!isPremium) {
+        printf("NON PREMIUM WRITER %d IS DONE WRITING\n", client->clientID);
+        sem_post(&room->nonPremiumWriteSemaphore);
+    }
 }

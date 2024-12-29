@@ -23,7 +23,7 @@ void joinRoom(ServerConfig *config, Room *room, Client *client);
 void initializeSocket(struct sockaddr_in *serv_addr, int *sockfd, ServerConfig *config);
 
 // Envia o tabuleiro atual ao cliente em formato JSON.
-void sendBoard(ServerConfig *config, Game *game, int *socket);
+void sendBoard(ServerConfig *config, Room* room, Client *client);
 
 // Recebe as linhas enviadas pelo cliente e processa-as.
 void receiveLines(ServerConfig *config, Room *room, Client *client, int *currentLine);

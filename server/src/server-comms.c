@@ -1,10 +1,10 @@
 #include <pthread.h>
 #include <sys/select.h>
+#include <time.h>
 #include "../../utils/parson/parson.h"
 #include "../../utils/network/network.h"
 #include "../../utils/logs/logs.h"
 #include "server-comms.h"
-#include <time.h>
 
 
 static int nextClientID = 1;
@@ -580,12 +580,12 @@ void initializeSocket(struct sockaddr_in *serv_addr, int *sockfd, ServerConfig *
  * - Liberta a memória alocada para a string serializada e o objeto JSON.
  */
 
-void sendBoard(ServerConfig *config, Game *game, int *socket) {
+void sendBoard(ServerConfig *config, Room* room, Client *client) {
 
     // Enviar board ao cliente em formato JSON
     JSON_Value *root_value = json_value_init_object();
     JSON_Object *root_object = json_value_get_object(root_value);
-    json_object_set_number(root_object, "id", game->id);
+    json_object_set_number(root_object, "id", room->game->id);
     JSON_Value *board_value = json_value_init_array();
     JSON_Array *board_array = json_value_get_array(board_value);
 
@@ -593,7 +593,7 @@ void sendBoard(ServerConfig *config, Game *game, int *socket) {
         JSON_Value *linha_value = json_value_init_array();
         JSON_Array *linha_array = json_value_get_array(linha_value);
         for (int j = 0; j < 9; j++) {
-            json_array_append_number(linha_array, game->board[i][j]);
+            json_array_append_number(linha_array, room->game->board[i][j]);
         }
         json_array_append_value(board_array, linha_value);
     }
@@ -603,20 +603,21 @@ void sendBoard(ServerConfig *config, Game *game, int *socket) {
 
     //adicionar a linha atual como um inteiro à string
     char buffer[10];
-    sprintf(buffer, "\n%d", game->currentLine);
+    sprintf(buffer, "\n%d", room->game->currentLine);
     char *temp = malloc(strlen(serialized_string) + strlen(buffer) + 1);
     strcpy(temp, serialized_string);
     strcat(temp, buffer);
 
-    printf("Enviando board e linha atual: %s\n", temp);
+    printf("Enviando tabuleiro ao cliente %d do jogo %d\n", client->clientID, room->game->id);
+    //printf("Enviando board e linha atual: %s\n", temp);
     // Enviar tabuleiro e linha atual ao cliente
-    if (send(*socket, temp, strlen(temp), 0) < 0) {
-        err_dump(config->logPath, game->id, 0, "can't send board and line to client", EVENT_MESSAGE_SERVER_NOT_SENT);
+    if (send(client->socket_fd, temp, strlen(temp), 0) < 0) {
+        err_dump(config->logPath, room->game->id, 0, "can't send board and line to client", EVENT_MESSAGE_SERVER_NOT_SENT);
         return;
     }
 
     // escrever no log
-    writeLogJSON(config->logPath, game->id, 0, EVENT_MESSAGE_SERVER_SENT);
+    writeLogJSON(config->logPath, room->game->id, 0, EVENT_MESSAGE_SERVER_SENT);
 
     free(temp);
     json_free_serialized_string(serialized_string);
@@ -652,8 +653,7 @@ void receiveLines(ServerConfig *config, Room *room, Client *client, int *current
     int correctLine = 0;
 
     // critical section reader
-    printf("Enviando tabuleiro ao cliente %d do jogo %d\n", client->clientID, room->game->id);
-    sendBoard(config, room->game, &client->socket_fd);
+    sendBoard(config, room, client);
 
     // post condition reader
     releaseReadLock(room);
@@ -673,6 +673,12 @@ void receiveLines(ServerConfig *config, Room *room, Client *client, int *current
             err_dump(config->logPath, room->game->id, client->clientID, "can't receive line from client", EVENT_MESSAGE_SERVER_NOT_RECEIVED);
             return;
         } else {
+
+            printf("Cliente %d %s quer resolver a linha %d\n", client->clientID, client->isPremium ? "(PREMIUM)" : "", room->game->currentLine);
+
+            // pre condition writer
+            acquireWriteLock(room, client->isPremium, client);
+
             printf("-----------------------------------------------------\n");
 
             // **Adicionei print para verificar a linha recebida**
@@ -683,36 +689,34 @@ void receiveLines(ServerConfig *config, Room *room, Client *client, int *current
             for (int j = 0; j < 9; j++) {
                 insertLine[j] = line[j] - '0';
             }
-            
-            // pre condition writer
-            acquireWriteLock(room);
 
+            printf("Verificando linha %d do cliente %d\n", room->game->currentLine, client->clientID);
             // critical section writer
             // Verificar a linha recebida com a função verifyLine
             correctLine = verifyLine(config->logPath, line, room->game, insertLine, client->clientID);
 
             if (correctLine == 1) {
                 // linha correta
-                printf("Linha %d correta\n", room->game->currentLine);
+                printf("Linha %d correta enviada pelo cliente %d\n", room->game->currentLine, client->clientID);
                 (room->game->currentLine)++;
             } else {
                 // linha incorreta
-                printf("Linha %d incorreta\n", room->game->currentLine);
+                printf("Linha %d incorreta enviada pelo cliente %d\n", room->game->currentLine, client->clientID);
             }
 
-            sem_post(&room->writeSemaphore);
+            
 
             // post condition writer
-            releaseWriteLock(room);
+            releaseWriteLock(room, client->isPremium, client);
 
             // add a random delay to appear more natural
-            int delay = rand() % 5;
+            int delay = rand() % 3;
             sleep(delay);
             
             // pre condition reader
             acquireReadLock(room);
 
-            sendBoard(config, room->game, &client->socket_fd);
+            sendBoard(config, room, client);
             printf("-----------------------------------------------------\n");
             // post condition reader
             releaseReadLock(room);
@@ -849,7 +853,7 @@ void handleTimer(ServerConfig *config, Room *room, Client *client) {
 
                 // Enviar atualização do timer para todos os jogadores
                 for (int i = 0; i < room->numClients; i++) {
-                    sleep(5);
+                    //sleep(5);
                     
                     //printf("Sending timer update to Client %d with the socket: %d\n", room->Clients[i], room->clientSockets[i]);
                     sendTimerUpdate(config, room, room->clients[i]);
