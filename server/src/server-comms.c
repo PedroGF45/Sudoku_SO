@@ -705,9 +705,10 @@ void receiveLines(ServerConfig *config, Room *room, Client *client, int *current
             // post condition writer
             releaseWriteLock(room);
 
-            // wait for client to receive the line
-            sleep(1);
-
+            // add a random delay to appear more natural
+            int delay = rand() % 5;
+            sleep(delay);
+            
             // pre condition reader
             acquireReadLock(room);
 
