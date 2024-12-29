@@ -725,7 +725,7 @@ void acquireWriteLock(Room *room, bool isPremium, Client *client) {
         // increment premium writer count
         room->premiumWriterCount++;
 
-        printf("Premium writer count: %d\n", room->premiumWriterCount);
+        printf("Premium writer count: %d from client %d\n", room->premiumWriterCount, client->clientID);
 
         // if first premium writer lock the non premium write semaphore
         if (room->premiumWriterCount == 1) {
@@ -737,6 +737,14 @@ void acquireWriteLock(Room *room, bool isPremium, Client *client) {
 
     } else if (!isPremium) {
         printf("NON PREMIUM WRITER %d IS WAITING\n", client->clientID);
+
+        
+        if (room->isNonPremiumBlocked) {
+            for (int i = 0; i < 5; i++) {
+                sleep(1);
+                printf("NON PREMIUM WRITER %d IS BLOCKED for %d second\n", client->clientID, i + 1);
+            }
+        }
         sem_wait(&room->nonPremiumWriteSemaphore);
         printf("NON PREMIUM WRITER %d IS WRITING!!!!\n", client->clientID);
     }
@@ -746,9 +754,11 @@ void acquireWriteLock(Room *room, bool isPremium, Client *client) {
 
     // increment writer count
     room->writerCount++;
+    printf("WRITER COUNT: %d from client %d\n", room->writerCount, client->clientID);
 
     // if first writer lock the read semaphore to block readers
     if (room->writerCount == 1) {
+        printf("WRITER %d IS LOCKING READ SEMAPHORE\n", client->clientID);
         sem_wait(&room->readSemaphore);
     }
 
@@ -756,6 +766,7 @@ void acquireWriteLock(Room *room, bool isPremium, Client *client) {
     pthread_mutex_unlock(&room->writeMutex);
 
     // lock the write semaphore
+    printf("WRITER %d IS WAITING FOR WRITE SEMAPHORE\n", client->clientID);
     sem_wait(&room->writeSemaphore);
 }
 

@@ -73,6 +73,7 @@ typedef struct {
     int readerCount;
     int writerCount;
     int premiumWriterCount;
+    bool isNonPremiumBlocked;
 } Room;
 
 

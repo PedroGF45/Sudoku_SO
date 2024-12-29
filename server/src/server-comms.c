@@ -679,6 +679,11 @@ void receiveLines(ServerConfig *config, Room *room, Client *client, int *current
             // pre condition writer
             acquireWriteLock(room, client->isPremium, client);
 
+            if (room->isNonPremiumBlocked) {
+                room->isNonPremiumBlocked = false;
+                printf("PREMIUM CLIENTS UNBLOCKED\n");
+            }
+
             printf("-----------------------------------------------------\n");
 
             // **Adicionei print para verificar a linha recebida**
@@ -699,12 +704,17 @@ void receiveLines(ServerConfig *config, Room *room, Client *client, int *current
                 // linha correta
                 printf("Linha %d correta enviada pelo cliente %d\n", room->game->currentLine, client->clientID);
                 (room->game->currentLine)++;
+
+                // if line is correct and the client is premium, block non premium clients
+                if (client->isPremium) {
+                    printf("PREMIUM HAS CORRECT ANSWER - BLOCKING NON PREMIUM CLIENTS FOR 5 SECONDS\n");
+                    room->isNonPremiumBlocked = true;
+                }
+
             } else {
                 // linha incorreta
                 printf("Linha %d incorreta enviada pelo cliente %d\n", room->game->currentLine, client->clientID);
             }
-
-            
 
             // post condition writer
             releaseWriteLock(room, client->isPremium, client);
