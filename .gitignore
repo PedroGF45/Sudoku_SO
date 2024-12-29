@@ -3,3 +3,6 @@
 
 # executables
 *.exe
+
+# json files
+*logs.json
