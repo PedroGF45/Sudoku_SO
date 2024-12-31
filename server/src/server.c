@@ -3,11 +3,12 @@
 #include <string.h>
 #include <pthread.h>
 #include <signal.h>
-#include "../../utils/logs/logs.h"
+#include "../../utils/logs/logs-common.h"
 #include "../../utils/network/network.h"
 #include "../config/config.h"
 #include "server-comms.h"
 #include "server-game.h"
+#include "../logs/logs.h"
 
 
 /**
@@ -50,12 +51,17 @@ void handleSigInt(int sig) {
 }
 
 int main(int argc, char *argv[]) {
+    
     if (argc < 2) {
         printf("Erro: Faltam argumentos de configuracao!\n");
         return 1;
     }
 
-    signal(SIGINT, handleSigInt);
+    
+    //signal(SIGINT, handleSigInt);
+
+    printf("Server starting...\n");
+
 
     // Carrega a configuracao do servidor
     svConfig = getServerConfig(argv[1]);
@@ -73,14 +79,14 @@ int main(int argc, char *argv[]) {
         // Aceitar ligação
         if ((newSockfd = accept(sockfd, (struct sockaddr *) 0, 0)) < 0) {
             // erro ao aceitar ligacao
-            err_dump(svConfig->logPath, 0, 0, "accept error", EVENT_CONNECTION_SERVER_ERROR);
+            err_dump(svConfig, 0, 0, "accept error", EVENT_CONNECTION_SERVER_ERROR);
         } else {
 
             // elements to pass to thread: config, playerID, newSockfd
             Client *client = (Client *) malloc(sizeof(Client));
             if (client == NULL) {
                 // erro ao alocar memoria
-                err_dump(svConfig->logPath, 0, 0, "can't allocate memory", MEMORY_ERROR);
+                err_dump(svConfig, 0, 0, "can't allocate memory", MEMORY_ERROR);
                 close(newSockfd);
                 continue;
             }
@@ -91,7 +97,7 @@ int main(int argc, char *argv[]) {
             client_data *data = (client_data *) malloc(sizeof(client_data));
             if (data == NULL) {
                 // erro ao alocar memoria
-                err_dump(svConfig->logPath, 0, 0, "can't allocate memory", MEMORY_ERROR);
+                err_dump(svConfig, 0, 0, "can't allocate memory", MEMORY_ERROR);
                 removeClient(svConfig, client);
                 free(client);
                 close(newSockfd);
@@ -105,7 +111,7 @@ int main(int argc, char *argv[]) {
             pthread_t thread;
             if (pthread_create(&thread, NULL, handleClient, (void *)data) != 0) {
                 // erro ao criar thread
-                err_dump(svConfig->logPath, 0, 0, "can't create thread", EVENT_SERVER_THREAD_ERROR);
+                err_dump(svConfig, 0, 0, "can't create client thread", EVENT_SERVER_THREAD_ERROR);
                 removeClient(svConfig, client);
                 free(client);
                 free(data);
@@ -115,6 +121,14 @@ int main(int argc, char *argv[]) {
             
             // detach the thread
             pthread_detach(thread);
+        }
+
+        // Create a thread to handle consume for logs
+        pthread_t logThread;
+        if (pthread_create(&logThread, NULL, consumeLog, (void *)svConfig) != 0) {
+            // erro ao criar thread
+            err_dump(svConfig, 0, 0, "can't create log consumer thread", EVENT_SERVER_THREAD_ERROR);
+            continue;
         }
     }
 

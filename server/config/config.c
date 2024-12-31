@@ -3,7 +3,8 @@
 #include <string.h>
 #include <errno.h>
 #include "config.h"
-#include "../../utils/logs/logs.h"
+#include "../logs/logs.h"
+#include "../../utils/logs/logs-common.h"
 
 /**
  * Lê as configurações do servidor a partir de um ficheiro de configuração e
@@ -113,8 +114,13 @@ ServerConfig *getServerConfig(char *configPath) {
     config->numRooms = 0;
     config->numClientsOnline = 0;
 
-    // Regista o evento de início do servidor no ficheiro de log
-    writeLogJSON(config->logPath, 0, 0, EVENT_SERVER_START);
+    // producer-consumer for writing logs
+    sem_init(&config->mutexLogSemaphore, 0, 1); // mutex to grant exclusive access
+    sem_init(&config->itemsLogSemaphore, 0, 0); // semaphore to signal when there are items to consume
+    sem_init(&config->spacesSemaphore, 0, 10); // semaphore to signal when there are spaces to produce
+
+    // produce log message
+    writeLogJSON(config->logPath, 0, 0, "Server started");
 
     // Imprime as configurações do servidor na consola
     printf("PORTA DO SERVIDOR: %d\n", config->serverPort);

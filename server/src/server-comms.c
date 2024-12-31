@@ -3,8 +3,9 @@
 #include <time.h>
 #include "../../utils/parson/parson.h"
 #include "../../utils/network/network.h"
-#include "../../utils/logs/logs.h"
+#include "../../utils/logs/logs-common.h"
 #include "server-comms.h"
+#include "../logs/logs.h"
 
 
 static int nextClientID = 1;
@@ -70,18 +71,6 @@ void *handleClient(void *arg) {
     ServerConfig *serverConfig = data->config;
     int newSockfd = client->socket_fd;
 
-    // Receber o estado de premium do cliente
-    int isPremium;
-    if (recv(newSockfd, &isPremium, sizeof(isPremium), 0) > 0) {
-        client->isPremium = isPremium == 1;  // Converte para booleano
-        printf("Cliente é %sPremium.\n", client->isPremium ? "" : "não ");
-    } else {
-        printf("Erro ao receber o estado de Premium do cliente.\n");
-        client->isPremium = false;  // Valor padrão
-    }
-    // bool isPremium = client->isPremium;
-
-
     // receber buffer do cliente
     char buffer[BUFFER_SIZE];
     memset(buffer, 0, sizeof(buffer));
@@ -89,10 +78,12 @@ void *handleClient(void *arg) {
     Room *room;
     int currentLine = 1;
 
+    printf("A AGUARDAR POR PEDIDOS DO CLIENTE\n");
+
     // Receber pedido de ID do jogador
     if (recv(newSockfd, buffer, sizeof(buffer), 0) < 0) {
         // erro ao receber ID do jogador
-        err_dump(serverConfig->logPath, 0, 0, "can't receive question for client ID", EVENT_MESSAGE_SERVER_NOT_RECEIVED);
+        err_dump(serverConfig, 0, 0, "can't receive question for client ID", EVENT_MESSAGE_SERVER_NOT_RECEIVED);
         return NULL;
     } else if (strcmp(buffer, "clientID") == 0) {
         printf("Conexao estabelecida com um novo cliente\n");
@@ -103,11 +94,11 @@ void *handleClient(void *arg) {
 
         if (send(newSockfd, buffer, strlen(buffer), 0) < 0) {
             // erro ao enviar ID do jogador
-            err_dump(serverConfig->logPath, 0, 0, "can't send client ID", EVENT_MESSAGE_SERVER_NOT_SENT);
+            err_dump(serverConfig, 0, 0, "can't send client ID", EVENT_MESSAGE_SERVER_NOT_SENT);
         }
 
         printf("ID atribuido ao novo cliente: %d\n", client->clientID);
-        writeLogJSON(serverConfig->logPath, 0, client->clientID, EVENT_CONNECTION_SERVER_ESTABLISHED);
+        produceLog(serverConfig, "Conexao estabelecida com um novo cliente", EVENT_CONNECTION_SERVER_ESTABLISHED, 0, client->clientID);
     }
 
     bool continueLoop = true;
@@ -120,7 +111,7 @@ void *handleClient(void *arg) {
         // Receber menu status
         if (recv(newSockfd, buffer, sizeof(buffer), 0) < 0) {
             // erro ao receber modo de jogo
-            err_dump(serverConfig->logPath, 0, client->clientID, "can't receive menu status", EVENT_MESSAGE_SERVER_NOT_RECEIVED);
+            err_dump(serverConfig, 0, client->clientID, "can't receive menu status", EVENT_MESSAGE_SERVER_NOT_RECEIVED);
         } else {
 
             printf("BUFFER RECEBIDO: %s\n", buffer);
@@ -160,16 +151,16 @@ void *handleClient(void *arg) {
                 while (!leave) {
                     // Enviar jogos existentes ao cliente
                     if (send(newSockfd, games, strlen(games), 0) < 0) {
-                        err_dump(serverConfig->logPath, 0, client->clientID, "can't send existing games to client", EVENT_MESSAGE_SERVER_NOT_SENT);
+                        err_dump(serverConfig, 0, client->clientID, "can't send existing games to client", EVENT_MESSAGE_SERVER_NOT_SENT);
                     } else {
-                        writeLogJSON(serverConfig->logPath, 0, client->clientID, EVENT_SERVER_GAMES_SENT);
+                        produceLog(serverConfig, "Jogos enviados para o cliente", EVENT_SERVER_GAMES_SENT, 0, client->clientID);
                     }
 
                     memset(buffer, 0, sizeof(buffer));
 
                     // receber ID do jogo
                     if (recv(newSockfd, buffer, sizeof(buffer), 0) < 0) {
-                        err_dump(serverConfig->logPath, 0, client->clientID, "can't receive game ID from client", EVENT_MESSAGE_SERVER_NOT_RECEIVED);
+                        err_dump(serverConfig, 0, client->clientID, "can't receive game ID from client", EVENT_MESSAGE_SERVER_NOT_RECEIVED);
                     } else if (atoi(buffer) == 0) {
                         printf("Cliente %d voltou atras no menu\n", client->clientID);
                         leave = true;
@@ -209,9 +200,9 @@ void *handleClient(void *arg) {
                     // Enviar salas existentes ao cliente
                     if (send(newSockfd, rooms, strlen(rooms), 0) < 0) {
                         free(rooms);
-                        err_dump(serverConfig->logPath, 0, client->clientID, "can't send existing games to client", EVENT_MESSAGE_SERVER_NOT_SENT);
+                        err_dump(serverConfig, 0, client->clientID, "can't send existing games to client", EVENT_MESSAGE_SERVER_NOT_SENT);
                     } else {
-                        writeLogJSON(serverConfig->logPath, 0, client->clientID, EVENT_SERVER_GAMES_SENT);
+                        produceLog(serverConfig, "Jogos enviados para o cliente", EVENT_SERVER_GAMES_SENT, 0, client->clientID);
                     }
                     printf("RECEBER IDS DAS ROOMS\n");
                     memset(buffer, 0, sizeof(buffer));
@@ -219,7 +210,7 @@ void *handleClient(void *arg) {
                     // receber ID da sala
                     if (recv(newSockfd, buffer, sizeof(buffer), 0) < 0) {
                         free(rooms);
-                        err_dump(serverConfig->logPath, 0, client->clientID, "can't receive room ID from client", EVENT_MESSAGE_SERVER_NOT_RECEIVED);
+                        err_dump(serverConfig, 0, client->clientID, "can't receive room ID from client", EVENT_MESSAGE_SERVER_NOT_RECEIVED);
                     } else if (atoi(buffer) == 0) {
                         printf("Cliente %d voltou atras no menu\n", client->clientID);
                         leave = true;
@@ -237,7 +228,7 @@ void *handleClient(void *arg) {
                         // add the Client to the queue
                         pthread_mutex_lock(&room->mutex);
                
-                        if (isPremium) {
+                        if (client->isPremium) {
                             room->premiumQueue[room->premiumQueueSize++] = client->clientID;
                             // post semaphore
                             sem_post(&room->premiumSemaphore);
@@ -281,9 +272,9 @@ void *handleClient(void *arg) {
                                     
                                     // send message to client
                                     if (send(client->socket_fd, "Room is full", strlen("Room is full"), 0) < 0) {
-                                        err_dump(serverConfig->logPath, 0, client->clientID, "can't send message to client", EVENT_MESSAGE_SERVER_NOT_SENT);
+                                        err_dump(serverConfig, 0, client->clientID, "can't send message to client", EVENT_MESSAGE_SERVER_NOT_SENT);
                                     } else {
-                                        writeLogJSON(serverConfig->logPath, 0, client->clientID, "Room is full");
+                                        produceLog(serverConfig, "Room is full", EVENT_ROOM_NOT_JOIN, 0, client->clientID);
                                     }
 
                                     client->startAgain = true;
@@ -322,9 +313,9 @@ void *handleClient(void *arg) {
 
                                     // send message to client
                                     if (send(client->socket_fd, "Room is full", strlen("Room is full"), 0) < 0) {
-                                        err_dump(serverConfig->logPath, 0, client->clientID, "can't send message to client", EVENT_MESSAGE_SERVER_NOT_SENT);
+                                        err_dump(serverConfig, 0, client->clientID, "can't send message to client", EVENT_MESSAGE_SERVER_NOT_SENT);
                                     } else {
-                                        writeLogJSON(serverConfig->logPath, 0, client->clientID, "Room is full");
+                                        produceLog(serverConfig, "Room is full", EVENT_ROOM_NOT_JOIN, 0, client->clientID);
                                     }
 
                                     client->startAgain = true;
@@ -387,7 +378,8 @@ void *handleClient(void *arg) {
     // fechar a ligação com o cliente
     close(newSockfd);
     printf("Conexao terminada com o cliente %d\n", client->clientID);
-    writeLogJSON(serverConfig->logPath, 0, client->clientID, EVENT_SERVER_CONNECTION_FINISH);
+    produceLog(serverConfig, "Conexao terminada com o cliente", EVENT_SERVER_CONNECTION_FINISH, 0, client->clientID);
+
     // libertar a memória alocada
     removeClient(serverConfig, client);
     free(data);
@@ -428,7 +420,7 @@ Room *createRoomAndGame(ServerConfig *config, Client *client, bool isSinglePlaye
         // send message to client
         send(client->socket_fd, "No rooms available", strlen("No rooms available"), 0);
         // write log
-        writeLogJSON(config->logPath, 0, client->clientID, "No rooms available");
+        produceLog(config, "No rooms available", EVENT_ROOM_NOT_CREATED, 0, client->clientID);
         return NULL;
     }
 
@@ -484,13 +476,13 @@ void joinRoom(ServerConfig *config, Room *room, Client *client) {
 
     // check if room is full
     if (room->numClients == room->maxClients) {
-        err_dump(config->logPath, 0, client->clientID, "Room is full", EVENT_ROOM_NOT_JOIN);
+        err_dump(config, 0, client->clientID, "Room is full", EVENT_ROOM_NOT_JOIN);
         return;
     }
 
     // check if room is running
     if (room->isGameRunning) {
-        err_dump(config->logPath, 0, client->clientID, "Room is running", EVENT_ROOM_NOT_JOIN);
+        err_dump(config, 0, client->clientID, "Room is running", EVENT_ROOM_NOT_JOIN);
         return;
     }
 
@@ -514,13 +506,11 @@ void joinRoom(ServerConfig *config, Room *room, Client *client) {
 
     // Log de entrada do jogador na sala
     char logMessage[256];
-    snprintf(logMessage, sizeof(logMessage), "%s: Client %d joined room %d", EVENT_ROOM_JOIN, client->clientID, room->id);
-    writeLogJSON(config->logPath, room->game->id, client->clientID, logMessage);
+    snprintf(logMessage, sizeof(logMessage), "Client %d joined room %d", client->clientID, room->id);
+    produceLog(config, logMessage, EVENT_ROOM_JOIN, room->game->id, client->clientID);
 
     printf("Client %d (Premium: %s) joined room %d with socket %d\n",
            client->clientID, client->isPremium ? "Yes" : "No", room->id, client->socket_fd);
-
-    
 }
 
 /**
@@ -544,7 +534,7 @@ void initializeSocket(struct sockaddr_in *serv_addr, int *sockfd, ServerConfig *
 
     // Criar socket
     if ((*sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-        err_dump(config->logPath, 0, 0, "can't open stream socket", EVENT_CONNECTION_SERVER_ERROR);
+        err_dump(config, 0, 0, "can't open stream socket", EVENT_CONNECTION_SERVER_ERROR);
     }
 
     // Limpar a estrutura do socket
@@ -557,7 +547,7 @@ void initializeSocket(struct sockaddr_in *serv_addr, int *sockfd, ServerConfig *
 
     // Associar o socket a um endereco qualquer
     if (bind(*sockfd, (struct sockaddr *)serv_addr, sizeof(*serv_addr)) < 0) {
-        err_dump(config->logPath, 0, 0, "can't bind local address", EVENT_CONNECTION_SERVER_ERROR);
+        err_dump(config, 0, 0, "can't bind local address", EVENT_CONNECTION_SERVER_ERROR);
     }
 
     // Ouvir o socket
@@ -613,12 +603,12 @@ void sendBoard(ServerConfig *config, Room* room, Client *client) {
     //printf("Enviando board e linha atual: %s\n", temp);
     // Enviar tabuleiro e linha atual ao cliente
     if (send(client->socket_fd, temp, strlen(temp), 0) < 0) {
-        err_dump(config->logPath, room->game->id, 0, "can't send board and line to client", EVENT_MESSAGE_SERVER_NOT_SENT);
+        err_dump(config, room->game->id, 0, "can't send board and line to client", EVENT_MESSAGE_SERVER_NOT_SENT);
         return;
     }
 
     // escrever no log
-    writeLogJSON(config->logPath, room->game->id, 0, EVENT_MESSAGE_SERVER_SENT);
+    produceLog(config, "Tabuleiro enviado ao cliente", EVENT_MESSAGE_SERVER_SENT, room->game->id, client->clientID);
 
     free(temp);
     json_free_serialized_string(serialized_string);
@@ -671,14 +661,14 @@ void receiveLines(ServerConfig *config, Room *room, Client *client, int *current
 
         // Receber linha do cliente
         if (recv(client->socket_fd, line, sizeof(line), 0) < 0) {
-            err_dump(config->logPath, room->game->id, client->clientID, "can't receive line from client", EVENT_MESSAGE_SERVER_NOT_RECEIVED);
+            err_dump(config, room->game->id, client->clientID, "can't receive line from client", EVENT_MESSAGE_SERVER_NOT_RECEIVED);
             return;
         } else {
 
             printf("Cliente %d %s quer resolver a linha %d\n", client->clientID, client->isPremium ? "(PREMIUM)" : "", room->game->currentLine);
 
             // pre condition writer
-            acquireWriteLock(room, client->isPremium, client);
+            acquireWriteLock(room, client);
 
             if (room->isNonPremiumBlocked) {
                 room->isNonPremiumBlocked = false;
@@ -699,7 +689,7 @@ void receiveLines(ServerConfig *config, Room *room, Client *client, int *current
             printf("Verificando linha %d do cliente %d\n", room->game->currentLine, client->clientID);
             // critical section writer
             // Verificar a linha recebida com a função verifyLine
-            correctLine = verifyLine(config->logPath, line, room->game, insertLine, client->clientID);
+            correctLine = verifyLine(config, room->game, line, insertLine, client->clientID);
 
             if (correctLine == 1) {
                 // linha correta
@@ -718,7 +708,7 @@ void receiveLines(ServerConfig *config, Room *room, Client *client, int *current
             }
 
             // post condition writer
-            releaseWriteLock(room, client->isPremium, client);
+            releaseWriteLock(room, client);
 
             // add a random delay to appear more natural
             int delay = rand() % 3;
@@ -782,7 +772,7 @@ void finishGame(ServerConfig *config, Room *room, int *socket) {
             memset(accuracy, 0, sizeof(accuracy));
             if (recv(room->clients[i]->socket_fd, accuracy, sizeof(accuracy), 0) < 0) {
                 // erro ao receber accuracy
-                err_dump(config->logPath, room->game->id, room->clients[i]->clientID, "can't receive accuracy from client", EVENT_MESSAGE_SERVER_NOT_RECEIVED);
+                err_dump(config, room->game->id, room->clients[i]->clientID, "can't receive accuracy from client", EVENT_MESSAGE_SERVER_NOT_RECEIVED);
             }
 
             printf("A accuracy recebida foi de: %s\n", accuracy);
@@ -791,20 +781,20 @@ void finishGame(ServerConfig *config, Room *room, int *socket) {
             float accuracyFloat = atof(accuracy);
 
             char timeMessage[256];
-            snprintf(timeMessage, sizeof(timeMessage), "%s: A accuracy recebida foi de: %.2f %%\n",EVENT_MESSAGE_SERVER_RECEIVED, accuracyFloat);
-            writeLogJSON(config->logPath, room->game->id, room->clients[i]->clientID, timeMessage);
+            snprintf(timeMessage, sizeof(timeMessage), "A accuracy recebida foi de: %.2f %%\n", accuracyFloat);
+            produceLog(config, timeMessage, EVENT_MESSAGE_SERVER_RECEIVED, room->game->id, room->clients[i]->clientID);
 
             // Envia o tempo decorrido ao cliente
             
             snprintf(timeMessage, sizeof(timeMessage), "O jogo terminou! Tempo total: %.2f segundos\n", room->elapsedTime);
             if (send(room->clients[i]->socket_fd, timeMessage, strlen(timeMessage), 0) < 0) {
                 // erro ao enviar mensagem
-                err_dump(config->logPath, room->game->id, room->clients[i]->clientID, "can't send time message to client", EVENT_MESSAGE_SERVER_NOT_SENT);
+                err_dump(config, room->game->id, room->clients[i]->clientID, "can't send time message to client", EVENT_MESSAGE_SERVER_NOT_SENT);
             }
 
             // escrever no log timeMessage with EVENT_MESSAGE_SERVER_SENT
-            snprintf(timeMessage, sizeof(timeMessage), "%s: Time elapsed: %.2f seconds", EVENT_MESSAGE_SERVER_SENT, room->elapsedTime);
-            writeLogJSON(config->logPath, room->game->id, room->clients[i]->clientID, timeMessage);
+            snprintf(timeMessage, sizeof(timeMessage), "Time elapsed: %.2f seconds", room->elapsedTime);
+            produceLog(config, timeMessage, EVENT_MESSAGE_SERVER_SENT, room->game->id, room->clients[i]->clientID);
 
             // save on games.json the record
             updateGameStatistics(config, room->game->id, room->elapsedTime, accuracyFloat);
@@ -911,13 +901,14 @@ void sendTimerUpdate(ServerConfig *config, Room *room, Client *client) {
     // Enviar a mensagem de atualização
     if (send(client->socket_fd, buffer, strlen(buffer), 0) < 0) {
         // erro ao enviar mensagem
-        err_dump(config->logPath, room->game->id, client->clientID, "can't send update to client", EVENT_MESSAGE_SERVER_NOT_SENT);
+        err_dump(config, room->game->id, client->clientID, "can't send update to client", EVENT_MESSAGE_SERVER_NOT_SENT);
     } else {
         // Escrever no log a atualização enviada, considerando o status premium
         char logMessage[256];
-        snprintf(logMessage, sizeof(logMessage), "%s %d %s: Time left: %d seconds - Room ID: %d - Game ID: %d - Clients joined: %d", 
-                EVENT_MESSAGE_SERVER_SENT, client->clientID, client->isPremium ? "(Premium User)" : "", room->timer, room->id, room->game->id, room->numClients);
-        writeLogJSON(config->logPath, room->game->id, client->clientID, logMessage);
+        snprintf(logMessage, sizeof(logMessage), "%d %s: Time left: %d seconds - Room ID: %d - Game ID: %d - Clients joined: %d", 
+                client->clientID, client->isPremium ? "(Premium User)" : "", room->timer, room->id, room->game->id, room->numClients);
+        
+        produceLog(config, logMessage, EVENT_MESSAGE_SERVER_SENT, room->game->id, client->clientID);
         printf("%s\n", logMessage);
     }
 }

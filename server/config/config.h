@@ -107,6 +107,13 @@ typedef struct {
     int numRooms;
     Room **rooms;
     Client **clients;
+
+    // producer-consumer for writing logs
+    sem_t mutexLogSemaphore; // mutex to grant exclusive access
+    sem_t itemsLogSemaphore; // sempaphore to signal when there are items to consume
+    sem_t spacesSemaphore; // semaphore to signal when there are spaces to produce
+
+    char logBuffer[10][256]; // buffer to store log messages
 } ServerConfig;
 
 typedef struct {

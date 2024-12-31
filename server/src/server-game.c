@@ -5,9 +5,10 @@
 #include <stdbool.h> // Usar bool
 #include <pthread.h>
 #include <unistd.h>
-#include "../../utils/logs/logs.h"
+#include "../../utils/logs/logs-common.h"
 #include "../../utils/parson/parson.h"
 #include "server-game.h"
+#include "../logs/logs.h"
 
 static int nextRoomID = 1;
 
@@ -68,7 +69,7 @@ Game *loadGame(ServerConfig *config, int gameID, int playerID) {
     FILE *file = fopen(config->gamePath, "r");
 
     if (file == NULL) {
-        writeLogJSON(config->logPath, gameID, playerID, EVENT_GAME_NOT_LOAD);
+        produceLog(config, "Erro ao abrir o ficheiro de jogos.", EVENT_GAME_NOT_LOAD, gameID, playerID);
         free(game);  // Free allocated memory before exiting
         return NULL;
     }
@@ -127,8 +128,8 @@ Game *loadGame(ServerConfig *config, int gameID, int playerID) {
                 }
             }
       
-            // game has been loaded
-            writeLogJSON(config->logPath, gameID, playerID, EVENT_GAME_LOAD);
+            // game has been loaded successfully
+            produceLog(config, "Jogo carregado com sucesso", EVENT_GAME_LOAD, gameID, playerID);
 
             // if game has been found leave loop
             json_value_free(root_value);
@@ -141,10 +142,8 @@ Game *loadGame(ServerConfig *config, int gameID, int playerID) {
         
         // cria mensagem mais detalhada
         char logMessage[100];
-        snprintf(logMessage, sizeof(logMessage), "%s: game com ID %d nao encontrado", EVENT_GAME_NOT_LOAD, gameID);
-
-        // escreve log de game nao encontrado
-        writeLogJSON(config->logPath, gameID, playerID, logMessage);
+        snprintf(logMessage, sizeof(logMessage), "game com ID %d nao encontrado", gameID);
+        produceLog(config, logMessage, EVENT_GAME_NOT_FOUND, gameID, playerID);
 
         // mostra no terminal e encerra programa
         fprintf(stderr, "game com ID %d nao encontrado.\n", gameID);
@@ -185,8 +184,7 @@ Game *loadRandomGame(ServerConfig *config, int playerID) {
 
     // check if file is opened
     if (file == NULL) {
-        writeLogJSON(config->logPath, 0, playerID, EVENT_GAME_NOT_LOAD);
-        exit(1);
+        err_dump(config, 0, playerID, "Erro ao abrir o ficheiro de jogos.", EVENT_GAME_NOT_LOAD);
     }
 
     // get the size of the file
@@ -252,12 +250,12 @@ Game *loadRandomGame(ServerConfig *config, int playerID) {
  * - Regista no log se a linha foi validada como correta ou incorreta e devolve 1 ou 0, respetivamente.
  */
 
-int verifyLine(char * logFileName, char * solutionSent, Game *game, int insertLine[9], int playerID) {
+int verifyLine(ServerConfig *config, Game *game, char * solutionSent, int insertLine[9], int playerID) {
 
     char logMessage[100];
     
-    sprintf(logMessage, "O jogador %d no jogo %d %s para a linha %d: %s", playerID, game->id, EVENT_SOLUTION_SENT, game->currentLine, solutionSent);
-    writeLogJSON(logFileName, game->id, playerID, logMessage);
+    sprintf(logMessage, "O jogador %d no jogo %d para a linha %d: %s", playerID, game->id, game->currentLine, solutionSent);
+    produceLog(config, logMessage, EVENT_SOLUTION_SENT, game->id, playerID);
     
     for (int j = 0; j < 9; j++) {
 
@@ -281,14 +279,14 @@ int verifyLine(char * logFileName, char * solutionSent, Game *game, int insertLi
 
         // linha correta
         snprintf(logMessage, sizeof(logMessage), "Linha enviada (%s) validada como CERTA", solutionSent);
-        writeLogJSON(logFileName, game->id, playerID, logMessage);
+        produceLog(config, logMessage, EVENT_SOLUTION_CORRECT, game->id, playerID);
         return 1;
 
     } else {
 
         // linha incorreta
         snprintf(logMessage, sizeof(logMessage), "Linha enviada (%s) validada como ERRADA/INCOMPLETA", solutionSent);
-        writeLogJSON(logFileName, game->id, playerID, logMessage);
+        produceLog(config, logMessage, EVENT_SOLUTION_INCORRECT, game->id, playerID);
         return 0;
     }
 }
@@ -336,7 +334,7 @@ Room *createRoom(ServerConfig *config, int playerID, bool isSinglePlayer) {
 
     Room *room = (Room *)malloc(sizeof(Room));
     if (room == NULL) {
-        err_dump(config->logPath, 0, playerID, "Memory allocation failed", EVENT_ROOM_NOT_LOAD);
+        err_dump(config, 0, playerID, "Memory allocation failed", EVENT_ROOM_NOT_LOAD);
         return NULL;
     }
     memset(room, 0, sizeof(Room));  // Initialize Room struct
@@ -384,7 +382,7 @@ Room *createRoom(ServerConfig *config, int playerID, bool isSinglePlayer) {
     config->rooms[config->numRooms++] = room;
 
     // log room creation
-    writeLogJSON(config->logPath, 0, playerID, EVENT_ROOM_LOAD);
+    produceLog(config, "Sala criada com sucesso", EVENT_ROOM_LOAD, room->id, playerID);
     return room;
 }
 
@@ -392,7 +390,7 @@ Room *getRoom(ServerConfig *config, int roomID, int playerID) {
 
     // check if roomID is valid
     if (roomID < 1) {
-        err_dump(config->logPath, 0, playerID, "Room ID is invalid", EVENT_ROOM_NOT_JOIN);
+        err_dump(config, 0, playerID, "Room ID is invalid", EVENT_ROOM_NOT_JOIN);
         return NULL;
     }
 
@@ -451,7 +449,7 @@ void deleteRoom(ServerConfig *config, int roomID) {
             config->numRooms--;
 
             // log room deletion
-            writeLogJSON(config->logPath, roomID, 0, EVENT_ROOM_DELETE);
+            produceLog(config, "Sala eliminada com sucesso", EVENT_ROOM_DELETE, roomID, 0);
 
             break;
         }
@@ -487,8 +485,7 @@ char *getGames(ServerConfig *config) {
 
     // check if file is opened
     if (file == NULL) {
-        writeLogJSON(config->logPath, 0, 0, EVENT_GAME_NOT_LOAD);
-        exit(1);
+        err_dump(config, 0, 0, "Erro ao abrir o ficheiro de jogos.", EVENT_GAME_NOT_LOAD);
     }
 
     // get the size of the file
@@ -606,7 +603,7 @@ void updateGameStatistics(ServerConfig *config, int gameID, int elapsedTime, flo
     char *file_content = malloc(file_size + 1);
     if (file_content == NULL) {
         fclose(file);
-        err_dump(config->logPath, gameID, 0, "memory allocation failed when updating statistics", MEMORY_ERROR);
+        err_dump(config, gameID, 0, "memory allocation failed when updating statistics", MEMORY_ERROR);
         return;
     }
 
@@ -640,8 +637,8 @@ void updateGameStatistics(ServerConfig *config, int gameID, int elapsedTime, flo
 
                 // write to log
                 char logMessage[100];
-                snprintf(logMessage, sizeof(logMessage), "%s: Tempo recorde atualizado para %d segundos no jogo %d", EVENT_NEW_RECORD, elapsedTime, gameID);
-                writeLogJSON(config->logPath, gameID, 0, logMessage);
+                snprintf(logMessage, sizeof(logMessage), "Tempo recorde atualizado para %d segundos no jogo %d", elapsedTime, gameID);
+                produceLog(config, logMessage, EVENT_NEW_RECORD, gameID, 0);
 
                 printf("Tempo recorde atualizado de %d para %d segundos no jogo %d\n", previousTimeRecord, elapsedTime, gameID);
             }
@@ -652,8 +649,8 @@ void updateGameStatistics(ServerConfig *config, int gameID, int elapsedTime, flo
 
                 // write to log
                 char logMessage[100];
-                snprintf(logMessage, sizeof(logMessage), "%s: Precisão recorde atualizada para %f no jogo %d", EVENT_NEW_RECORD, accuracy, gameID);
-                writeLogJSON(config->logPath, gameID, 0, logMessage);
+                snprintf(logMessage, sizeof(logMessage), "Precisão recorde atualizada para %f no jogo %d", accuracy, gameID);
+                produceLog(config, logMessage, EVENT_NEW_RECORD, gameID, 0);
 
                 printf("Precisão recorde atualizada de %.2f para %.2f no jogo %d\n", previousAccuracyRecord, accuracy, gameID);
             }
@@ -664,7 +661,7 @@ void updateGameStatistics(ServerConfig *config, int gameID, int elapsedTime, flo
     // write the updated JSON to the file
     file = fopen(config->gamePath, "w");
     if (file == NULL) {
-        err_dump(config->logPath, gameID, 0, "can't open file to write updated statistics", MEMORY_ERROR);
+        err_dump(config, gameID, 0, "can't open file to write updated statistics", MEMORY_ERROR);
         json_value_free(root_value);
         return;
     }
@@ -716,13 +713,13 @@ void releaseReadLock(Room *room) {
     pthread_mutex_unlock(&room->readMutex);
 }
 
-void acquireWriteLock(Room *room, bool isPremium, Client *client) {
+void acquireWriteLock(Room *room, Client *client) {
 
     // add a random delay to appear more natural
     int delay = rand() % 3;
     sleep(delay);
 
-    if (isPremium) {
+    if (client->isPremium) {
         
         pthread_mutex_lock(&room->premiumMutex);
 
@@ -739,7 +736,7 @@ void acquireWriteLock(Room *room, bool isPremium, Client *client) {
 
         pthread_mutex_unlock(&room->premiumMutex);
 
-    } else if (!isPremium) {
+    } else if (!client->isPremium) {
         printf("NON PREMIUM WRITER %d IS WAITING\n", client->clientID);
 
         
@@ -774,7 +771,7 @@ void acquireWriteLock(Room *room, bool isPremium, Client *client) {
     sem_wait(&room->writeSemaphore);
 }
 
-void releaseWriteLock(Room *room, bool isPremium, Client *client) {
+void releaseWriteLock(Room *room, Client *client) {
 
     sem_post(&room->writeSemaphore);
 
@@ -792,7 +789,7 @@ void releaseWriteLock(Room *room, bool isPremium, Client *client) {
     // unlock the writer mutex
     pthread_mutex_unlock(&room->writeMutex);
 
-    if (isPremium) {
+    if (client->isPremium) {
         pthread_mutex_lock(&room->premiumMutex);
 
         // decrement premium writer count
@@ -806,7 +803,7 @@ void releaseWriteLock(Room *room, bool isPremium, Client *client) {
 
         pthread_mutex_unlock(&room->premiumMutex);
 
-    } else if (!isPremium) {
+    } else if (!client->isPremium) {
         printf("NON PREMIUM WRITER %d IS DONE WRITING\n", client->clientID);
         sem_post(&room->nonPremiumWriteSemaphore);
     }
