@@ -59,7 +59,6 @@ typedef struct {
     int nonPremiumQueueSize;     // Tamanho da fila de jogadores não premium
     pthread_mutex_t timerMutex;
     pthread_mutex_t mutex;
-    sem_t beginSemaphore;
     sem_t premiumSemaphore;      // Semáforo para jogadores premium
     sem_t nonPremiumSemaphore;   // Semáforo para jogadores não premium
 
@@ -74,6 +73,13 @@ typedef struct {
     int writerCount;
     int premiumWriterCount;
     bool isNonPremiumBlocked;
+
+    // barrier to start the game and end the game
+    int waitingCount;
+    sem_t mutexSemaphore;
+    sem_t turnsTileSemaphore1;
+    sem_t turnsTileSemaphore2;
+
 } Room;
 
 

@@ -349,14 +349,9 @@ void *handleClient(void *arg) {
 
                         pthread_mutex_unlock(&room->mutex);
 
-                        // prevent exceding players to join the room
-                        sem_wait(&room->beginSemaphore);
-
                         // atualizar tempo de espera para este Client
                         handleTimer(serverConfig, room, client);
 
-                        // signal semaphore
-                        sem_post(&room->beginSemaphore);
 
                         leave = true;
  
@@ -374,8 +369,14 @@ void *handleClient(void *arg) {
                 room->isGameRunning = true;
                 room->startTime = time(NULL);
 
+                // barreira para começar o jogo
+                acquireTurnsTileSemaphore(room, client);
+
                 // receber linhas do cliente
                 receiveLines(serverConfig, room, client, &currentLine);
+
+                // barreira para terminar o jogo
+                releaseTurnsTileSemaphore(room, client);
 
                 // terminar o jogo
                 finishGame(serverConfig, room, &newSockfd);
@@ -863,7 +864,6 @@ void handleTimer(ServerConfig *config, Room *room, Client *client) {
 
                 // Enviar atualização do timer para todos os jogadores
                 for (int i = 0; i < room->numClients; i++) {
-                    //sleep(5);
                     
                     //printf("Sending timer update to Client %d with the socket: %d\n", room->Clients[i], room->clientSockets[i]);
                     sendTimerUpdate(config, room, room->clients[i]);

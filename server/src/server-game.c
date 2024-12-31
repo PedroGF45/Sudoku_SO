@@ -369,12 +369,16 @@ Room *createRoom(ServerConfig *config, int playerID, bool isSinglePlayer) {
     room->writerCount = 0;
     room->premiumWriterCount = 0;
 
+    // Inicializar barreira para começar e terminar o jogo
+    room->waitingCount = 0;
+    sem_init(&room->mutexSemaphore, 0, 1);
+    sem_init(&room->turnsTileSemaphore1, 0, 0);
+    sem_init(&room->turnsTileSemaphore2, 0, 0);
+
     // initialize mutexes
     pthread_mutex_init(&room->mutex, NULL);
     pthread_mutex_init(&room->timerMutex, NULL);
 
-    // initialize semaphore with MAX_PLAYERS_PER_ROOM
-    sem_init(&room->beginSemaphore, 0, config->maxClientsPerRoom);
 
     // add the room to the list of rooms and increment the number of rooms
     config->rooms[config->numRooms++] = room;
@@ -421,15 +425,15 @@ void deleteRoom(ServerConfig *config, int roomID) {
             free(config->rooms[i]->premiumQueue);
             free(config->rooms[i]->game);
 
-
-
             // Destruir mutexes e semáforos
             pthread_mutex_destroy(&config->rooms[i]->mutex);
             pthread_mutex_destroy(&config->rooms[i]->timerMutex);
             pthread_mutex_destroy(&config->rooms[i]->readMutex);
             pthread_mutex_destroy(&config->rooms[i]->writeMutex);
             pthread_mutex_destroy(&config->rooms[i]->premiumMutex);
-            sem_destroy(&config->rooms[i]->beginSemaphore);
+            sem_destroy(&config->rooms[i]->mutexSemaphore);
+            sem_destroy(&config->rooms[i]->turnsTileSemaphore1);
+            sem_destroy(&config->rooms[i]->turnsTileSemaphore2);
             sem_destroy(&config->rooms[i]->premiumSemaphore);
             sem_destroy(&config->rooms[i]->nonPremiumSemaphore);
             sem_destroy(&config->rooms[i]->writeSemaphore);
@@ -806,4 +810,68 @@ void releaseWriteLock(Room *room, bool isPremium, Client *client) {
         printf("NON PREMIUM WRITER %d IS DONE WRITING\n", client->clientID);
         sem_post(&room->nonPremiumWriteSemaphore);
     }
+}
+
+void acquireTurnsTileSemaphore(Room *room, Client *client) {
+
+    // lock the mutex
+    sem_wait(&room->mutexSemaphore);
+
+    printf("CLIENT %d ARRIVED AT THE TILE SEMAPHORE\n", client->clientID);
+
+    // increment the waiting count
+    room->waitingCount++;
+
+    // if all players are waiting unlock the turns tile semaphore
+    if (room->waitingCount == room->maxClients) {
+
+        printf("CLIENT %d ARRIVED AND IT'S THE LAST ONE\n", client->clientID);
+        printf("RELEASING TURNS TILE SEMAPHORE\n");
+
+        // need to loop n times to unlock the turns tile semaphore
+        for (int i = 0; i < room->maxClients; i++) {
+            sem_post(&room->turnsTileSemaphore1);
+        }
+    }
+
+    // unlock the mutex
+    sem_post(&room->mutexSemaphore);
+
+    printf("CLIENT %d IS WAITING FOR TURNS TILE SEMAPHORE\n", client->clientID);
+    // wait for the turns tile semaphore
+    sem_wait(&room->turnsTileSemaphore1);
+
+    printf("CLIENT %d IS DONE WAITING FOR TURNS TILE SEMAPHORE\n", client->clientID);
+}
+
+void releaseTurnsTileSemaphore(Room *room, Client *client) {
+
+    // lock the mutex
+    sem_wait(&room->mutexSemaphore);
+
+    printf("CLIENT %d ARRIVED AT THE TILE SEMAPHORE\n", client->clientID);
+
+    // decrement the waiting count
+    room->waitingCount--;
+
+    // if all players are done unlock the turns tile semaphore
+    if (room->waitingCount == 0) {
+
+        printf("CLIENT %d ARRIVED AND IT'S THE LAST ONE\n", client->clientID);
+        printf("RELEASING TURNS TILE SEMAPHORE\n");
+
+        // need to loop n times to unlock the turns tile semaphore
+        for (int i = 0; i < room->maxClients; i++) {
+            sem_post(&room->turnsTileSemaphore2);
+        }
+    }
+
+    // unlock the mutex
+    sem_post(&room->mutexSemaphore);
+
+    printf("CLIENT %d IS WAITING FOR TURNS TILE SEMAPHORE\n", client->clientID);
+    // wait for the turns tile semaphore
+    sem_wait(&room->turnsTileSemaphore2);
+    printf("CLIENT %d IS DONE WAITING FOR TURNS TILE SEMAPHORE\n", client->clientID);
+
 }

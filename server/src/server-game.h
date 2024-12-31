@@ -46,4 +46,8 @@ void acquireWriteLock(Room *room, bool isPremium, Client *client);
 
 void releaseWriteLock(Room *room, bool isPremium, Client *client);
 
+void acquireTurnsTileSemaphore(Room *room, Client *client);
+
+void releaseTurnsTileSemaphore(Room *room, Client *client);
+
 #endif
