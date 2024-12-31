@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include "../../utils/logs/logs.h"
+#include "../../utils/logs/logs-common.h"
+#include "../logs/logs.h"
 #include "../../utils/parson/parson.h"
 #include "client-game.h"
 
