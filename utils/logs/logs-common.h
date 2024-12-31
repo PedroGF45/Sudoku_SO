@@ -1,14 +1,15 @@
-#ifndef LOGS_H
-#define LOGS_H
+#ifndef LOGS_COMMON_H
+#define LOGS_COMMON_H
 
 /* server */
 #define EVENT_SERVER_START                      "Server inicializado"
 #define EVENT_GAME_LOAD                         "Jogo carregado"
 #define EVENT_GAME_NOT_LOAD                     "Jogo nao carregado"
+#define EVENT_GAME_NOT_FOUND                    "Jogo nao encontrado"
 #define EVENT_BOARD_SHOW                        "Tabuleiro do jogo mostrado"
 #define EVENT_SOLUTION_SENT                     "Solucao recebida"
 #define EVENT_SOLUTION_CORRECT                  "Solucao correta"
-#define EVENT_SOLUTION_WRONG                    "Solucao errada"
+#define EVENT_SOLUTION_INCORRECT                "Solucao errada"
 #define EVENT_GAME_OVER                         "Jogo terminado"
 #define EVENT_MESSAGE_SERVER_SENT               "Mensagem enviada para o cliente"
 #define EVENT_MESSAGE_SERVER_NOT_SENT           "Erro ao enviar mensagem para o cliente"
@@ -19,6 +20,7 @@
 #define EVENT_SERVER_THREAD_ERROR               "Erro ao criar thread"
 #define EVENT_SERVER_CONNECTION_FINISH          "Conexao terminada com o cliente"
 #define EVENT_SERVER_GAMES_SENT                 "Jogos enviados para o cliente"
+#define EVENT_ROOM_NOT_CREATED                          "Sala nao criada"
 #define EVENT_ROOM_LOAD                         "Sala carregada"
 #define EVENT_ROOM_NOT_LOAD                     "Sala nao carregada"
 #define EVENT_ROOM_JOIN                         "Jogador entrou na sala"
@@ -49,7 +51,7 @@ struct log {
 // wirte log in JSON format
 void writeLogJSON(const char *filename, int gameID, int playerID, const char *logMessage);
 
-// Função externa para registar um erro no log e terminar o programa.
-void err_dump(char *logPath, int idJogo, int idJogador, char *msg, char *event);
+// concatenate info
+char *concatenateInfo(char *msg, char* event, int idJogo, int idJogador);
 
-#endif
+#endif // LOGS_COMMON_H

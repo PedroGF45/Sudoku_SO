@@ -3,8 +3,7 @@
 #include <time.h>  // Usar time_t, time(), ctime()
 #include <string.h>
 #include "../parson/parson.h"
-#include "logs.h" 
-
+#include "logs-common.h" 
 
 /**
  * Escreve uma mensagem de log num ficheiro JSON, incluindo o ID do jogo,
@@ -31,6 +30,7 @@ void writeLogJSON(const char *filename, int gameID, int playerID, const char *lo
         logsArrayValue = json_value_init_array(); 
         // Adicionar o array ao objeto raiz
         json_object_set_value(rootObject, "logs", logsArrayValue);  
+        
     } else {
         // Se o ficheiro JSON ja existe, carregar os dados existentes
         rootObject = json_value_get_object(rootValue);
@@ -81,18 +81,20 @@ void writeLogJSON(const char *filename, int gameID, int playerID, const char *lo
  * @param event O evento específico associado à mensagem de erro.
  */
 
-void err_dump(char *logPath, int idJogo, int idJogador, char *msg, char *event) {
-	// buffer para a mensagem de erro
-	char logMessage[BUFFER_SIZE];
-	memset(logMessage, 0, sizeof(logMessage));
+char* concatenateInfo(char *msg, char* event, int idJogo, int idJogador) {
+    char* logMessage = (char*)malloc(BUFFER_SIZE); 
+    if (logMessage == NULL) {
+        // Handle memory allocation failure 
+        fprintf(stderr, "Memory allocation failed in concatenateInfo\n");
+        return NULL; 
+    }
+    memset(logMessage, 0, BUFFER_SIZE);
 
-	// concatenar o evento com a mensagem de erro
-	snprintf(logMessage, sizeof(logMessage), "%s: %s", event, msg);
+    // add event to msg
+    snprintf(logMessage, BUFFER_SIZE, "%s: %s", event, msg);
 
-	// escreve no log a mensagem de erro
-	writeLogJSON(logPath, idJogo, idJogador, logMessage);
+    // add other info to msg
+    snprintf(logMessage, BUFFER_SIZE, "%d\n%d\n%s\n", idJogo, idJogador, msg);
 
-	// imprime a mensagem de erro e termina o programa
-	perror(msg);
-	exit(1);
+    return logMessage;
 }
