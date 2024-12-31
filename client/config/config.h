@@ -12,7 +12,8 @@ typedef struct {
     int serverPort;             /**< Porta do servidor. */
     char serverHostName[256];   /**< Nome do host do servidor. */
     int clientID;               /**< ID único do cliente. */
-    char logPath[256];          /**< Caminho para o ficheiro de log. */
+    char sourceLogPath[256];       /**< Caminho para o ficheiro de log. */
+    char logPath[512];          /**< Caminho para o ficheiro de log. */
     bool isManual;              /**< Define se o jogo será jogado em modo manual. */
     bool isPremium;             /**< Define se o jogador é premium. */
     int difficulty;             /**< Nível de dificuldade do jogo (ex.: 1 - fácil, 2 - médio, 3 - difícil). */

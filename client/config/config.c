@@ -4,9 +4,6 @@
 #include <errno.h>
 #include "config.h"
 
-
-
-
 /**
  * Carrega as configurações do cliente a partir de um ficheiro de configuração especificado.
  *
@@ -69,8 +66,14 @@ clientConfig *getClientConfig(char *configPath) {
     if (fgets(line, sizeof(line), file) != NULL) {
         // Remover a nova linha, se houver
         line[strcspn(line, "\n")] = 0;
-        sscanf(line, "LOG_PATH = %s", config->logPath);
+        sscanf(line, "LOG_PATH = %s", config->sourceLogPath);
     }
+
+    // add temporary client id 0
+    char logPath[512];
+    snprintf(logPath, sizeof(logPath), "%sclient-%d-logs.json", config->sourceLogPath, 0);
+    // set logPath to the new logPath
+    strcpy(config->logPath, logPath);
     
     if (fgets(line, sizeof(line), file) != NULL) {
         int isManual;
