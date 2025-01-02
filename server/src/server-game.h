@@ -50,4 +50,14 @@ void acquireTurnsTileSemaphore(Room *room, Client *client);
 
 void releaseTurnsTileSemaphore(Room *room, Client *client);
 
+void enterBarberShop(Room *room, Client *client);
+
+void leaveBarberShop(Room *room, Client *client);
+
+void barberCut(Room *room);
+
+void barberIsDone(Room *room);
+
+void *handleBarber(void *arg);
+
 #endif

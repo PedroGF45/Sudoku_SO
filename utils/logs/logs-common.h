@@ -28,6 +28,8 @@
 #define EVENT_ROOM_DELETE                       "Sala eliminada"
 #define EVENT_ROOM_NOT_DELETE                   "Sala nao eliminada"
 #define EVENT_NEW_RECORD                        "Novo recorde"
+#define EVENT_THREAD_NOT_CREATE                  "Erro ao criar a thread"
+#define EVENT_BARBER_CREATED                    "Barbeiro criado"
 
 /* client */
 #define EVENT_CONNECTION_CLIENT_ESTABLISHED     "Conexao estabelecida com o servidor"
@@ -37,6 +39,7 @@
 #define EVENT_MESSAGE_CLIENT_NOT_SENT           "Erro ao enviar mensagem para o servidor"
 #define EVENT_MESSAGE_CLIENT_RECEIVED           "Mensagem recebida do servidor"
 #define EVENT_MESSAGE_CLIENT_NOT_RECEIVED       "Erro ao receber mensagem do servidor"
+
 
 #define MEMORY_ERROR                            "Erro de memoria"
 

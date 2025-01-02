@@ -298,13 +298,17 @@ void *handleClient(void *arg) {
                 room->startTime = time(NULL);
 
                 // barreira para começar o jogo
-                acquireTurnsTileSemaphore(room, client);
+                if (!room->isSinglePlayer) {
+                    acquireTurnsTileSemaphore(room, client);
+                }
 
                 // receber linhas do cliente
                 receiveLines(serverConfig, room, client, &currentLine);
 
-                // barreira para terminar o jogo
-                releaseTurnsTileSemaphore(room, client);
+                if (!room->isSinglePlayer) {
+                    // barreira para terminar o jogo
+                    releaseTurnsTileSemaphore(room, client);
+                }
 
                 // terminar o jogo
                 finishGame(serverConfig, room, &newSockfd);
@@ -566,7 +570,13 @@ void sendBoard(ServerConfig *config, Room* room, Client *client) {
 void receiveLines(ServerConfig *config, Room *room, Client *client, int *currentLine) {
 
     // pre condition reader
-    acquireReadLock(room);
+    if (!room->isSinglePlayer) {
+        if (room->isReaderWriter) {
+            acquireReadLock(room);
+        } else {
+            enterBarberShop(room, client);
+        }
+    }
 
     int correctLine = 0;
 
@@ -574,7 +584,13 @@ void receiveLines(ServerConfig *config, Room *room, Client *client, int *current
     sendBoard(config, room, client);
 
     // post condition reader
-    releaseReadLock(room);
+    if (!room->isSinglePlayer) {
+        if (room->isReaderWriter) {
+            releaseReadLock(room);
+        } else {
+            leaveBarberShop(room, client);
+        }
+    }
 
     // Receber e validar as linhas do cliente
     while (room->game->currentLine <= 9) {
@@ -595,16 +611,11 @@ void receiveLines(ServerConfig *config, Room *room, Client *client, int *current
             printf("Cliente %d %s quer resolver a linha %d\n", client->clientID, client->isPremium ? "(PREMIUM)" : "", room->game->currentLine);
 
             // pre condition writer
-            acquireWriteLock(room, client);
-
-            if (room->isNonPremiumBlocked) {
-                if (room->nonPremiumBlockedCount < 10) {
-                    room->nonPremiumBlockedCount++;
-                    printf("NON PREMIUM CLIENTS BLOCKED - COUNT: %d\n", room->nonPremiumBlockedCount);
+            if (!room->isSinglePlayer) {
+                if (room->isReaderWriter) {
+                    acquireWriteLock(room, client);
                 } else {
-                    room->nonPremiumBlockedCount = 0;
-                    room->isNonPremiumBlocked = false;
-                    printf("NON PREMIUM CLIENTS UNBLOCKED\n");
+                    enterBarberShop(room, client);
                 }
             }
 
@@ -629,31 +640,43 @@ void receiveLines(ServerConfig *config, Room *room, Client *client, int *current
                 //printf("Linha %d correta enviada pelo cliente %d\n", room->game->currentLine, client->clientID);
                 (room->game->currentLine)++;
 
-                // if line is correct and the client is premium, block non premium clients
-                if (client->isPremium) {
-                    printf("PREMIUM HAS CORRECT ANSWER - BLOCKING NON PREMIUM CLIENTS FOR 5 SECONDS\n");
-                    room->isNonPremiumBlocked = true;
-                }
-
             } else {
                 // linha incorreta
                 //printf("Linha %d incorreta enviada pelo cliente %d\n", room->game->currentLine, client->clientID);
             }
 
             // post condition writer
-            releaseWriteLock(room, client);
+            if (!room->isSinglePlayer) {
+                if (room->isReaderWriter) {
+                    releaseWriteLock(room, client);
+                } else {
+                    leaveBarberShop(room, client);
+                }
+            }
 
             // add a random delay to appear more natural
             //int delay = rand() % 3;
             //sleep(delay);
             
             // pre condition reader
-            acquireReadLock(room);
+            if (!room->isSinglePlayer) {
+                if (room->isReaderWriter) {
+                    acquireReadLock(room);
+                } else {
+                    enterBarberShop(room, client);
+                }
+            }
 
             sendBoard(config, room, client);
             printf("-----------------------------------------------------\n");
             // post condition reader
-            releaseReadLock(room);
+            if (!room->isSinglePlayer) {
+                if (room->isReaderWriter) {
+                    releaseReadLock(room);
+                } else {
+                    leaveBarberShop(room, client);
+                }
+            }
         } 
     } 
 }

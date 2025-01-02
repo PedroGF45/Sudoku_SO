@@ -127,7 +127,7 @@ int main(int argc, char *argv[]) {
         pthread_t logThread;
         if (pthread_create(&logThread, NULL, consumeLog, (void *)svConfig) != 0) {
             // erro ao criar thread
-            err_dump(svConfig, 0, 0, "can't create log consumer thread", EVENT_SERVER_THREAD_ERROR);
+            err_dump(svConfig, 0, 0, "can't create log consumer thread", EVENT_THREAD_NOT_CREATE);
             continue;
         }
     }

@@ -348,37 +348,52 @@ Room *createRoom(ServerConfig *config, int playerID, bool isSinglePlayer) {
     room->maxClients = room->isSinglePlayer ? 1 : config->maxClientsPerRoom;
     room->clients = (Client **)malloc(sizeof(Client *) * room->maxClients);
 
-    // Inicializar priority queue
-    room->enterRoomQueue = (PriorityQueue *)malloc(sizeof(PriorityQueue));
-    initPriorityQueue(room->enterRoomQueue, room->maxClients * 2);
+    
 
-    room->writerQueue = (PriorityQueue *)malloc(sizeof(PriorityQueue));
-    initPriorityQueue(room->writerQueue, room->numClients);
+    // we dont need synchronization for single player games
+    if (!room->isSinglePlayer) {
 
-    // Initialize reader-writer locks
-    sem_init(&room->writeSemaphore, 0, 1); // Inicializar semáforo para escrita e começa a aceitar 1 escritor
-    sem_init(&room->readSemaphore, 0, 1); // Inicializar semáforo para leitura e começa a aceitar 1 leitor
-    sem_init(&room->nonPremiumWriteSemaphore, 0, 0); //
-    pthread_mutex_init(&room->readMutex, NULL); // Inicializar mutex para leitura
-    pthread_mutex_init(&room->writeMutex, NULL); // Inicializar mutex para escrita
-    pthread_mutex_init(&room->premiumMutex, NULL); // Inicializar mutex para jogadores premium
-    room->readerCount = 0;
-    room->writerCount = 0;
-    room->premiumWritersWaiting = 0;
-    room->nonPremiumWritersWaiting = 0;
-    room->isNonPremiumBlocked = false;
-    room->isOneClientBlocked = false;
+        // Inicializar priority queue
+        room->enterRoomQueue = (PriorityQueue *)malloc(sizeof(PriorityQueue));
+        initPriorityQueue(room->enterRoomQueue, room->maxClients * 2);
 
-    // Inicializar barreira para começar e terminar o jogo
-    room->waitingCount = 0;
-    sem_init(&room->mutexSemaphore, 0, 1);
-    sem_init(&room->turnsTileSemaphore1, 0, 0);
-    sem_init(&room->turnsTileSemaphore2, 0, 0);
+        // Initialize reader-writer locks
+        sem_init(&room->writeSemaphore, 0, 1); // Inicializar semáforo para escrita e começa a aceitar 1 escritor
+        sem_init(&room->readSemaphore, 0, 1); // Inicializar semáforo para leitura e começa a aceitar 1 leitor
+        sem_init(&room->nonPremiumWriteSemaphore, 0, 0); //
+        pthread_mutex_init(&room->readMutex, NULL); // Inicializar mutex para leitura
+        pthread_mutex_init(&room->writeMutex, NULL); // Inicializar mutex para escrita
+        room->readerCount = 0;
+        room->writerCount = 0;
 
-    // initialize mutexes
-    pthread_mutex_init(&room->mutex, NULL);
-    pthread_mutex_init(&room->timerMutex, NULL);
+        // Inicializar barreira para começar e terminar o jogo
+        room->waitingCount = 0;
+        sem_init(&room->mutexSemaphore, 0, 1);
+        sem_init(&room->turnsTileSemaphore1, 0, 0);
+        sem_init(&room->turnsTileSemaphore2, 0, 0);
 
+        // barber shop initialization
+        room->customers = 0;
+        pthread_mutex_init(&room->barberShopMutex, NULL);
+        sem_init(&room->costumerSemaphore, 0, 0);
+        sem_init(&room->costumerDoneSemaphore, 0, 0);
+        sem_init(&room->barberDoneSemaphore, 0, 0);
+        room->barberShopQueue = (PriorityQueue *)malloc(sizeof(PriorityQueue));
+        initPriorityQueue(room->barberShopQueue, room->maxClients);
+
+        room->isReaderWriter = false;
+        if (!room->isReaderWriter) {
+            // initialize thread for barber
+            if(pthread_create(&room->barberThread, NULL, handleBarber, (void *)room)) {
+                err_dump(config, 0, playerID, "Erro ao criar a thread do barbeiro", EVENT_THREAD_NOT_CREATE);
+            }
+            produceLog(config, "Barbeiro criado com sucesso", EVENT_BARBER_CREATED, room->id, playerID);
+        }
+        
+        // initialize mutexes
+        pthread_mutex_init(&room->mutex, NULL);
+        pthread_mutex_init(&room->timerMutex, NULL);
+    }
 
     // add the room to the list of rooms and increment the number of rooms
     config->rooms[config->numRooms++] = room;
@@ -418,27 +433,34 @@ void deleteRoom(ServerConfig *config, int roomID) {
             
             free(config->rooms[i]->clients); 
 
-            printf("CLIENTS MEMORY FREED\n");
-            printf("FREEING NON PREMIUM QUEUE \n");
-            printf("FREEING PREMIUM QUEUE\n");
             free(config->rooms[i]->game);
 
             // Destruir mutexes e semáforos
-            pthread_mutex_destroy(&config->rooms[i]->mutex);
-            pthread_mutex_destroy(&config->rooms[i]->timerMutex);
-            pthread_mutex_destroy(&config->rooms[i]->readMutex);
-            pthread_mutex_destroy(&config->rooms[i]->writeMutex);
-            pthread_mutex_destroy(&config->rooms[i]->premiumMutex);
-            sem_destroy(&config->rooms[i]->mutexSemaphore);
-            sem_destroy(&config->rooms[i]->turnsTileSemaphore1);
-            sem_destroy(&config->rooms[i]->turnsTileSemaphore2);
-            sem_destroy(&config->rooms[i]->writeSemaphore);
-            sem_destroy(&config->rooms[i]->readSemaphore);
-            sem_destroy(&config->rooms[i]->nonPremiumWriteSemaphore);
+            if (!config->rooms[i]->isSinglePlayer) {
+                pthread_mutex_destroy(&config->rooms[i]->mutex);
+                pthread_mutex_destroy(&config->rooms[i]->timerMutex);
+                pthread_mutex_destroy(&config->rooms[i]->readMutex);
+                pthread_mutex_destroy(&config->rooms[i]->writeMutex);
+                pthread_mutex_destroy(&config->rooms[i]->barberShopMutex);
+                sem_destroy(&config->rooms[i]->mutexSemaphore);
+                sem_destroy(&config->rooms[i]->turnsTileSemaphore1);
+                sem_destroy(&config->rooms[i]->turnsTileSemaphore2);
+                sem_destroy(&config->rooms[i]->writeSemaphore);
+                sem_destroy(&config->rooms[i]->readSemaphore);
+                sem_destroy(&config->rooms[i]->nonPremiumWriteSemaphore);
+                sem_destroy(&config->rooms[i]->costumerSemaphore);
+                sem_destroy(&config->rooms[i]->costumerDoneSemaphore);
+                sem_destroy(&config->rooms[i]->barberDoneSemaphore);
 
-            // free priority queue
-            freePriorityQueue(config->rooms[i]->enterRoomQueue);
-            freePriorityQueue(config->rooms[i]->writerQueue);
+                // destroy barber
+                if (!config->rooms[i]->isReaderWriter) {
+                    pthread_cancel(config->rooms[i]->barberThread);
+                }
+
+                // free priority queue
+                freePriorityQueue(config->rooms[i]->enterRoomQueue);
+                freePriorityQueue(config->rooms[i]->barberShopQueue);
+            }
 
             free(config->rooms[i]);
 
@@ -721,30 +743,6 @@ void acquireWriteLock(Room *room, Client *client) {
     //int delay = rand() % 5;
     //sleep(delay);
 
-    // lock mutex for writer
-    pthread_mutex_lock(&room->premiumMutex);
-
-    if (client->isPremium) {
-        room->premiumWritersWaiting++;
-
-    } else if(!client->isPremium) {
-        printf("NON PREMIUM WRITER %d IS INCREMENTING NON PREMIUMWRITERS WAITING--------------------------------------------------\n", client->clientID);
-        printf("PREMIUM WRITERS WAITING: %d\n", room->premiumWritersWaiting);
-        room->nonPremiumWritersWaiting++;
-
-        // if there are premium writers waiting lock the non premium write semaphore
-        if (room->premiumWritersWaiting > 0) {
-            pthread_mutex_unlock(&room->premiumMutex);
-            printf("LOCKING NON PREMIUM WRITE SEMAPHORE BECAUSE THERE ARE PREMIUM WRITERS WAITING---------------------------------------\n");
-            sem_wait(&room->nonPremiumWriteSemaphore);
-            printf("NON PREMIUM WRITER %d IS DONE WAITING-------------------------------------------------------------------------------\n", client->clientID);
-            pthread_mutex_lock(&room->premiumMutex);
-        }
-    }
-
-    // unlock the writer mutex
-    pthread_mutex_unlock(&room->premiumMutex);
-
     pthread_mutex_lock(&room->writeMutex);
 
     // increment writer count
@@ -756,21 +754,6 @@ void acquireWriteLock(Room *room, Client *client) {
     if (room->writerCount == 1) {
         printf("WRITER %d IS LOCKING READ SEMAPHORE\n", client->clientID);
         sem_wait(&room->readSemaphore);
-    }
-
-    if (!client->isPremium && room->isNonPremiumBlocked) {
-        room->isOneClientBlocked = true;
-        pthread_mutex_unlock(&room->writeMutex);
-        printf("NON PREMIUM WRITER %d IS BLOCKED FOR 5 SECONDS--------------------------------------------------\n", client->clientID);
-        sleep(5);
-        pthread_mutex_lock(&room->writeMutex);
-        room->isOneClientBlocked = false;
-    }
-
-    if (client->isPremium) {
-        room->premiumWritersWaiting--;
-    } else if (!client->isPremium) {
-        room->nonPremiumWritersWaiting--;
     }
 
     // unlock the writer mutex
@@ -797,12 +780,6 @@ void releaseWriteLock(Room *room, Client *client) {
     }
 
     printf("WRITER %d IS DONE WRITING\n", client->clientID);
-
-    // if last premium writer unlock the non premium write semaphore
-    if (room->premiumWritersWaiting == 0 && room->nonPremiumWritersWaiting > 0 && !room->isOneClientBlocked) {
-        printf("WRITER %d IS UNLOCKING NON PREMIUM WRITE SEMAPHORE-------------------------------------------------------\n", client->clientID);
-        sem_post(&room->nonPremiumWriteSemaphore);
-    }
 
     // unlock the writer mutex
     pthread_mutex_unlock(&room->writeMutex);
@@ -871,4 +848,105 @@ void releaseTurnsTileSemaphore(Room *room, Client *client) {
     sem_wait(&room->turnsTileSemaphore2);
     printf("CLIENT %d IS DONE WAITING FOR TURNS TILE SEMAPHORE\n", client->clientID);
 
+}
+
+void enterBarberShop(Room *room, Client *client) {
+
+    // initialize self semaphore
+    sem_init(&client->selfSemaphore, 0, 0);
+
+    // lock the barber shop mutex
+    pthread_mutex_lock(&room->barberShopMutex);
+
+    // increment the number of customers
+    room->customers++;
+
+    printf("CLIENT %d ENTERED THE BARBER SHOP\n", client->clientID);
+    // add the client to the barber shop queue
+    enqueue(room->barberShopQueue, client->clientID, 0);
+
+    // unlock the barber shop mutex
+    pthread_mutex_unlock(&room->barberShopMutex);
+
+    printf("CLIENT %d IS WAITING FOR THE BARBER1\n", client->clientID);
+
+    // wait for the costumer semaphore
+    sem_post(&room->costumerSemaphore);
+
+    printf("CLIENT %d IS WAITING FOR THE BARBER2\n", client->clientID);
+
+    // wait for the self semaphore to be unlocked by the dequeue function
+    sem_wait(&client->selfSemaphore);
+}
+
+void leaveBarberShop(Room *room, Client *client) {
+
+    // signal that the costumer is done
+    sem_post(&room->costumerDoneSemaphore);
+
+    // wait for the barber to be done
+    sem_wait(&room->barberDoneSemaphore);
+
+    // lock the barber shop mutex
+    pthread_mutex_lock(&room->barberShopMutex);
+
+    // decrement the number of customers
+    room->customers--;
+
+    // unlock the barber shop mutex
+    pthread_mutex_unlock(&room->barberShopMutex);
+}
+
+void barberCut(Room *room) {
+
+    printf("BARBER IS WAITING FOR A COSTUMER\n");
+
+    // wait for the costumer semaphore
+    sem_wait(&room->costumerSemaphore);
+
+    // lock the barber shop mutex
+    pthread_mutex_lock(&room->barberShopMutex);
+
+    // dequeue the client from the barber shop queue
+    int clientID = dequeue(room->barberShopQueue);
+    Client *client;
+
+    // unlock the self semaphore
+    for (int i = 0; i < room->maxClients; i++) {
+        if (room->clients[i]->clientID == clientID) {
+            client = room->clients[i];
+            break;
+        }
+    }
+
+    // unlock the barber shop mutex
+    pthread_mutex_unlock(&room->barberShopMutex);
+
+    // post the self semaphore
+    sem_post(&client->selfSemaphore);
+
+    // delete the self semaphore
+    sem_destroy(&client->selfSemaphore);
+}
+
+void barberIsDone(Room *room) {
+    // wait for the costumer done semaphore
+    sem_wait(&room->costumerDoneSemaphore);
+
+    // signal that the barber is done
+    sem_post(&room->barberDoneSemaphore);
+}
+
+void *handleBarber(void *arg) {
+
+    while (1) {
+
+        Room *room = (Room *)arg;
+
+        // if there are customers
+        if (room->customers > 0) {
+            barberCut(room);
+            barberIsDone(room);
+        }
+    }
 }

@@ -42,6 +42,8 @@ typedef struct {
     int clientID;
     bool isPremium;
     bool startAgain;
+    // self semaphore to be used on barber shop
+    sem_t selfSemaphore;
 } Client;
 
 /**
@@ -70,24 +72,29 @@ typedef struct {
     pthread_mutex_t timerMutex;
     pthread_mutex_t mutex;
 
-    // Priority Queues
+    // Priority Queue
     PriorityQueue *enterRoomQueue;
-    PriorityQueue *writerQueue;
 
     // Reader-writer locks
     pthread_mutex_t readMutex;
     pthread_mutex_t writeMutex;
-    pthread_mutex_t premiumMutex;
     sem_t writeSemaphore;
     sem_t readSemaphore;
     sem_t nonPremiumWriteSemaphore;
     int readerCount;
     int writerCount;
-    int premiumWritersWaiting;
-    int nonPremiumWritersWaiting;
-    bool isNonPremiumBlocked;
-    bool isOneClientBlocked;
-    int nonPremiumBlockedCount;
+
+    // Priority queue barbershop
+    int customers;
+    pthread_mutex_t barberShopMutex;
+    sem_t costumerSemaphore;
+    sem_t costumerDoneSemaphore;
+    sem_t barberDoneSemaphore;
+    PriorityQueue *barberShopQueue;
+    pthread_t barberThread;
+
+    // bool to decide if the game is reader-writer or barbershop
+    bool isReaderWriter;
 
     // barrier to start the game and end the game
     int waitingCount;
