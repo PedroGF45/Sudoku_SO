@@ -858,7 +858,7 @@ char *showBoard(int *socketfd, clientConfig *config) {
 
     // print the board
     printf("-------------------------------------\n");
-    printf("BOARD ID: %d       PLAYER ID: %d\n", gameID, config->clientID);
+    printf("BOARD ID: %d  PLAYER ID: %d   %s\n", gameID, config->clientID, config->isPremium ? "PREMIUM" : "NON-PREMIUM");
     printf("-------------------------------------\n");
 
     // get the board array from the JSON object
