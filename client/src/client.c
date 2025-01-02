@@ -55,19 +55,19 @@
     char buffer[BUFFER_SIZE];
     memset(buffer, 0, sizeof(buffer));
 
-    // send client ID to server
-    sprintf(buffer, "clientID");
+    // send client premium status to server
+    if (config->isPremium) {
+        sprintf(buffer, "premium");
+    } else {
+        sprintf(buffer, "not premium");
+    }
 
     if (send(sockfd, buffer, strlen(buffer), 0) < 0) {
-        // erro ao enviar ID do cliente para o servidor
-        err_dump_client(config->logPath, 0, 0, "can't ask for a client ID", EVENT_MESSAGE_CLIENT_NOT_SENT);
-
+        // erro ao enviar status premium para o servidor
+        err_dump_client(config->logPath, 0, 0, "can't send premium status", EVENT_MESSAGE_CLIENT_NOT_SENT);
     } else {
-
         char logMessage[256];
-        snprintf(logMessage, sizeof(logMessage), "%s: asked for a client ID", EVENT_MESSAGE_CLIENT_SENT);
-
-        // log message sent to server
+        snprintf(logMessage, sizeof(logMessage), "%s: sent premium status", EVENT_MESSAGE_CLIENT_SENT);
         writeLogJSON(config->logPath, 0, config->clientID, logMessage);
     }
 

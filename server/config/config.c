@@ -145,7 +145,7 @@ void addClient(ServerConfig *config, Client *client) {
     }
 
     config->numClientsOnline++;
-    printf("NUMERO DE JOGADORES ONLINE: %d\n", config->numClientsOnline);
+    //printf("NUMERO DE JOGADORES ONLINE: %d\n", config->numClientsOnline);
 }
 
 void removeClient(ServerConfig *config, Client *client) {
@@ -169,4 +169,146 @@ void removeClient(ServerConfig *config, Client *client) {
 
     // decrement number of clients online
     config->numClientsOnline--;
+}
+
+Node *createNode(int clientID, bool isPremium) {
+    Node *newNode = (Node *)malloc(sizeof(Node));
+    if (newNode == NULL) {
+        fprintf(stderr, "Memory allocation failed\n");
+        return NULL;
+    }
+    newNode->clientID = clientID;
+    newNode->isPremium = isPremium;
+    newNode->next = NULL;
+    return newNode;
+}
+
+void initPriorityQueue(PriorityQueue *queue, int queueSize) {
+    queue->front = NULL;
+    queue->rear = NULL;
+    pthread_mutex_init(&queue->mutex, NULL);
+    sem_init(&queue->empty, 0, queueSize);
+    sem_init(&queue->full, 0, 0);
+}
+
+void enqueue(PriorityQueue *queue, int clientID, bool isPremium) {
+    //printf("CLIENT %d WANT TO JOIN THE ROOM\n", clientID);
+
+    Node *newNode = createNode(clientID, isPremium); // create a new node
+
+    sem_wait(&queue->empty); // wait for empty space
+
+    //printf("CLIENT %d JOINING THE QUEUE\n", clientID);
+
+    pthread_mutex_lock(&queue->mutex); // lock the queue
+
+    if (queue->front == NULL) { // if the queue is empty
+        //printf("QUEUE IS EMPTY: ADDING CLIENT %d TO THE FIRST NODE\n", clientID);
+        queue->front = newNode;
+        queue->rear = newNode;
+    } else {                    // if the queue is not empty
+
+        // print order of the queue
+        //Node *temp1 = queue->front;
+        //printf("--------------------\n");
+        //printf("QUEUE ORDER BEFOR:\n");
+        //while (temp1 != NULL) {
+        //    printf("Client %d isPremium: %s\n", temp1->clientID, temp1->isPremium ? "true" : "false");
+        //    temp1 = temp1->next;
+        //}
+        //printf("--------------------\n");
+        // order by isPremium
+        Node *temp = queue->front;
+        Node *prev = NULL;
+
+        // find last premium
+        while (temp != NULL && temp->isPremium) {
+            prev = temp;
+            temp = temp->next;
+        }
+
+        // if not premium, find last non-premium
+        if (!isPremium) {
+            while (temp != NULL && !temp->isPremium) {
+                prev = temp;
+                temp = temp->next;
+            }
+        }
+
+        if (prev == NULL) { // if the new node is the first
+            //printf("CLIENT %d IS THE FIRST NODE\n", clientID);
+            newNode->next = queue->front;
+            queue->front = newNode;
+        } else if (temp == NULL) { // if the new node is the last
+            //printf("CLIENT %d IS THE LAST NODE\n", clientID);
+            queue->rear->next = newNode;
+            queue->rear = newNode;
+        } else { // if the new node is in the middle
+            //printf("CLIENT %d IS IN THE MIDDLE\n", clientID);
+            prev->next = newNode;
+            newNode->next = temp;
+        }
+    }
+
+    // print order of the queue
+    //Node *temp2 = queue->front;
+    //printf("--------------------\n");
+    //printf("QUEUE ORDER AFTER:\n");
+    //while (temp2 != NULL) {
+    //    printf("Client %d isPremium: %s\n", temp2->clientID, temp2->isPremium ? "true" : "false");
+    //    temp2 = temp2->next;
+    //}
+    //printf("--------------------\n");
+
+
+    pthread_mutex_unlock(&queue->mutex);
+    sem_post(&queue->full);
+}
+
+int dequeue(PriorityQueue *queue) {
+    //printf("CLIENT WANTS TO BE REMOVED FROM THE QUEUE\n");
+
+    sem_wait(&queue->full); // wait for full queue
+
+    //printf("CLIENT REMOVING FROM THE QUEUE\n");
+
+    pthread_mutex_lock(&queue->mutex); // lock the queue
+
+    Node *temp = queue->front;
+
+    if (queue->front == NULL) {
+        printf("Queue is empty\n");
+        pthread_mutex_unlock(&queue->mutex);
+        sem_post(&queue->empty);
+        return -1;
+    }
+
+    queue->front = queue->front->next;
+
+    if (queue->front == NULL) { // if the queue is empty
+        queue->rear = NULL;
+    }
+
+    int clientID = temp->clientID;
+
+    free(temp);
+
+    pthread_mutex_unlock(&queue->mutex);
+    sem_post(&queue->empty);
+    //printf("CLIENT REMOVED FROM THE QUEUE\n");
+
+    return clientID;
+}
+
+void freePriorityQueue(PriorityQueue *queue) {
+    Node *temp = queue->front;
+    while (temp != NULL) {
+        Node *next = temp->next;
+        free(temp);
+        temp = next;
+    }
+    pthread_mutex_destroy(&queue->mutex);
+    sem_destroy(&queue->empty);
+    sem_destroy(&queue->full);
+    free(queue);
 }

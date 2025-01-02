@@ -61,11 +61,11 @@ void *consumeLog(void *arg) {
 
         sem_wait(&config->itemsLogSemaphore);   // check if there are items to consume
 
-        printf("SERVER detects a log to write!\n");
+        //printf("SERVER detects a log to write!\n");
 
         sem_wait(&config->mutexLogSemaphore);   // lock the buffer
 
-        printf("SERVER writing a log message\n");
+        //printf("SERVER writing a log message\n");
 
         char *message = getLogMessage(config);  // get message from buffer
         if (message != NULL) {                  
@@ -83,9 +83,9 @@ void *consumeLog(void *arg) {
         }
         sem_post(&config->mutexLogSemaphore);   // unlock the buffer
 
-        printf("SERVER finished writing a log message\n");
+        //printf("SERVER finished writing a log message\n");
         sem_post(&config->spacesSemaphore);     // signal that there are spaces to produce
-        printf("SERVER signaled that there are spaces to produce\n");
+       // printf("SERVER signaled that there are spaces to produce\n");
     }
 
     return NULL;
@@ -93,16 +93,17 @@ void *consumeLog(void *arg) {
 
 void produceLog(ServerConfig *config, char *msg, char* event, int idJogo, int idJogador) {
 
-    printf("CLIENT %d : wants to write a log message\n", idJogador);
+    //printf("CLIENT %d : wants to write a log message\n", idJogador);
 
     sem_wait(&config->spacesSemaphore);     // check if there is space to produce
 
-    printf("THERE's space to CLIENT %d write a log message!\n", idJogador);
+    //printf("THERE's space to CLIENT %d write a log message!\n", idJogador);
     sem_wait(&config->mutexLogSemaphore);   // lock the buffer
 
-    printf("CLIENT %d : writing a log message\n", idJogador);
+    //printf("CLIENT %d : writing a log message\n", idJogador);
     char *message = concatenateInfo(msg, event, idJogo, idJogador);  // concatenate info
     addLogMessage(config, message);         // add message to buffer
+    free(message);                          // free message
 
     sem_post(&config->mutexLogSemaphore);   // unlock the buffer
     sem_post(&config->itemsLogSemaphore);   // signal that there are items to consume

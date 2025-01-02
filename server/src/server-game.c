@@ -348,24 +348,26 @@ Room *createRoom(ServerConfig *config, int playerID, bool isSinglePlayer) {
     room->maxClients = room->isSinglePlayer ? 1 : config->maxClientsPerRoom;
     room->clients = (Client **)malloc(sizeof(Client *) * room->maxClients);
 
-    // Inicializar filas de jogadores premium e não premium
-    room->premiumQueue = (int *)malloc(sizeof(int) * room->maxClients);
-    room->nonPremiumQueue = (int *)malloc(sizeof(int) * room->maxClients);
-    room->premiumQueueSize = 0;
-    room->nonPremiumQueueSize = 0;
-    sem_init(&room->premiumSemaphore, 0, 0); // Inicializar semáforo para jogadores premium
-    sem_init(&room->nonPremiumSemaphore, 0, 0); // Inicializar semáforo para jogadores não premium
+    // Inicializar priority queue
+    room->enterRoomQueue = (PriorityQueue *)malloc(sizeof(PriorityQueue));
+    initPriorityQueue(room->enterRoomQueue, room->maxClients * 2);
+
+    room->writerQueue = (PriorityQueue *)malloc(sizeof(PriorityQueue));
+    initPriorityQueue(room->writerQueue, room->numClients);
 
     // Initialize reader-writer locks
     sem_init(&room->writeSemaphore, 0, 1); // Inicializar semáforo para escrita e começa a aceitar 1 escritor
     sem_init(&room->readSemaphore, 0, 1); // Inicializar semáforo para leitura e começa a aceitar 1 leitor
-    sem_init(&room->nonPremiumWriteSemaphore, 0, 1); //
+    sem_init(&room->nonPremiumWriteSemaphore, 0, 0); //
     pthread_mutex_init(&room->readMutex, NULL); // Inicializar mutex para leitura
     pthread_mutex_init(&room->writeMutex, NULL); // Inicializar mutex para escrita
     pthread_mutex_init(&room->premiumMutex, NULL); // Inicializar mutex para jogadores premium
     room->readerCount = 0;
     room->writerCount = 0;
-    room->premiumWriterCount = 0;
+    room->premiumWritersWaiting = 0;
+    room->nonPremiumWritersWaiting = 0;
+    room->isNonPremiumBlocked = false;
+    room->isOneClientBlocked = false;
 
     // Inicializar barreira para começar e terminar o jogo
     room->waitingCount = 0;
@@ -418,9 +420,7 @@ void deleteRoom(ServerConfig *config, int roomID) {
 
             printf("CLIENTS MEMORY FREED\n");
             printf("FREEING NON PREMIUM QUEUE \n");
-            free(config->rooms[i]->nonPremiumQueue);
             printf("FREEING PREMIUM QUEUE\n");
-            free(config->rooms[i]->premiumQueue);
             free(config->rooms[i]->game);
 
             // Destruir mutexes e semáforos
@@ -432,11 +432,13 @@ void deleteRoom(ServerConfig *config, int roomID) {
             sem_destroy(&config->rooms[i]->mutexSemaphore);
             sem_destroy(&config->rooms[i]->turnsTileSemaphore1);
             sem_destroy(&config->rooms[i]->turnsTileSemaphore2);
-            sem_destroy(&config->rooms[i]->premiumSemaphore);
-            sem_destroy(&config->rooms[i]->nonPremiumSemaphore);
             sem_destroy(&config->rooms[i]->writeSemaphore);
             sem_destroy(&config->rooms[i]->readSemaphore);
             sem_destroy(&config->rooms[i]->nonPremiumWriteSemaphore);
+
+            // free priority queue
+            freePriorityQueue(config->rooms[i]->enterRoomQueue);
+            freePriorityQueue(config->rooms[i]->writerQueue);
 
             free(config->rooms[i]);
 
@@ -716,45 +718,38 @@ void releaseReadLock(Room *room) {
 void acquireWriteLock(Room *room, Client *client) {
 
     // add a random delay to appear more natural
-    int delay = rand() % 3;
-    sleep(delay);
-
-    if (client->isPremium) {
-        
-        pthread_mutex_lock(&room->premiumMutex);
-
-        // increment premium writer count
-        room->premiumWriterCount++;
-
-        printf("Premium writer count: %d from client %d\n", room->premiumWriterCount, client->clientID);
-
-        // if first premium writer lock the non premium write semaphore
-        if (room->premiumWriterCount == 1) {
-            printf("PREMIUM WRTIER %d IS LOCKING NON PREMIUM WRITE SEMAPHORE\n", client->clientID);
-            sem_wait(&room->nonPremiumWriteSemaphore);
-        }
-
-        pthread_mutex_unlock(&room->premiumMutex);
-
-    } else if (!client->isPremium) {
-        printf("NON PREMIUM WRITER %d IS WAITING\n", client->clientID);
-
-        
-        if (room->isNonPremiumBlocked) {
-            for (int i = 0; i < 5; i++) {
-                sleep(1);
-                printf("NON PREMIUM WRITER %d IS BLOCKED for %d second\n", client->clientID, i + 1);
-            }
-        }
-        sem_wait(&room->nonPremiumWriteSemaphore);
-        printf("NON PREMIUM WRITER %d IS WRITING!!!!\n", client->clientID);
-    }
+    //int delay = rand() % 5;
+    //sleep(delay);
 
     // lock mutex for writer
+    pthread_mutex_lock(&room->premiumMutex);
+
+    if (client->isPremium) {
+        room->premiumWritersWaiting++;
+
+    } else if(!client->isPremium) {
+        printf("NON PREMIUM WRITER %d IS INCREMENTING NON PREMIUMWRITERS WAITING--------------------------------------------------\n", client->clientID);
+        printf("PREMIUM WRITERS WAITING: %d\n", room->premiumWritersWaiting);
+        room->nonPremiumWritersWaiting++;
+
+        // if there are premium writers waiting lock the non premium write semaphore
+        if (room->premiumWritersWaiting > 0) {
+            pthread_mutex_unlock(&room->premiumMutex);
+            printf("LOCKING NON PREMIUM WRITE SEMAPHORE BECAUSE THERE ARE PREMIUM WRITERS WAITING---------------------------------------\n");
+            sem_wait(&room->nonPremiumWriteSemaphore);
+            printf("NON PREMIUM WRITER %d IS DONE WAITING-------------------------------------------------------------------------------\n", client->clientID);
+            pthread_mutex_lock(&room->premiumMutex);
+        }
+    }
+
+    // unlock the writer mutex
+    pthread_mutex_unlock(&room->premiumMutex);
+
     pthread_mutex_lock(&room->writeMutex);
 
     // increment writer count
     room->writerCount++;
+
     printf("WRITER COUNT: %d from client %d\n", room->writerCount, client->clientID);
 
     // if first writer lock the read semaphore to block readers
@@ -763,11 +758,26 @@ void acquireWriteLock(Room *room, Client *client) {
         sem_wait(&room->readSemaphore);
     }
 
+    if (!client->isPremium && room->isNonPremiumBlocked) {
+        room->isOneClientBlocked = true;
+        pthread_mutex_unlock(&room->writeMutex);
+        printf("NON PREMIUM WRITER %d IS BLOCKED FOR 5 SECONDS--------------------------------------------------\n", client->clientID);
+        sleep(5);
+        pthread_mutex_lock(&room->writeMutex);
+        room->isOneClientBlocked = false;
+    }
+
+    if (client->isPremium) {
+        room->premiumWritersWaiting--;
+    } else if (!client->isPremium) {
+        room->nonPremiumWritersWaiting--;
+    }
+
     // unlock the writer mutex
     pthread_mutex_unlock(&room->writeMutex);
 
     // lock the write semaphore
-    printf("WRITER %d IS WAITING FOR WRITE SEMAPHORE\n", client->clientID);
+    //printf("WRITER %d IS WAITING FOR WRITE SEMAPHORE\n", client->clientID);
     sem_wait(&room->writeSemaphore);
 }
 
@@ -786,27 +796,17 @@ void releaseWriteLock(Room *room, Client *client) {
         sem_post(&room->readSemaphore);
     }
 
+    printf("WRITER %d IS DONE WRITING\n", client->clientID);
+
+    // if last premium writer unlock the non premium write semaphore
+    if (room->premiumWritersWaiting == 0 && room->nonPremiumWritersWaiting > 0 && !room->isOneClientBlocked) {
+        printf("WRITER %d IS UNLOCKING NON PREMIUM WRITE SEMAPHORE-------------------------------------------------------\n", client->clientID);
+        sem_post(&room->nonPremiumWriteSemaphore);
+    }
+
     // unlock the writer mutex
     pthread_mutex_unlock(&room->writeMutex);
 
-    if (client->isPremium) {
-        pthread_mutex_lock(&room->premiumMutex);
-
-        // decrement premium writer count
-        room->premiumWriterCount--;
-
-        // if last premium writer unlock the non premium write semaphore
-        if (room->premiumWriterCount == 0) {
-            printf("PREMIUM WRITER %d IS UNLOCKING NON PREMIUM WRITE SEMAPHORE\n", client->clientID);
-            sem_post(&room->nonPremiumWriteSemaphore);
-        }
-
-        pthread_mutex_unlock(&room->premiumMutex);
-
-    } else if (!client->isPremium) {
-        printf("NON PREMIUM WRITER %d IS DONE WRITING\n", client->clientID);
-        sem_post(&room->nonPremiumWriteSemaphore);
-    }
 }
 
 void acquireTurnsTileSemaphore(Room *room, Client *client) {
@@ -820,13 +820,13 @@ void acquireTurnsTileSemaphore(Room *room, Client *client) {
     room->waitingCount++;
 
     // if all players are waiting unlock the turns tile semaphore
-    if (room->waitingCount == room->maxClients) {
+    if (room->waitingCount == room->numClients) {
 
         printf("CLIENT %d ARRIVED AND IT'S THE LAST ONE\n", client->clientID);
         printf("RELEASING TURNS TILE SEMAPHORE\n");
 
         // need to loop n times to unlock the turns tile semaphore
-        for (int i = 0; i < room->maxClients; i++) {
+        for (int i = 0; i < room->numClients; i++) {
             sem_post(&room->turnsTileSemaphore1);
         }
     }

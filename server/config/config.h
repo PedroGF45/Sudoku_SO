@@ -5,6 +5,21 @@
 #include <semaphore.h>
 #include <pthread.h>
 
+typedef struct Node {
+    int clientID;
+    bool isPremium;
+    struct Node* next;
+} Node;
+
+// Define a structure for the queue
+typedef struct PriorityQueue {
+    Node* front;
+    Node* rear;
+    pthread_mutex_t mutex;
+    sem_t empty;
+    sem_t full;
+} PriorityQueue;
+
 /**
  * Estrutura que representa um jogo, incluindo o tabuleiro e a solução correta.
  *
@@ -52,15 +67,12 @@ typedef struct {
     time_t startTime;
     double elapsedTime; 
 
-    // Filas de jogadores
-    int *premiumQueue;           // Fila de IDs de jogadores premium
-    int *nonPremiumQueue;        // Fila de IDs de jogadores não premium
-    int premiumQueueSize;        // Tamanho da fila de jogadores premium
-    int nonPremiumQueueSize;     // Tamanho da fila de jogadores não premium
     pthread_mutex_t timerMutex;
     pthread_mutex_t mutex;
-    sem_t premiumSemaphore;      // Semáforo para jogadores premium
-    sem_t nonPremiumSemaphore;   // Semáforo para jogadores não premium
+
+    // Priority Queues
+    PriorityQueue *enterRoomQueue;
+    PriorityQueue *writerQueue;
 
     // Reader-writer locks
     pthread_mutex_t readMutex;
@@ -71,8 +83,11 @@ typedef struct {
     sem_t nonPremiumWriteSemaphore;
     int readerCount;
     int writerCount;
-    int premiumWriterCount;
+    int premiumWritersWaiting;
+    int nonPremiumWritersWaiting;
     bool isNonPremiumBlocked;
+    bool isOneClientBlocked;
+    int nonPremiumBlockedCount;
 
     // barrier to start the game and end the game
     int waitingCount;
@@ -130,5 +145,16 @@ void addClient(ServerConfig *config, Client *client);
 
 // Remover um cliente da lista de clientes online
 void removeClient(ServerConfig *config, Client *client);
+
+// create a new node
+Node *createNode(int clientID, bool isPremium);
+
+void initPriorityQueue(PriorityQueue *queue, int queueSize);
+
+void enqueue(PriorityQueue *queue, int clientID, bool isPremium);
+
+int dequeue(PriorityQueue *queue);
+
+void freePriorityQueue(PriorityQueue *queue);
 
 #endif // CONFIG_H
