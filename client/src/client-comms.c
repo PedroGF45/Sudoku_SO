@@ -278,7 +278,7 @@ void showSinglePLayerMenu(int *socketfd, clientConfig *config) {
         switch (option) {
             case 1:
                 // choose a random game
-                playRandomSinglePlayerGame(socketfd, config);
+                playSinglePlayerGame(socketfd, config);
                 break;
             case 2:
                 // choose a specific single player game
@@ -311,13 +311,13 @@ void showSinglePLayerMenu(int *socketfd, clientConfig *config) {
  * - Chama a função `showBoard` para exibir o tabuleiro.
  */
 
-void playRandomSinglePlayerGame(int *socketfd, clientConfig *config) {
+void playSinglePlayerGame(int *socketfd, clientConfig *config) {
 
     // ask server for a random game
-    if (send(*socketfd, "newRandomSinglePlayerGame", strlen("newRandomSinglePlayerGame"), 0) < 0) {
-        err_dump_client(config->logPath, 0, config->clientID, "can't send random game request to server", EVENT_MESSAGE_CLIENT_NOT_SENT);
+    if (send(*socketfd, "newSinglePlayerGame", strlen("newSinglePlayerGame"), 0) < 0) {
+        err_dump_client(config->logPath, 0, config->clientID, "can't send game request to server", EVENT_MESSAGE_CLIENT_NOT_SENT);
     } else {
-        printf("Requesting a new random game...\n");
+        printf("Requesting a new game...\n");
     }
 }
 
@@ -427,10 +427,11 @@ void createNewMultiplayerGame(int *socketfd, clientConfig *config) {
         switch (option) {
             case 1:
                 // create a new random multiplayer game
-                playRandomMultiPlayerGame(socketfd, config);
+                showPossibleSynchronizations(socketfd, config);
+                //playRandomMultiPlayerGame(socketfd, config);
                 break;
             case 2:
-                // create a new specific multiplayer game
+                // show new specific multiplayer game
                 showGames(socketfd, config, false);
                 break;
             case 3:
@@ -463,13 +464,83 @@ void createNewMultiplayerGame(int *socketfd, clientConfig *config) {
  * - Regista quaisquer erros de comunicação (envio ou receção) no ficheiro de log.
  */
 
-void playRandomMultiPlayerGame(int *socketfd, clientConfig *config) {
+void showPossibleSynchronizations(int *socketfd, clientConfig *config) {
 
-    // ask server for a random game
-    if (send(*socketfd, "newRandomMultiPlayerGame", strlen("newRandomMultiPlayerGame"), 0) < 0) {
-        err_dump_client(config->logPath, 0, config->clientID, "can't send random multiplayer game request to server", EVENT_MESSAGE_CLIENT_NOT_SENT);
+    int option;
+
+    do {
+        // ask for creating a room or joining a room
+        printf(INTERFACE_POSSIBLE_SYNCHRONIZATION);
+
+        // Get the option from the user
+        if (scanf("%d", &option) != 1) {
+            printf("Invalid input. Please enter a number.\n");
+            fflush(stdin); // Clear the input buffer
+            continue;
+        }
+        
+        // switch the option
+        switch (option) {
+            case 1:
+                // create a new random multiplayer game with readers-writers synchronization
+                playMultiPlayerGame(socketfd, config, "readersWriters");
+                break;
+            case 2:
+                // create a new random multiplayer game with barber shop synchronization with priority queues
+                playMultiPlayerGame(socketfd, config, "barberShopPriority");
+                break;
+            case 3:
+                // create a new random multiplayer game with barber shop synchronization with a FIFO queue
+                playMultiPlayerGame(socketfd, config, "barberShopFIFO");
+                break;
+            case 4:
+                // back to the multiplayer menu
+                createNewMultiplayerGame(socketfd, config);
+                break;
+            case 5:
+                // close the connection
+                closeConnection(socketfd, config);
+                break;
+            default:
+                printf("Invalid option\n");
+                break;
+        }
+    } while (option < 1 || option > 5);
+
+}
+
+void playMultiPlayerGame(int *socketfd, clientConfig *config, char *synchronization) {
+
+    // buffer
+    char buffer[BUFFER_SIZE];
+    memset(buffer, 0, sizeof(buffer));
+
+    // check for synchronization
+    if (strcmp(synchronization, "readersWriters") == 0) {
+        
+        // buffer for readersWriters
+        strcpy(buffer, "newMultiPlayerGameReadersWriters");
+    
+    } else if (strcmp(synchronization, "barberShopPriority") == 0) {
+        
+        // buffer for barberShopPriority
+        strcpy(buffer, "newMultiPlayerGameBarberShopPriority");
+    
+    } else if (strcmp(synchronization, "barberShopFIFO") == 0) {
+        
+        // buffer for barberShopFIFO
+        strcpy(buffer, "newMultiPlayerGameBarberShopFIFO");
+    
     } else {
-        printf("Requesting a new random multiplayer game...\n");
+        printf("Invalid synchronization option\n");
+        return;
+    }
+
+    // ask server for a 
+    if (send(*socketfd, buffer, BUFFER_SIZE, 0) < 0) {
+        err_dump_client(config->logPath, 0, config->clientID, "can't send multiplayer game request to server", EVENT_MESSAGE_CLIENT_NOT_SENT);
+    } else {
+        printf("Requesting a new multiplayer game...\n");
 
         // receive timer from server
         receiveTimer(socketfd, config);
@@ -758,8 +829,8 @@ void showGames(int *socketfd, clientConfig *config, bool isSinglePlayer) {
                 }
 
                 if (!isSinglePlayer) {
-                    // receive timer from server
-                    receiveTimer(socketfd, config);
+                    // now need to choose synchronization
+                    showPossibleSynchronizations(socketfd, config);
                 }
             }  
         }

@@ -330,7 +330,7 @@ bool isLineCorrect(Game *game, int row) {
  * - Devolve o pointer para a sala criada, ou NULL se a alocação de memória falhar.
  */
 
-Room *createRoom(ServerConfig *config, int playerID, bool isSinglePlayer) {
+Room *createRoom(ServerConfig *config, int playerID, bool isSinglePlayer, int synchronizationType) {
 
     Room *room = (Room *)malloc(sizeof(Room));
     if (room == NULL) {
@@ -381,7 +381,21 @@ Room *createRoom(ServerConfig *config, int playerID, bool isSinglePlayer) {
         room->barberShopQueue = (PriorityQueue *)malloc(sizeof(PriorityQueue));
         initPriorityQueue(room->barberShopQueue, room->maxClients);
 
-        room->isReaderWriter = false;
+        // check if the game is reader-writer or barber shop
+        if (synchronizationType == 0) {
+            room->isReaderWriter = true;
+        }
+
+        if (synchronizationType == 1) {
+            room->isReaderWriter = false;
+            room->isPriorityQueue = true;
+        }
+
+        if (synchronizationType == 2) {
+            room->isReaderWriter = false;
+            room->isPriorityQueue = false;
+        }
+
         if (!room->isReaderWriter) {
             // initialize thread for barber
             if(pthread_create(&room->barberThread, NULL, handleBarber, (void *)room)) {
@@ -863,7 +877,12 @@ void enterBarberShop(Room *room, Client *client) {
 
     printf("CLIENT %d ENTERED THE BARBER SHOP\n", client->clientID);
     // add the client to the barber shop queue
-    enqueue(room->barberShopQueue, client->clientID, 0);
+    if (room->isPriorityQueue) {
+        enqueueWithPriority(room->barberShopQueue, client->clientID, client->isPremium);
+    } else {
+        enqueueFIFO(room->barberShopQueue, client->clientID);
+    }
+        
 
     // unlock the barber shop mutex
     pthread_mutex_unlock(&room->barberShopMutex);

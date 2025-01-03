@@ -21,7 +21,7 @@ int verifyLine(ServerConfig *config, Game *game, char *solutionSent, int insertL
 bool isLineCorrect(Game *game, int row);
 
 // Cria uma nova sala de jogo.
-Room *createRoom(ServerConfig *config, int playerID, bool isSinglePlayer);
+Room *createRoom(ServerConfig *config, int playerID, bool isSinglePlayer, int synchronizationType);
 
 // Obtém uma sala de jogo a partir do ID.
 Room *getRoom(ServerConfig *config, int roomID, int playerID);

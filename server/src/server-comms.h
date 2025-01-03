@@ -14,7 +14,7 @@ int generateUniqueClientId();
 void *handleClient(void *arg);
 
 // Cria uma sala e um jogo, configurando-os com base nos parâmetros fornecidos.
-Room *createRoomAndGame(ServerConfig *config, Client *client, bool isSinglePlayer, bool isRandom, int gameID);
+Room *createRoomAndGame(ServerConfig *config, Client *client, bool isSinglePlayer, bool isRandom, int gameID, int synchronizationType);
 
 // Junta um jogador a uma sala existente.
 void joinRoom(ServerConfig *config, Room *room, Client *client);

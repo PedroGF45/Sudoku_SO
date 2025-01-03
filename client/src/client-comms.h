@@ -10,6 +10,7 @@
 #define INTERFACE_PLAY_MENU "1. Singleplayer\n2. Multiplayer\n3. Back\n4. Exit\nChoose an option: "
 #define INTERFACE_SELECT_GAME "1. New Random Game\n2. New Specific Game\n3. Back\n4. Exit\nChoose an option: "
 #define INTERFACE_SELECT_MULTIPLAYER_GAME "1. Create a New Multiplayer Game\n2. Join a Multiplayer Game\n3. Back\n4. Exit\nChoose an option: "
+#define INTERFACE_POSSIBLE_SYNCHRONIZATION "1. Readers-Writers\n2. Barber-Shop with priority\n3. Barber-Shop with FIFO\n4. Back\n5. Exit\nChoose an option: "
 
 
 void showStatisticsMenu(int *socketfd);
@@ -27,7 +28,7 @@ void showPlayMenu(int *socketfd, clientConfig *config);
 void showSinglePLayerMenu(int *socketfd, clientConfig *config);
 
 // Inicia um jogo single player aleatório.
-void playRandomSinglePlayerGame(int *socketfd, clientConfig *config);
+void playSinglePlayerGame(int *socketfd, clientConfig *config);
 
 // Exibe o menu de opções multiplayer.
 void showMultiPlayerMenu(int *socketfd, clientConfig *config);
@@ -35,8 +36,10 @@ void showMultiPlayerMenu(int *socketfd, clientConfig *config);
 // Permite ao utilizador criar ou entrar num novo jogo multiplayer.
 void createNewMultiplayerGame(int *socketfd, clientConfig *config);
 
+void showPossibleSynchronizations(int *socketfd, clientConfig *config);
+
 // Inicia um jogo multiplayer aleatório.
-void playRandomMultiPlayerGame(int *socketfd, clientConfig *config);
+void playMultiPlayerGame(int *socketfd, clientConfig *config, char *synchronization);
 
 // Exibe o menu de opções multiplayer.
 void showMultiPlayerMenu(int *socketfd, clientConfig *config);

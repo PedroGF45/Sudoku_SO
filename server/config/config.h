@@ -95,6 +95,7 @@ typedef struct {
 
     // bool to decide if the game is reader-writer or barbershop
     bool isReaderWriter;
+    bool isPriorityQueue;
 
     // barrier to start the game and end the game
     int waitingCount;
@@ -158,7 +159,9 @@ Node *createNode(int clientID, bool isPremium);
 
 void initPriorityQueue(PriorityQueue *queue, int queueSize);
 
-void enqueue(PriorityQueue *queue, int clientID, bool isPremium);
+void enqueueWithPriority(PriorityQueue *queue, int clientID, bool isPremium);
+
+void enqueueFIFO(PriorityQueue *queue, int clientID);
 
 int dequeue(PriorityQueue *queue);
 

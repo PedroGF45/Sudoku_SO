@@ -117,21 +117,39 @@ void *handleClient(void *arg) {
 
             printf("BUFFER RECEBIDO: %s\n", buffer);
             
-            // cliente quer um novo jogo random
+            // cliente quer ver as estatisticas
             if(strcmp(buffer, "GET_STATUS") == 0){
 
                 sendRoomStatistics(newSockfd);
 
-            } else if (strcmp(buffer, "newRandomSinglePlayerGame") == 0) {
+            } else if (strcmp(buffer, "newSinglePlayerGame") == 0) {
 
-                // criar novo jogo single Client
-                room = createRoomAndGame(serverConfig, client, true, true, 0);
+                // criar novo jogo single player
+                room = createRoomAndGame(serverConfig, client, true, true, 0, 0);
 
-            } else if(strcmp(buffer, "newRandomMultiPlayerGame") == 0) {
+            } else if(strcmp(buffer, "newMultiPlayerGameReadersWriters") == 0) {
 
-                printf("Cliente %d solicitou um novo jogo MultiPlayer\n", client->clientID);
+                printf("Cliente %d solicitou um novo jogo rando multiplayer game com readers-writers\n", client->clientID);
 
-                room = createRoomAndGame(serverConfig, client, false, true, 0);
+                room = createRoomAndGame(serverConfig, client, false, true, 0, 0);
+
+                // adicionar timer
+                handleTimer(serverConfig, room, client);
+
+            } else if (strcmp(buffer, "newMultiPlayerGameBarberShopPriority") == 0) {
+
+                printf("Cliente %d solicitou um novo jogo rando multiplayer game com barber shop priority\n", client->clientID);
+
+                room = createRoomAndGame(serverConfig, client, false, true, 0, 1);
+
+                // adicionar timer
+                handleTimer(serverConfig, room, client);
+
+            } else if (strcmp(buffer, "newMultiPlayerGameBarberShopFIFO") == 0) {
+
+                printf("Cliente %d solicitou um novo jogo rando multiplayer game com barber shop fifo\n", client->clientID);
+
+                room = createRoomAndGame(serverConfig, client, false, true, 0, 2);
 
                 // adicionar timer
                 handleTimer(serverConfig, room, client);
@@ -172,7 +190,34 @@ void *handleClient(void *arg) {
                         // obter ID do jogo
                         int gameID = atoi(buffer);
 
-                        room = createRoomAndGame(serverConfig, client, isSinglePlayer, false, gameID);
+                        int synchronizationType;
+
+                        // need to receive synchronization type
+                        if (!isSinglePlayer) {
+
+                            // receive synchronization type
+                            memset(buffer, 0, sizeof(buffer));
+
+                            if (recv(newSockfd, buffer, sizeof(buffer), 0) < 0) {
+                                    err_dump(serverConfig, 0, client->clientID, "can't receive synchronization type from client", EVENT_MESSAGE_SERVER_NOT_RECEIVED);
+                            } else {
+                                printf("BUFFER RECEBIDO PARA SYNCHRONIZATION TYPE: %s\n", buffer);
+                                if (strcmp(buffer, "newMultiPlayerGameReadersWriters") == 0) {
+                                    printf("Cliente %d escolheu o jogo com readers-writers\n", client->clientID);
+                                    synchronizationType = 0;
+                                } else if (strcmp(buffer, "newMultiPlayerGameBarberShopPriority") == 0) {
+                                    printf("Cliente %d escolheu o jogo com barber shop priority\n", client->clientID);
+                                    synchronizationType = 1;
+                                } else if (strcmp(buffer, "newMultiPlayerGameBarberShopFIFO") == 0) {
+                                    printf("Cliente %d escolheu o jogo com barber shop fifo\n", client->clientID);
+                                    synchronizationType = 2;
+                                }
+                            }
+
+                            printf("Synchronization type: %d\n", synchronizationType);
+                        }
+
+                        room = createRoomAndGame(serverConfig, client, isSinglePlayer, false, gameID, synchronizationType);
 
                         if (!isSinglePlayer) {
                             // adicionar timer
@@ -226,7 +271,7 @@ void *handleClient(void *arg) {
 
                         // add the Client to the queue
                         printf("ENQUEING CLIENT %d which is %s\n", client->clientID, client->isPremium ? "premium" : "not premium");
-                        enqueue(room->enterRoomQueue, client->clientID, client->isPremium);
+                        enqueueWithPriority(room->enterRoomQueue, client->clientID, client->isPremium);
 
                         //printf("BEFORE SLEEP\n");
 
@@ -354,7 +399,7 @@ void *handleClient(void *arg) {
  * - Imprime uma mensagem de confirmação e retorna a sala criada.
  */
 
-Room *createRoomAndGame(ServerConfig *config, Client *client, bool isSinglePlayer, bool isRandom, int gameID) {
+Room *createRoomAndGame(ServerConfig *config, Client *client, bool isSinglePlayer, bool isRandom, int gameID, int synchronizationType) {
 
     // check if there's config->rooms is full by looping
     if (config->numRooms >= config->maxRooms) {
@@ -366,7 +411,7 @@ Room *createRoomAndGame(ServerConfig *config, Client *client, bool isSinglePlaye
     }
 
     // create room
-    Room *room = createRoom(config, client->clientID, isSinglePlayer);
+    Room *room = createRoom(config, client->clientID, isSinglePlayer, synchronizationType);
 
     // load game
     Game *game;
@@ -388,9 +433,16 @@ Room *createRoomAndGame(ServerConfig *config, Client *client, bool isSinglePlaye
     joinRoom(config, room, client);
 
     // Mensagem de criação da sala
-    printf("New game created by client %d with game %d. Client %d is %s.\n", 
-           client->clientID, room->game->id, client->clientID, client->isPremium ? "Premium" : "Non-premium");
-    printf("Waiting for more Clients to join\n");
+    printf("New game created by client %d with game %d and room is synchronized by %s%s. Client %d is %s.\n", 
+            client->clientID, room->game->id, 
+            !room->isSinglePlayer ? (room->isReaderWriter ? "READER-WRITER" : "BARBER SHOP") : "",
+            !room->isSinglePlayer ? (!room->isReaderWriter ? (room->isPriorityQueue ? " and PRIORITY queue" : " and FIFO queue") : "") : "",
+            client->clientID, client->isPremium ? "Premium" : "Non-premium");
+    
+    if (!room->isSinglePlayer) {
+        printf("Waiting for more Clients to join\n");
+    }
+    
 
     return room;
 }

@@ -191,7 +191,7 @@ void initPriorityQueue(PriorityQueue *queue, int queueSize) {
     sem_init(&queue->full, 0, 0);
 }
 
-void enqueue(PriorityQueue *queue, int clientID, bool isPremium) {
+void enqueueWithPriority(PriorityQueue *queue, int clientID, bool isPremium) {
     //printf("CLIENT %d WANT TO JOIN THE ROOM\n", clientID);
 
     Node *newNode = createNode(clientID, isPremium); // create a new node
@@ -263,6 +263,28 @@ void enqueue(PriorityQueue *queue, int clientID, bool isPremium) {
 
     pthread_mutex_unlock(&queue->mutex);
     sem_post(&queue->full);
+}
+
+void enqueueFIFO(PriorityQueue *queue, int clientID) {
+
+    Node *newNode = createNode(clientID, false); // create a new node
+
+    sem_wait(&queue->empty); // wait for empty space
+
+    pthread_mutex_lock(&queue->mutex); // lock the queue
+
+    if (queue->front == NULL) { // if the queue is empty
+        queue->front = newNode;
+        queue->rear = newNode;
+    } else {                    // if the queue is not empty
+        queue->rear->next = newNode;
+        queue->rear = newNode;
+    }
+
+    pthread_mutex_unlock(&queue->mutex);
+
+    sem_post(&queue->full);
+
 }
 
 int dequeue(PriorityQueue *queue) {
