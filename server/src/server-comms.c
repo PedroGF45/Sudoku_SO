@@ -106,6 +106,8 @@ void *handleClient(void *arg) {
 
     while (continueLoop) {
 
+        printf("A aguardar por pedidos do cliente %d\n", client->clientID);
+
         client->startAgain = false;
         memset(buffer, 0, sizeof(buffer));
 
@@ -136,7 +138,7 @@ void *handleClient(void *arg) {
                 // adicionar timer
                 handleTimer(serverConfig, room, client);
 
-            } else if (strcmp(buffer, "newMultiPlayerGameBarberShopPriority") == 0) {
+            } else if (strcmp(buffer, "newMultiPlayerGameBarberShopStaticPriority") == 0) {
 
                 printf("Cliente %d solicitou um novo jogo rando multiplayer game com barber shop priority\n", client->clientID);
 
@@ -145,11 +147,20 @@ void *handleClient(void *arg) {
                 // adicionar timer
                 handleTimer(serverConfig, room, client);
 
+            } else if (strcmp(buffer, "newMultiPlayerGameBarberShopDynamicPriority") == 0) {
+
+                printf("Cliente %d solicitou um novo jogo rando multiplayer game com barber shop dynamic priority\n", client->clientID);
+
+                room = createRoomAndGame(serverConfig, client, false, true, 0, 2);
+
+                // adicionar timer
+                handleTimer(serverConfig, room, client);
+
             } else if (strcmp(buffer, "newMultiPlayerGameBarberShopFIFO") == 0) {
 
                 printf("Cliente %d solicitou um novo jogo rando multiplayer game com barber shop fifo\n", client->clientID);
 
-                room = createRoomAndGame(serverConfig, client, false, true, 0, 2);
+                room = createRoomAndGame(serverConfig, client, false, true, 0, 3);
 
                 // adicionar timer
                 handleTimer(serverConfig, room, client);
@@ -205,12 +216,15 @@ void *handleClient(void *arg) {
                                 if (strcmp(buffer, "newMultiPlayerGameReadersWriters") == 0) {
                                     printf("Cliente %d escolheu o jogo com readers-writers\n", client->clientID);
                                     synchronizationType = 0;
-                                } else if (strcmp(buffer, "newMultiPlayerGameBarberShopPriority") == 0) {
+                                } else if (strcmp(buffer, "newMultiPlayerGameBarberShopStaticPriority") == 0) {
                                     printf("Cliente %d escolheu o jogo com barber shop priority\n", client->clientID);
                                     synchronizationType = 1;
+                                } else if (strcmp(buffer, "newMultiPlayerGameBarberShopDynamicPriority") == 0) {
+                                    printf("Cliente %d escolheu o jogo com barber shop dynamic priority\n", client->clientID);
+                                    synchronizationType = 2;
                                 } else if (strcmp(buffer, "newMultiPlayerGameBarberShopFIFO") == 0) {
                                     printf("Cliente %d escolheu o jogo com barber shop fifo\n", client->clientID);
-                                    synchronizationType = 2;
+                                    synchronizationType = 3;
                                 }
                             }
 
@@ -432,11 +446,26 @@ Room *createRoomAndGame(ServerConfig *config, Client *client, bool isSinglePlaye
     
     joinRoom(config, room, client);
 
+    char buffer[BUFFER_SIZE];
+    memset(buffer, 0, sizeof(buffer));
+
+    strcpy(buffer, "");
+
+    if (!room->isSinglePlayer && !room->isReaderWriter) {
+        if (room->priorityQueueType == 0) {
+            strcpy(buffer, " and STATIC PRIORITIES queue");
+        } else if (room->priorityQueueType == 1) {
+            strcpy(buffer, " and DYNAMIC PRIORITIES queue");
+        } else if (room->priorityQueueType == 2) {
+            strcpy(buffer, "and FIFO queue");
+        }
+    }
+
     // Mensagem de criação da sala
     printf("New game created by client %d with game %d and room is synchronized by %s%s. Client %d is %s.\n", 
             client->clientID, room->game->id, 
             !room->isSinglePlayer ? (room->isReaderWriter ? "READER-WRITER" : "BARBER SHOP") : "",
-            !room->isSinglePlayer ? (!room->isReaderWriter ? (room->isPriorityQueue ? " and PRIORITY queue" : " and FIFO queue") : "") : "",
+            buffer,
             client->clientID, client->isPremium ? "Premium" : "Non-premium");
     
     if (!room->isSinglePlayer) {

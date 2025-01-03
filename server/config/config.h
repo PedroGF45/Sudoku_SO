@@ -7,6 +7,7 @@
 
 typedef struct Node {
     int clientID;
+    int timeInQueue;
     bool isPremium;
     struct Node* next;
 } Node;
@@ -95,7 +96,8 @@ typedef struct {
 
     // bool to decide if the game is reader-writer or barbershop
     bool isReaderWriter;
-    bool isPriorityQueue;
+    int priorityQueueType; // 0 static priority, 1 dynamic priority, 2 FIFO
+    int maxWaitingTime;
 
     // barrier to start the game and end the game
     int waitingCount;
@@ -128,6 +130,8 @@ typedef struct {
     int maxClientsOnline;
     int numClientsOnline;
     int numRooms;
+    int maxWaitingTime;
+
     Room **rooms;
     Client **clients;
 
@@ -161,7 +165,11 @@ void initPriorityQueue(PriorityQueue *queue, int queueSize);
 
 void enqueueWithPriority(PriorityQueue *queue, int clientID, bool isPremium);
 
-void enqueueFIFO(PriorityQueue *queue, int clientID);
+void updatePriority(PriorityQueue *queue);
+
+void updateQueueWithPriority(PriorityQueue *queue, int maxWaitingTime);
+
+void enqueueFifo(PriorityQueue *queue, int clientID);
 
 int dequeue(PriorityQueue *queue);
 

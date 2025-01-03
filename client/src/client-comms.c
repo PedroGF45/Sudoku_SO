@@ -487,17 +487,21 @@ void showPossibleSynchronizations(int *socketfd, clientConfig *config) {
                 break;
             case 2:
                 // create a new random multiplayer game with barber shop synchronization with priority queues
-                playMultiPlayerGame(socketfd, config, "barberShopPriority");
+                playMultiPlayerGame(socketfd, config, "barberShopStaticPriority");
                 break;
             case 3:
+                // create a new random multiplayer game with barber shop synchronization with dynamic priority queues
+                playMultiPlayerGame(socketfd, config, "barberShopDynamicPriority");
+                break;
+            case 4:
                 // create a new random multiplayer game with barber shop synchronization with a FIFO queue
                 playMultiPlayerGame(socketfd, config, "barberShopFIFO");
                 break;
-            case 4:
+            case 5:
                 // back to the multiplayer menu
                 createNewMultiplayerGame(socketfd, config);
                 break;
-            case 5:
+            case 6:
                 // close the connection
                 closeConnection(socketfd, config);
                 break;
@@ -505,7 +509,7 @@ void showPossibleSynchronizations(int *socketfd, clientConfig *config) {
                 printf("Invalid option\n");
                 break;
         }
-    } while (option < 1 || option > 5);
+    } while (option < 1 || option > 6);
 
 }
 
@@ -521,16 +525,21 @@ void playMultiPlayerGame(int *socketfd, clientConfig *config, char *synchronizat
         // buffer for readersWriters
         strcpy(buffer, "newMultiPlayerGameReadersWriters");
     
-    } else if (strcmp(synchronization, "barberShopPriority") == 0) {
+    } else if (strcmp(synchronization, "barberShopStaticPriority") == 0) {
         
         // buffer for barberShopPriority
-        strcpy(buffer, "newMultiPlayerGameBarberShopPriority");
+        strcpy(buffer, "newMultiPlayerGameBarberShopStaticPriority");
     
+    } else if (strcmp(synchronization, "barberShopDynamicPriority") == 0) {
+        
+        // buffer for barberShopDynamicPriority
+        strcpy(buffer, "newMultiPlayerGameBarberShopDynamicPriority");
+
     } else if (strcmp(synchronization, "barberShopFIFO") == 0) {
         
         // buffer for barberShopFIFO
         strcpy(buffer, "newMultiPlayerGameBarberShopFIFO");
-    
+
     } else {
         printf("Invalid synchronization option\n");
         return;

@@ -10,7 +10,7 @@
 #define INTERFACE_PLAY_MENU "1. Singleplayer\n2. Multiplayer\n3. Back\n4. Exit\nChoose an option: "
 #define INTERFACE_SELECT_GAME "1. New Random Game\n2. New Specific Game\n3. Back\n4. Exit\nChoose an option: "
 #define INTERFACE_SELECT_MULTIPLAYER_GAME "1. Create a New Multiplayer Game\n2. Join a Multiplayer Game\n3. Back\n4. Exit\nChoose an option: "
-#define INTERFACE_POSSIBLE_SYNCHRONIZATION "1. Readers-Writers\n2. Barber-Shop with priority\n3. Barber-Shop with FIFO\n4. Back\n5. Exit\nChoose an option: "
+#define INTERFACE_POSSIBLE_SYNCHRONIZATION "1. Readers-Writers\n2. Barber-Shop with static priority\n3. Barber-shop with dynamic priority\n4. Barber-Shop with FIFO\n5. Back\n6. Exit\nChoose an option: "
 
 
 void showStatisticsMenu(int *socketfd);

@@ -347,8 +347,7 @@ Room *createRoom(ServerConfig *config, int playerID, bool isSinglePlayer, int sy
     room->isSinglePlayer = isSinglePlayer;
     room->maxClients = room->isSinglePlayer ? 1 : config->maxClientsPerRoom;
     room->clients = (Client **)malloc(sizeof(Client *) * room->maxClients);
-
-    
+    room->maxWaitingTime = config->maxWaitingTime;
 
     // we dont need synchronization for single player games
     if (!room->isSinglePlayer) {
@@ -386,14 +385,19 @@ Room *createRoom(ServerConfig *config, int playerID, bool isSinglePlayer, int sy
             room->isReaderWriter = true;
         }
 
-        if (synchronizationType == 1) {
+        if (synchronizationType == 1) { // barber shop with static priority
             room->isReaderWriter = false;
-            room->isPriorityQueue = true;
+            room->priorityQueueType = 0;
         }
 
-        if (synchronizationType == 2) {
+        if (synchronizationType == 2) { // barber shop with dynamic priority
             room->isReaderWriter = false;
-            room->isPriorityQueue = false;
+            room->priorityQueueType = 1;
+        }
+
+        if (synchronizationType == 3) { // barber shop with FIFO
+            room->isReaderWriter = false;
+            room->priorityQueueType = 2;
         }
 
         if (!room->isReaderWriter) {
@@ -793,7 +797,7 @@ void releaseWriteLock(Room *room, Client *client) {
         sem_post(&room->readSemaphore);
     }
 
-    printf("WRITER %d IS DONE WRITING\n", client->clientID);
+    //printf("WRITER %d IS DONE WRITING\n", client->clientID);
 
     // unlock the writer mutex
     pthread_mutex_unlock(&room->writeMutex);
@@ -805,7 +809,7 @@ void acquireTurnsTileSemaphore(Room *room, Client *client) {
     // lock the mutex
     sem_wait(&room->mutexSemaphore);
 
-    printf("CLIENT %d ARRIVED AT THE TILE SEMAPHORE\n", client->clientID);
+    //printf("CLIENT %d ARRIVED AT THE TILE SEMAPHORE\n", client->clientID);
 
     // increment the waiting count
     room->waitingCount++;
@@ -813,8 +817,8 @@ void acquireTurnsTileSemaphore(Room *room, Client *client) {
     // if all players are waiting unlock the turns tile semaphore
     if (room->waitingCount == room->numClients) {
 
-        printf("CLIENT %d ARRIVED AND IT'S THE LAST ONE\n", client->clientID);
-        printf("RELEASING TURNS TILE SEMAPHORE\n");
+        //printf("CLIENT %d ARRIVED AND IT'S THE LAST ONE\n", client->clientID);
+        //printf("RELEASING TURNS TILE SEMAPHORE\n");
 
         // need to loop n times to unlock the turns tile semaphore
         for (int i = 0; i < room->numClients; i++) {
@@ -825,11 +829,11 @@ void acquireTurnsTileSemaphore(Room *room, Client *client) {
     // unlock the mutex
     sem_post(&room->mutexSemaphore);
 
-    printf("CLIENT %d IS WAITING FOR TURNS TILE SEMAPHORE\n", client->clientID);
+    //printf("CLIENT %d IS WAITING FOR TURNS TILE SEMAPHORE\n", client->clientID);
     // wait for the turns tile semaphore
     sem_wait(&room->turnsTileSemaphore1);
 
-    printf("CLIENT %d IS DONE WAITING FOR TURNS TILE SEMAPHORE\n", client->clientID);
+    //printf("CLIENT %d IS DONE WAITING FOR TURNS TILE SEMAPHORE\n", client->clientID);
 }
 
 void releaseTurnsTileSemaphore(Room *room, Client *client) {
@@ -877,22 +881,24 @@ void enterBarberShop(Room *room, Client *client) {
 
     printf("CLIENT %d ENTERED THE BARBER SHOP\n", client->clientID);
     // add the client to the barber shop queue
-    if (room->isPriorityQueue) {
+    if (room->priorityQueueType == 0) { // static priority
         enqueueWithPriority(room->barberShopQueue, client->clientID, client->isPremium);
-    } else {
-        enqueueFIFO(room->barberShopQueue, client->clientID);
+    } else if (room->priorityQueueType == 1) { // dynamic priority
+        enqueueWithPriority(room->barberShopQueue, client->clientID, client->isPremium);
+        updateQueueWithPriority(room->barberShopQueue, room->maxWaitingTime);
+    } else { // FIFO
+        enqueueFifo(room->barberShopQueue, client->clientID);
     }
         
-
     // unlock the barber shop mutex
     pthread_mutex_unlock(&room->barberShopMutex);
 
-    printf("CLIENT %d IS WAITING FOR THE BARBER1\n", client->clientID);
+    //printf("CLIENT %d IS WAITING FOR THE BARBER1\n", client->clientID);
 
     // wait for the costumer semaphore
     sem_post(&room->costumerSemaphore);
 
-    printf("CLIENT %d IS WAITING FOR THE BARBER2\n", client->clientID);
+    //printf("CLIENT %d IS WAITING FOR THE BARBER2\n", client->clientID);
 
     // wait for the self semaphore to be unlocked by the dequeue function
     sem_wait(&client->selfSemaphore);
@@ -900,8 +906,12 @@ void enterBarberShop(Room *room, Client *client) {
 
 void leaveBarberShop(Room *room, Client *client) {
 
+    //printf("CLIENT %d IS DONE WITH THE BARBER\n", client->clientID);
+
     // signal that the costumer is done
     sem_post(&room->costumerDoneSemaphore);
+
+    //printf("CLIENT %d IS WAITING FOR THE BARBER TO BE DONE\n", client->clientID);
 
     // wait for the barber to be done
     sem_wait(&room->barberDoneSemaphore);
@@ -918,7 +928,9 @@ void leaveBarberShop(Room *room, Client *client) {
 
 void barberCut(Room *room) {
 
-    printf("BARBER IS WAITING FOR A COSTUMER\n");
+    //printf("BARBER IS WAITING FOR A COSTUMER\n");
+
+    
 
     // wait for the costumer semaphore
     sem_wait(&room->costumerSemaphore);
@@ -926,9 +938,18 @@ void barberCut(Room *room) {
     // lock the barber shop mutex
     pthread_mutex_lock(&room->barberShopMutex);
 
+    //printf("NUMBER OF CUSTOMERS: %d\n", room->customers);
+
     // dequeue the client from the barber shop queue
     int clientID = dequeue(room->barberShopQueue);
     Client *client;
+
+    if (clientID == -1) {
+        printf("NO CLIENTS IN THE BARBER SHOP\n");
+        // unlock the barber shop mutex
+        pthread_mutex_unlock(&room->barberShopMutex);
+        return;
+    }
 
     // unlock the self semaphore
     for (int i = 0; i < room->maxClients; i++) {
@@ -949,8 +970,12 @@ void barberCut(Room *room) {
 }
 
 void barberIsDone(Room *room) {
+
+    //printf("BARBER IS DONE WITH THE COSTUMER1\n");
     // wait for the costumer done semaphore
     sem_wait(&room->costumerDoneSemaphore);
+
+    //printf("BARBER IS DONE WITH THE COSTUMER2\n");
 
     // signal that the barber is done
     sem_post(&room->barberDoneSemaphore);
@@ -962,10 +987,7 @@ void *handleBarber(void *arg) {
 
         Room *room = (Room *)arg;
 
-        // if there are customers
-        if (room->customers > 0) {
-            barberCut(room);
-            barberIsDone(room);
-        }
+        barberCut(room);
+        barberIsDone(room);
     }
 }
