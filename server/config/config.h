@@ -5,21 +5,7 @@
 #include <semaphore.h>
 #include <pthread.h>
 
-typedef struct Node {
-    int clientID;
-    int timeInQueue;
-    bool isPremium;
-    struct Node* next;
-} Node;
-
-// Define a structure for the queue
-typedef struct PriorityQueue {
-    Node* front;
-    Node* rear;
-    pthread_mutex_t mutex;
-    sem_t empty;
-    sem_t full;
-} PriorityQueue;
+#include "../../utils/queues/queues.h"
 
 /**
  * Estrutura que representa um jogo, incluindo o tabuleiro e a solução correta.
@@ -160,22 +146,5 @@ void addClient(ServerConfig *config, Client *client);
 
 // Remover um cliente da lista de clientes online
 void removeClient(ServerConfig *config, Client *client);
-
-// create a new node
-Node *createNode(int clientID, bool isPremium);
-
-void initPriorityQueue(PriorityQueue *queue, int queueSize);
-
-void enqueueWithPriority(PriorityQueue *queue, int clientID, bool isPremium);
-
-void updatePriority(PriorityQueue *queue);
-
-void updateQueueWithPriority(PriorityQueue *queue, int maxWaitingTime);
-
-void enqueueFifo(PriorityQueue *queue, int clientID);
-
-int dequeue(PriorityQueue *queue);
-
-void freePriorityQueue(PriorityQueue *queue);
 
 #endif // CONFIG_H

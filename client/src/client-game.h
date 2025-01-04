@@ -2,6 +2,7 @@
 #define CLIENT_GAME_H
 
 #include <stdbool.h>
+#include "client-menus.h"
 
 // Estrutura para armazenar estatísticas da resolução de uma linha
 typedef struct {
@@ -20,7 +21,13 @@ void resolveLine(char *buffer, char *line, int row, int difficulty, Estatisticas
 // Função para verificar se um número pode ser colocado numa célula específica do tabuleiro
 bool isValid(JSON_Array *board_array, int row, int col, int num, int difficulty);
 
-// Função para mostrar timer update
-int showTimerUpdate(char *buffer, int timeLeft);
+// Envia linhas de jogo ao servidor e processa o tabuleiro atualizado.
+void playGame(int *socketfd, clientConfig *config);
+
+// Exibe o tabuleiro de jogo recebido do servidor.
+char *showBoard(int *socketfd, clientConfig *config);
+
+// Acaba o jogo
+void finishGame(int *socketfd, clientConfig *config, EstatisticasLinha *estatisticas);
 
 #endif // CLIENT_GAME_H
