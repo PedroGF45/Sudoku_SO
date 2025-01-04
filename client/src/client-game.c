@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include "../../utils/logs/logs.h"
+#include "../../utils/logs/logs-common.h"
+#include "../logs/logs.h"
 #include "../../utils/parson/parson.h"
 #include "client-game.h"
 
@@ -54,10 +55,6 @@ int verifyLine(char *buffer) {
 
 void resolveLine(char *buffer, char *line, int row, int difficulty, EstatisticasLinha *estatisticas) {
     // Inicializar as estatísticas
-    estatisticas->tentativas = 0; // Iniciar com 0 tentativas
-    estatisticas->acertos = 0;
-    estatisticas->percentagemAcerto = 0.0;
-    estatisticas->tempoResolucao = 0.0;
     // Seed random number generator
     srand(time(NULL));
 
@@ -108,7 +105,7 @@ void resolveLine(char *buffer, char *line, int row, int difficulty, Estatisticas
     json_value_free(root_value);
 
     // Calcular a percentagem de acerto
-    estatisticas->percentagemAcerto = (float)estatisticas->acertos / 9 * 100;
+    estatisticas->percentagemAcerto = (estatisticas->acertos * 100) / (float)estatisticas->tentativas;
 
     // Exibir as estatísticas 
     //printf("Linha gerada: %s\n", line);

@@ -4,7 +4,6 @@
 #include <errno.h>
 #include "config.h"
 
-
 /**
  * Carrega as configurações do cliente a partir de um ficheiro de configuração especificado.
  *
@@ -67,8 +66,14 @@ clientConfig *getClientConfig(char *configPath) {
     if (fgets(line, sizeof(line), file) != NULL) {
         // Remover a nova linha, se houver
         line[strcspn(line, "\n")] = 0;
-        sscanf(line, "LOG_PATH = %s", config->logPath);
+        sscanf(line, "LOG_PATH = %s", config->sourceLogPath);
     }
+
+    // add temporary client id 0
+    char logPath[512];
+    snprintf(logPath, sizeof(logPath), "%sclient-%d-logs.json", config->sourceLogPath, 0);
+    // set logPath to the new logPath
+    strcpy(config->logPath, logPath);
     
     if (fgets(line, sizeof(line), file) != NULL) {
         int isManual;
@@ -81,14 +86,14 @@ clientConfig *getClientConfig(char *configPath) {
     }
 
     if (fgets(line, sizeof(line), file) != NULL) {
+        int isPremium;
         // Remover a nova linha, se houver
         line[strcspn(line, "\n")] = 0;
-        sscanf(line, "IS_PREMIUM = %d", &config->isPremium);
+        sscanf(line, "IS_PREMIUM = %d", &isPremium);
 
         // Converte o valor lido para booleano
-        config->isPremium = config->isPremium == 1 ? true : false;
+        config->isPremium = isPremium == 1 ? true : false;
     }
-
 
     if (fgets(line, sizeof(line), file) != NULL) {
         // Remover a nova linha, se houver
@@ -105,7 +110,6 @@ clientConfig *getClientConfig(char *configPath) {
     printf("IP do servidor: %s\n", config->serverIP);
     printf("Porta do servidor: %d\n", config->serverPort);
     printf("Hostname do servidor: %s\n", config->serverHostName);
-    printf("ID do cliente: %d\n", config->clientID);
     printf("Log path do cliente: %s\n", config->logPath);
     printf("Modo: %s\n", config->isManual ? "manual" : "automatico");
     printf("Cliente %s premium.\n", config->isPremium ? "SIM" : "NAO");

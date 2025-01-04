@@ -4,9 +4,11 @@
 #include <time.h>   // Usar time()
 #include <stdbool.h> // Usar bool
 #include <pthread.h>
-#include "../../utils/logs/logs.h"
+#include <unistd.h>
+#include "../../utils/logs/logs-common.h"
 #include "../../utils/parson/parson.h"
 #include "server-game.h"
+#include "../logs/logs.h"
 
 static int nextRoomID = 1;
 
@@ -67,7 +69,7 @@ Game *loadGame(ServerConfig *config, int gameID, int playerID) {
     FILE *file = fopen(config->gamePath, "r");
 
     if (file == NULL) {
-        writeLogJSON(config->logPath, gameID, playerID, EVENT_GAME_NOT_LOAD);
+        produceLog(config, "Erro ao abrir o ficheiro de jogos.", EVENT_GAME_NOT_LOAD, gameID, playerID);
         free(game);  // Free allocated memory before exiting
         return NULL;
     }
@@ -126,8 +128,8 @@ Game *loadGame(ServerConfig *config, int gameID, int playerID) {
                 }
             }
       
-            // game has been loaded
-            writeLogJSON(config->logPath, gameID, playerID, EVENT_GAME_LOAD);
+            // game has been loaded successfully
+            produceLog(config, "Jogo carregado com sucesso", EVENT_GAME_LOAD, gameID, playerID);
 
             // if game has been found leave loop
             json_value_free(root_value);
@@ -140,10 +142,8 @@ Game *loadGame(ServerConfig *config, int gameID, int playerID) {
         
         // cria mensagem mais detalhada
         char logMessage[100];
-        snprintf(logMessage, sizeof(logMessage), "%s: game com ID %d nao encontrado", EVENT_GAME_NOT_LOAD, gameID);
-
-        // escreve log de game nao encontrado
-        writeLogJSON(config->logPath, gameID, playerID, logMessage);
+        snprintf(logMessage, sizeof(logMessage), "game com ID %d nao encontrado", gameID);
+        produceLog(config, logMessage, EVENT_GAME_NOT_FOUND, gameID, playerID);
 
         // mostra no terminal e encerra programa
         fprintf(stderr, "game com ID %d nao encontrado.\n", gameID);
@@ -184,8 +184,7 @@ Game *loadRandomGame(ServerConfig *config, int playerID) {
 
     // check if file is opened
     if (file == NULL) {
-        writeLogJSON(config->logPath, 0, playerID, EVENT_GAME_NOT_LOAD);
-        exit(1);
+        err_dump(config, 0, playerID, "Erro ao abrir o ficheiro de jogos.", EVENT_GAME_NOT_LOAD);
     }
 
     // get the size of the file
@@ -251,12 +250,12 @@ Game *loadRandomGame(ServerConfig *config, int playerID) {
  * - Regista no log se a linha foi validada como correta ou incorreta e devolve 1 ou 0, respetivamente.
  */
 
-int verifyLine(char * logFileName, char * solutionSent, Game *game, int insertLine[9], int playerID) {
+int verifyLine(ServerConfig *config, Game *game, char * solutionSent, int insertLine[9], int playerID) {
 
     char logMessage[100];
     
-    sprintf(logMessage, "O jogador %d no jogo %d %s para a linha %d: %s", playerID, game->id, EVENT_SOLUTION_SENT, game->currentLine, solutionSent);
-    writeLogJSON(logFileName, game->id, playerID, logMessage);
+    sprintf(logMessage, "O jogador %d no jogo %d para a linha %d: %s", playerID, game->id, game->currentLine, solutionSent);
+    produceLog(config, logMessage, EVENT_SOLUTION_SENT, game->id, playerID);
     
     for (int j = 0; j < 9; j++) {
 
@@ -269,7 +268,7 @@ int verifyLine(char * logFileName, char * solutionSent, Game *game, int insertLi
         // se o valor inserido for diferente do valor da solução
         } 
 
-        printf("Posição %d: esperado %d, recebido %d\n", j + 1, game->solution[game->currentLine - 1][j], insertLine[j]);
+        //printf("Posição %d: esperado %d, recebido %d\n", j + 1, game->solution[game->currentLine - 1][j], insertLine[j]);
     }
 
     // limpa logMessage
@@ -280,14 +279,14 @@ int verifyLine(char * logFileName, char * solutionSent, Game *game, int insertLi
 
         // linha correta
         snprintf(logMessage, sizeof(logMessage), "Linha enviada (%s) validada como CERTA", solutionSent);
-        writeLogJSON(logFileName, game->id, playerID, logMessage);
+        produceLog(config, logMessage, EVENT_SOLUTION_CORRECT, game->id, playerID);
         return 1;
 
     } else {
 
         // linha incorreta
         snprintf(logMessage, sizeof(logMessage), "Linha enviada (%s) validada como ERRADA/INCOMPLETA", solutionSent);
-        writeLogJSON(logFileName, game->id, playerID, logMessage);
+        produceLog(config, logMessage, EVENT_SOLUTION_INCORRECT, game->id, playerID);
         return 0;
     }
 }
@@ -331,46 +330,156 @@ bool isLineCorrect(Game *game, int row) {
  * - Devolve o pointer para a sala criada, ou NULL se a alocação de memória falhar.
  */
 
-Room *createRoom(ServerConfig *config, int playerID, bool isSinglePlayer) {
+Room *createRoom(ServerConfig *config, int playerID, bool isSinglePlayer, int synchronizationType) {
 
     Room *room = (Room *)malloc(sizeof(Room));
     if (room == NULL) {
-        err_dump(config->logPath, 0, playerID, "Memory allocation failed", EVENT_ROOM_NOT_LOAD);
+        err_dump(config, 0, playerID, "Memory allocation failed", EVENT_ROOM_NOT_LOAD);
         return NULL;
     }
     memset(room, 0, sizeof(Room));  // Initialize Room struct
 
     room->id = generateUniqueId();
     printf("Room ID na criação da room: %d\n", room->id);
-    room->players = (int *)malloc(config->maxPlayersPerRoom * sizeof(int));
-    room->clientSockets = (int *)malloc(config->maxPlayersPerRoom * sizeof(int));
     room->timer = 60;
     room->isGameRunning = false;
     room->isFinished = false;
     room->isSinglePlayer = isSinglePlayer;
+    room->maxClients = room->isSinglePlayer ? 1 : config->maxClientsPerRoom;
+    room->clients = (Client **)malloc(sizeof(Client *) * room->maxClients);
+    room->maxWaitingTime = config->maxWaitingTime;
 
-    // initialize mutex
-    pthread_mutex_init(&room->mutex, NULL);
+    // we dont need synchronization for single player games
+    if (!room->isSinglePlayer) {
 
-    // initialize semaphore with MAX_PLAYERS_PER_ROOM
-    sem_init(&room->beginSemaphore, 0, config->maxPlayersPerRoom);
+        // Inicializar priority queue
+        room->enterRoomQueue = (PriorityQueue *)malloc(sizeof(PriorityQueue));
+        initPriorityQueue(room->enterRoomQueue, room->maxClients * 2);
+
+        // Initialize reader-writer locks
+        sem_init(&room->writeSemaphore, 0, 1); // Inicializar semáforo para escrita e começa a aceitar 1 escritor
+        sem_init(&room->readSemaphore, 0, 1); // Inicializar semáforo para leitura e começa a aceitar 1 leitor
+        sem_init(&room->nonPremiumWriteSemaphore, 0, 0); //
+        pthread_mutex_init(&room->readMutex, NULL); // Inicializar mutex para leitura
+        pthread_mutex_init(&room->writeMutex, NULL); // Inicializar mutex para escrita
+        room->readerCount = 0;
+        room->writerCount = 0;
+
+        // Inicializar barreira para começar e terminar o jogo
+        room->waitingCount = 0;
+        sem_init(&room->mutexSemaphore, 0, 1);
+        sem_init(&room->turnsTileSemaphore1, 0, 0);
+        sem_init(&room->turnsTileSemaphore2, 0, 0);
+
+        // barber shop initialization
+        room->customers = 0;
+        pthread_mutex_init(&room->barberShopMutex, NULL);
+        sem_init(&room->costumerSemaphore, 0, 0);
+        sem_init(&room->costumerDoneSemaphore, 0, 0);
+        sem_init(&room->barberDoneSemaphore, 0, 0);
+        room->barberShopQueue = (PriorityQueue *)malloc(sizeof(PriorityQueue));
+        initPriorityQueue(room->barberShopQueue, room->maxClients);
+
+        // check if the game is reader-writer or barber shop
+        if (synchronizationType == 0) {
+            room->isReaderWriter = true;
+        }
+
+        if (synchronizationType == 1) { // barber shop with static priority
+            room->isReaderWriter = false;
+            room->priorityQueueType = 0;
+        }
+
+        if (synchronizationType == 2) { // barber shop with dynamic priority
+            room->isReaderWriter = false;
+            room->priorityQueueType = 1;
+        }
+
+        if (synchronizationType == 3) { // barber shop with FIFO
+            room->isReaderWriter = false;
+            room->priorityQueueType = 2;
+        }
+
+        if (!room->isReaderWriter) {
+            // initialize thread for barber
+            if(pthread_create(&room->barberThread, NULL, handleBarber, (void *)room)) {
+                err_dump(config, 0, playerID, "Erro ao criar a thread do barbeiro", EVENT_THREAD_NOT_CREATE);
+            }
+            produceLog(config, "Barbeiro criado com sucesso", EVENT_BARBER_CREATED, room->id, playerID);
+        }
+        
+        // initialize mutexes
+        pthread_mutex_init(&room->mutex, NULL);
+        pthread_mutex_init(&room->timerMutex, NULL);
+    }
 
     // add the room to the list of rooms and increment the number of rooms
     config->rooms[config->numRooms++] = room;
 
     // log room creation
-    writeLogJSON(config->logPath, 0, playerID, EVENT_ROOM_LOAD);
+    produceLog(config, "Sala criada com sucesso", EVENT_ROOM_LOAD, room->id, playerID);
+    return room;
+}
+
+Room *getRoom(ServerConfig *config, int roomID, int playerID) {
+
+    // check if roomID is valid
+    if (roomID < 1) {
+        err_dump(config, 0, playerID, "Room ID is invalid", EVENT_ROOM_NOT_JOIN);
+        return NULL;
+    }
+
+    // get the room by looping through the rooms
+    Room *room = NULL;
+    for (int i = 0; i < config->numRooms; i++) {
+        //printf("i: %d\n", i);
+        //printf("NR rooms: %d\n", config->numRooms);
+        //printf("ROOM ID: %d\n", config->rooms[i]->id);
+        if (config->rooms[i]->id == roomID) {
+            room = config->rooms[i];
+            break;
+        }
+    }
+
     return room;
 }
 
 void deleteRoom(ServerConfig *config, int roomID) {
     for (int i = 0; i < config->numRooms; i++) {
         if (config->rooms[i]->id == roomID) {
-            free(config->rooms[i]->players);
-            free(config->rooms[i]->clientSockets);
+            printf("FREEING MEMORY FOR ROOM %d\n", roomID);
+            
+            free(config->rooms[i]->clients); 
+
             free(config->rooms[i]->game);
-            pthread_mutex_destroy(&config->rooms[i]->mutex);
-            sem_destroy(&config->rooms[i]->beginSemaphore);
+
+            // Destruir mutexes e semáforos
+            if (!config->rooms[i]->isSinglePlayer) {
+                pthread_mutex_destroy(&config->rooms[i]->mutex);
+                pthread_mutex_destroy(&config->rooms[i]->timerMutex);
+                pthread_mutex_destroy(&config->rooms[i]->readMutex);
+                pthread_mutex_destroy(&config->rooms[i]->writeMutex);
+                pthread_mutex_destroy(&config->rooms[i]->barberShopMutex);
+                sem_destroy(&config->rooms[i]->mutexSemaphore);
+                sem_destroy(&config->rooms[i]->turnsTileSemaphore1);
+                sem_destroy(&config->rooms[i]->turnsTileSemaphore2);
+                sem_destroy(&config->rooms[i]->writeSemaphore);
+                sem_destroy(&config->rooms[i]->readSemaphore);
+                sem_destroy(&config->rooms[i]->nonPremiumWriteSemaphore);
+                sem_destroy(&config->rooms[i]->costumerSemaphore);
+                sem_destroy(&config->rooms[i]->costumerDoneSemaphore);
+                sem_destroy(&config->rooms[i]->barberDoneSemaphore);
+
+                // destroy barber
+                if (!config->rooms[i]->isReaderWriter) {
+                    pthread_cancel(config->rooms[i]->barberThread);
+                }
+
+                // free priority queue
+                freePriorityQueue(config->rooms[i]->enterRoomQueue);
+                freePriorityQueue(config->rooms[i]->barberShopQueue);
+            }
+
             free(config->rooms[i]);
 
             // shift all rooms to the left
@@ -380,12 +489,15 @@ void deleteRoom(ServerConfig *config, int roomID) {
 
             // decrement number of rooms
             config->numRooms--;
+
+            // log room deletion
+            produceLog(config, "Sala eliminada com sucesso", EVENT_ROOM_DELETE, roomID, 0);
+
             break;
         }
     }
 
-    // log room deletion
-    writeLogJSON(config->logPath, roomID, 0, EVENT_ROOM_DELETE);
+    
 }
 
 /**
@@ -415,8 +527,7 @@ char *getGames(ServerConfig *config) {
 
     // check if file is opened
     if (file == NULL) {
-        writeLogJSON(config->logPath, 0, 0, EVENT_GAME_NOT_LOAD);
-        exit(1);
+        err_dump(config, 0, 0, "Erro ao abrir o ficheiro de jogos.", EVENT_GAME_NOT_LOAD);
     }
 
     // get the size of the file
@@ -491,14 +602,14 @@ char *getGames(ServerConfig *config) {
 
 char *getRooms(ServerConfig *config) {
 
-        // iterate over the rooms
-        if (config->numRooms == 0) {
-            return "No rooms available\n";
-        }
-    
         // create a string to store the rooms
         char *rooms = (char *)malloc(BUFFER_SIZE);
         memset(rooms, 0, 1024);
+
+        // iterate over the rooms
+        if (config->numRooms == 0) {
+            strcpy(rooms, "No rooms available\n");
+        }
 
         for (int i = 0; i < config->numRooms; i++) {
             if (config->rooms[i] == NULL) {
@@ -508,14 +619,14 @@ char *getRooms(ServerConfig *config) {
             if (config->rooms[i]->isGameRunning == false) {
                 // show number of players in the room, max players in the room and the game ID
                 char roomString[100];
-                sprintf(roomString, "Room ID: %d, Players: %d/%d, Game ID: %d\n", config->rooms[i]->id, config->rooms[i]->numPlayers, config->rooms[i]->maxPlayers, config->rooms[i]->game->id);
+                sprintf(roomString, "Room ID: %d, Players: %d/%d, Game ID: %d\n", config->rooms[i]->id, config->rooms[i]->numClients, config->rooms[i]->maxClients, config->rooms[i]->game->id);
                 strcat(rooms, roomString);
             }
         }
 
         // if no rooms are available
         if (strlen(rooms) == 0) {
-            return "No rooms available\n";
+            strcpy(rooms, "No rooms available\n");
         }
 
         // return the rooms
@@ -534,7 +645,7 @@ void updateGameStatistics(ServerConfig *config, int gameID, int elapsedTime, flo
     char *file_content = malloc(file_size + 1);
     if (file_content == NULL) {
         fclose(file);
-        err_dump(config->logPath, gameID, 0, "memory allocation failed when updating statistics", MEMORY_ERROR);
+        err_dump(config, gameID, 0, "memory allocation failed when updating statistics", MEMORY_ERROR);
         return;
     }
 
@@ -568,8 +679,8 @@ void updateGameStatistics(ServerConfig *config, int gameID, int elapsedTime, flo
 
                 // write to log
                 char logMessage[100];
-                snprintf(logMessage, sizeof(logMessage), "%s: Tempo recorde atualizado para %d segundos no jogo %d", EVENT_NEW_RECORD, elapsedTime, gameID);
-                writeLogJSON(config->logPath, gameID, 0, logMessage);
+                snprintf(logMessage, sizeof(logMessage), "Tempo recorde atualizado para %d segundos no jogo %d", elapsedTime, gameID);
+                produceLog(config, logMessage, EVENT_NEW_RECORD, gameID, 0);
 
                 printf("Tempo recorde atualizado de %d para %d segundos no jogo %d\n", previousTimeRecord, elapsedTime, gameID);
             }
@@ -580,8 +691,8 @@ void updateGameStatistics(ServerConfig *config, int gameID, int elapsedTime, flo
 
                 // write to log
                 char logMessage[100];
-                snprintf(logMessage, sizeof(logMessage), "%s: Precisão recorde atualizada para %f no jogo %d", EVENT_NEW_RECORD, accuracy, gameID);
-                writeLogJSON(config->logPath, gameID, 0, logMessage);
+                snprintf(logMessage, sizeof(logMessage), "Precisão recorde atualizada para %f no jogo %d", accuracy, gameID);
+                produceLog(config, logMessage, EVENT_NEW_RECORD, gameID, 0);
 
                 printf("Precisão recorde atualizada de %.2f para %.2f no jogo %d\n", previousAccuracyRecord, accuracy, gameID);
             }
@@ -592,7 +703,7 @@ void updateGameStatistics(ServerConfig *config, int gameID, int elapsedTime, flo
     // write the updated JSON to the file
     file = fopen(config->gamePath, "w");
     if (file == NULL) {
-        err_dump(config->logPath, gameID, 0, "can't open file to write updated statistics", MEMORY_ERROR);
+        err_dump(config, gameID, 0, "can't open file to write updated statistics", MEMORY_ERROR);
         json_value_free(root_value);
         return;
     }
@@ -604,4 +715,279 @@ void updateGameStatistics(ServerConfig *config, int gameID, int elapsedTime, flo
 
     // free the JSON object
     json_value_free(root_value);
+}
+
+void acquireReadLock(Room *room) {
+    // indicate that a reader is entering the room
+    sem_wait(&room->readSemaphore);
+
+    // lock mutex
+    pthread_mutex_lock(&room->readMutex);
+
+    // increment reader count
+    room->readerCount++;
+
+    // if first reader lock the write semaphore
+    if (room->readerCount == 1) {
+        sem_wait(&room->writeSemaphore); //(decrementa o semáforo)
+    }
+
+    // unlock mutex
+    pthread_mutex_unlock(&room->readMutex);
+
+    // unlock the reader semaphore
+    sem_post(&room->readSemaphore);
+}
+
+void releaseReadLock(Room *room) {
+    // lock mutex
+    pthread_mutex_lock(&room->readMutex);
+
+    // decrement reader count
+    room->readerCount--;
+
+    // if last reader unlock the write semaphore
+    if (room->readerCount == 0) {
+        sem_post(&room->writeSemaphore);//(incrementa o semáforo)
+    }
+
+    // unlock mutex
+    pthread_mutex_unlock(&room->readMutex);
+}
+
+void acquireWriteLock(Room *room, Client *client) {
+
+    // add a random delay to appear more natural
+    //int delay = rand() % 5;
+    //sleep(delay);
+
+    pthread_mutex_lock(&room->writeMutex);
+
+    // increment writer count
+    room->writerCount++;
+
+    printf("WRITER COUNT: %d from client %d\n", room->writerCount, client->clientID);
+
+    // if first writer lock the read semaphore to block readers
+    if (room->writerCount == 1) {
+        printf("WRITER %d IS LOCKING READ SEMAPHORE\n", client->clientID);
+        sem_wait(&room->readSemaphore);
+    }
+
+    // unlock the writer mutex
+    pthread_mutex_unlock(&room->writeMutex);
+
+    // lock the write semaphore
+    //printf("WRITER %d IS WAITING FOR WRITE SEMAPHORE\n", client->clientID);
+    sem_wait(&room->writeSemaphore);
+}
+
+void releaseWriteLock(Room *room, Client *client) {
+
+    sem_post(&room->writeSemaphore);
+
+    // lock the writer mutex
+    pthread_mutex_lock(&room->writeMutex);
+
+    // decrement writer count
+    room->writerCount--;
+
+    // if last writer unlock the read semaphore
+    if (room->writerCount == 0) {
+        sem_post(&room->readSemaphore);
+    }
+
+    //printf("WRITER %d IS DONE WRITING\n", client->clientID);
+
+    // unlock the writer mutex
+    pthread_mutex_unlock(&room->writeMutex);
+
+}
+
+void acquireTurnsTileSemaphore(Room *room, Client *client) {
+
+    // lock the mutex
+    sem_wait(&room->mutexSemaphore);
+
+    //printf("CLIENT %d ARRIVED AT THE TILE SEMAPHORE\n", client->clientID);
+
+    // increment the waiting count
+    room->waitingCount++;
+
+    // if all players are waiting unlock the turns tile semaphore
+    if (room->waitingCount == room->numClients) {
+
+        //printf("CLIENT %d ARRIVED AND IT'S THE LAST ONE\n", client->clientID);
+        //printf("RELEASING TURNS TILE SEMAPHORE\n");
+
+        // need to loop n times to unlock the turns tile semaphore
+        for (int i = 0; i < room->numClients; i++) {
+            sem_post(&room->turnsTileSemaphore1);
+        }
+    }
+
+    // unlock the mutex
+    sem_post(&room->mutexSemaphore);
+
+    //printf("CLIENT %d IS WAITING FOR TURNS TILE SEMAPHORE\n", client->clientID);
+    // wait for the turns tile semaphore
+    sem_wait(&room->turnsTileSemaphore1);
+
+    //printf("CLIENT %d IS DONE WAITING FOR TURNS TILE SEMAPHORE\n", client->clientID);
+}
+
+void releaseTurnsTileSemaphore(Room *room, Client *client) {
+
+    // lock the mutex
+    sem_wait(&room->mutexSemaphore);
+
+    printf("CLIENT %d ARRIVED AT THE TILE SEMAPHORE\n", client->clientID);
+
+    // decrement the waiting count
+    room->waitingCount--;
+
+    // if all players are done unlock the turns tile semaphore
+    if (room->waitingCount == 0) {
+
+        printf("CLIENT %d ARRIVED AND IT'S THE LAST ONE\n", client->clientID);
+        printf("RELEASING TURNS TILE SEMAPHORE\n");
+
+        // need to loop n times to unlock the turns tile semaphore
+        for (int i = 0; i < room->maxClients; i++) {
+            sem_post(&room->turnsTileSemaphore2);
+        }
+    }
+
+    // unlock the mutex
+    sem_post(&room->mutexSemaphore);
+
+    printf("CLIENT %d IS WAITING FOR TURNS TILE SEMAPHORE\n", client->clientID);
+    // wait for the turns tile semaphore
+    sem_wait(&room->turnsTileSemaphore2);
+    printf("CLIENT %d IS DONE WAITING FOR TURNS TILE SEMAPHORE\n", client->clientID);
+
+}
+
+void enterBarberShop(Room *room, Client *client) {
+
+    // initialize self semaphore
+    sem_init(&client->selfSemaphore, 0, 0);
+
+    // lock the barber shop mutex
+    pthread_mutex_lock(&room->barberShopMutex);
+
+    // increment the number of customers
+    room->customers++;
+
+    //printf("CLIENT %d ENTERED THE BARBER SHOP\n", client->clientID);
+    // add the client to the barber shop queue
+    if (room->priorityQueueType == 0) { // static priority
+        enqueueWithPriority(room->barberShopQueue, client->clientID, client->isPremium);
+    } else if (room->priorityQueueType == 1) { // dynamic priority
+        enqueueWithPriority(room->barberShopQueue, client->clientID, client->isPremium);
+        updateQueueWithPriority(room->barberShopQueue, room->maxWaitingTime);
+    } else { // FIFO
+        enqueueFifo(room->barberShopQueue, client->clientID);
+    }
+        
+    // unlock the barber shop mutex
+    pthread_mutex_unlock(&room->barberShopMutex);
+
+    //printf("CLIENT %d IS WAITING FOR THE BARBER1\n", client->clientID);
+
+    // wait for the costumer semaphore
+    sem_post(&room->costumerSemaphore);
+
+    //printf("CLIENT %d IS WAITING FOR THE BARBER2\n", client->clientID);
+
+    // wait for the self semaphore to be unlocked by the dequeue function
+    sem_wait(&client->selfSemaphore);
+}
+
+void leaveBarberShop(Room *room, Client *client) {
+
+    //printf("CLIENT %d IS DONE WITH THE BARBER\n", client->clientID);
+
+    // signal that the costumer is done
+    sem_post(&room->costumerDoneSemaphore);
+
+    //printf("CLIENT %d IS WAITING FOR THE BARBER TO BE DONE\n", client->clientID);
+
+    // wait for the barber to be done
+    sem_wait(&room->barberDoneSemaphore);
+
+    // lock the barber shop mutex
+    pthread_mutex_lock(&room->barberShopMutex);
+
+    // decrement the number of customers
+    room->customers--;
+
+    // unlock the barber shop mutex
+    pthread_mutex_unlock(&room->barberShopMutex);
+}
+
+void barberCut(Room *room) {
+
+    //printf("BARBER IS WAITING FOR A COSTUMER\n");
+
+    
+
+    // wait for the costumer semaphore
+    sem_wait(&room->costumerSemaphore);
+
+    // lock the barber shop mutex
+    pthread_mutex_lock(&room->barberShopMutex);
+
+    //printf("NUMBER OF CUSTOMERS: %d\n", room->customers);
+
+    // dequeue the client from the barber shop queue
+    int clientID = dequeue(room->barberShopQueue);
+    Client *client;
+
+    if (clientID == -1) {
+        printf("NO CLIENTS IN THE BARBER SHOP\n");
+        // unlock the barber shop mutex
+        pthread_mutex_unlock(&room->barberShopMutex);
+        return;
+    }
+
+    // unlock the self semaphore
+    for (int i = 0; i < room->maxClients; i++) {
+        if (room->clients[i]->clientID == clientID) {
+            client = room->clients[i];
+            break;
+        }
+    }
+
+    // unlock the barber shop mutex
+    pthread_mutex_unlock(&room->barberShopMutex);
+
+    // post the self semaphore
+    sem_post(&client->selfSemaphore);
+
+    // delete the self semaphore
+    sem_destroy(&client->selfSemaphore);
+}
+
+void barberIsDone(Room *room) {
+
+    //printf("BARBER IS DONE WITH THE COSTUMER1\n");
+    // wait for the costumer done semaphore
+    sem_wait(&room->costumerDoneSemaphore);
+
+    //printf("BARBER IS DONE WITH THE COSTUMER2\n");
+
+    // signal that the barber is done
+    sem_post(&room->barberDoneSemaphore);
+}
+
+void *handleBarber(void *arg) {
+
+    while (1) {
+
+        Room *room = (Room *)arg;
+
+        barberCut(room);
+        barberIsDone(room);
+    }
 }

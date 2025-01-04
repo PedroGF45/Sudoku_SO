@@ -1,11 +1,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
-#include "../../utils/logs/logs.h"
+#include "../../utils/logs/logs-common.h"
 #include "../../utils/network/network.h"
 #include "../config/config.h"
 #include "../../utils/parson/parson.h"
 #include "client-comms.h"
+#include "../logs/logs.h"
 
 
 /**
@@ -54,19 +55,19 @@
     char buffer[BUFFER_SIZE];
     memset(buffer, 0, sizeof(buffer));
 
-    // send client ID to server
-    sprintf(buffer, "clientID");
+    // send client premium status to server
+    if (config->isPremium) {
+        sprintf(buffer, "premium");
+    } else {
+        sprintf(buffer, "not premium");
+    }
 
     if (send(sockfd, buffer, strlen(buffer), 0) < 0) {
-        // erro ao enviar ID do cliente para o servidor
-        err_dump(config->logPath, 0, 0, "can't ask for a client ID", EVENT_MESSAGE_CLIENT_NOT_SENT);
-
+        // erro ao enviar status premium para o servidor
+        err_dump_client(config->logPath, 0, 0, "can't send premium status", EVENT_MESSAGE_CLIENT_NOT_SENT);
     } else {
-
         char logMessage[256];
-        snprintf(logMessage, sizeof(logMessage), "%s: asked for a client ID", EVENT_MESSAGE_CLIENT_SENT);
-
-        // log message sent to server
+        snprintf(logMessage, sizeof(logMessage), "%s: sent premium status", EVENT_MESSAGE_CLIENT_SENT);
         writeLogJSON(config->logPath, 0, config->clientID, logMessage);
     }
 
@@ -74,9 +75,16 @@
     memset(buffer, 0, sizeof(buffer));
     if (recv(sockfd, buffer, sizeof(buffer), 0) < 0) {
         // erro ao receber ID do cliente do servidor
-        err_dump(config->logPath, 0, 0, "can't receive client ID", EVENT_MESSAGE_CLIENT_NOT_RECEIVED);
+        err_dump_client(config->logPath, 0, 0, "can't receive client ID", EVENT_MESSAGE_CLIENT_NOT_RECEIVED);
     } else {
         config->clientID = atoi(buffer);
+        printf("ID do cliente: %d\n", config->clientID);
+
+        // add real client id
+        char logPath[512];
+        snprintf(logPath, sizeof(logPath), "%sclient-%d-logs.json", config->sourceLogPath, config->clientID);
+        // set logPath to the new logPath
+        strcpy(config->logPath, logPath);
 
         char logMessage[256];
         snprintf(logMessage, sizeof(logMessage), "%s: received client ID %d", EVENT_MESSAGE_CLIENT_RECEIVED, config->clientID);

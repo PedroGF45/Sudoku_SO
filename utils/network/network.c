@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <errno.h>
-#include "../logs/logs.h"
+#include "../logs/logs-common.h"
 #include "network.h"
 
 /* Funções utilitárias retiradas de "UNIX Networking Programming" */
