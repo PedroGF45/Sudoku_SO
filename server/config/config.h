@@ -141,6 +141,9 @@ typedef struct {
     sem_t spacesSemaphore; // semaphore to signal when there are spaces to produce
 
     char logBuffer[10][256]; // buffer to store log messages
+
+    // mutex
+    pthread_mutex_t mutex;
 } ServerConfig;
 
 typedef struct {

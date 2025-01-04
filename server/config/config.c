@@ -125,6 +125,9 @@ ServerConfig *getServerConfig(char *configPath) {
     sem_init(&config->itemsLogSemaphore, 0, 0); // semaphore to signal when there are items to consume
     sem_init(&config->spacesSemaphore, 0, 10); // semaphore to signal when there are spaces to produce
 
+    // mutex
+    pthread_mutex_init(&config->mutex, NULL);
+
     // produce log message
     writeLogJSON(config->logPath, 0, 0, "Server started");
 

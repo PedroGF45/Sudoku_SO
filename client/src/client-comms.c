@@ -265,7 +265,7 @@ void showSinglePLayerMenu(int *socketfd, clientConfig *config) {
     
     do {
         // ask for choosing a random game or a specific game
-        printf(INTERFACE_SELECT_GAME);
+        printf(INTERFACE_SELECT_SINGLEPLAYER_GAME);
 
         // Get the option from the user
         if (scanf("%d", &option) != 1) {
@@ -357,7 +357,7 @@ void showMultiPlayerMenu(int *socketfd, clientConfig *config) {
 
     do {
         // ask for creating a room or joining a room
-        printf(INTERFACE_SELECT_MULTIPLAYER_GAME);
+        printf(INTERFACE_SELECT_MULTIPLAYER_MENU);
 
         // Get the option from the user
         if (scanf("%d", &option) != 1) {
@@ -414,7 +414,7 @@ void createNewMultiplayerGame(int *socketfd, clientConfig *config) {
 
     do {
         // ask for creating a room or joining a room
-        printf(INTERFACE_SELECT_GAME);
+        printf(INTERFACE_SELECT_MULTIPLAYER_GAME);
 
         // Get the option from the user
         if (scanf("%d", &option) != 1) {
@@ -498,6 +498,16 @@ void showPossibleSynchronizations(int *socketfd, clientConfig *config) {
                 playMultiPlayerGame(socketfd, config, "barberShopFIFO");
                 break;
             case 5:
+
+                // send 0 to the server
+                if (send(*socketfd, "0", strlen("0"), 0) < 0) {
+                    err_dump_client(config->logPath, 0, config->clientID, "can't send return to menu to server", EVENT_MESSAGE_CLIENT_NOT_SENT);
+                } else {
+                    char logMessage[256];
+                    snprintf(logMessage, sizeof(logMessage), "%s: sent 0 to return to multiplayer menu", EVENT_MESSAGE_CLIENT_SENT);
+                    writeLogJSON(config->logPath, 0, config->clientID, logMessage);
+                }
+
                 // back to the multiplayer menu
                 createNewMultiplayerGame(socketfd, config);
                 break;
@@ -672,6 +682,10 @@ void playGame(int *socketfd, clientConfig *config) {
 
     printf("A jogar...\n");
 
+    // set default values of reads and writes
+    config->readsCount = 0;
+    config->writesCount = 0;
+
     char *board;
     board = showBoard(socketfd, config);
 
@@ -685,7 +699,12 @@ void playGame(int *socketfd, clientConfig *config) {
 
     printf("Linha atual: %d\n", currentLine);
 
-    EstatisticasLinha estatisticas;
+    EstatisticasLinha *estatisticas;
+    estatisticas = (EstatisticasLinha *)malloc(sizeof(EstatisticasLinha));
+    estatisticas->tentativas = 0; // Iniciar com 0 tentativas
+    estatisticas->acertos = 0;
+    estatisticas->percentagemAcerto = 0.0;
+    estatisticas->tempoResolucao = 0.0;
 
     free(board);
 
@@ -710,7 +729,7 @@ void playGame(int *socketfd, clientConfig *config) {
             } else {
 
                 // Passa a variável estatisticas para a função resolveLine
-                resolveLine(tempString, line, currentLine - 1, config->difficulty, &estatisticas);
+                resolveLine(tempString, line, currentLine - 1, config->difficulty, estatisticas);
 
             }
 
@@ -720,6 +739,8 @@ void playGame(int *socketfd, clientConfig *config) {
                 continue;
             } else {
                 printf("Linha enviada: %s\n", line);
+                // Incrementa o contador de escritas
+                config->writesCount++;
             }
 
             char *board;
@@ -739,11 +760,15 @@ void playGame(int *socketfd, clientConfig *config) {
                 printf("Linha %d incorreta. Tente novamente.\n", currentLine);
             }
 
+            // print read and write counts
+            printf("Number of Reads: %d\n", config->readsCount);
+            printf("Number of Writes: %d\n", config->writesCount);
+
             free(board);
         }
     }
 
-    finishGame(socketfd, config, estatisticas.percentagemAcerto);
+    finishGame(socketfd, config, estatisticas);
 }
 
 /**
@@ -980,6 +1005,9 @@ char *showBoard(int *socketfd, clientConfig *config) {
 
     writeLogJSON(config->logPath, gameID, config->clientID, EVENT_BOARD_SHOW);
 
+    // increase the reads count
+    config->readsCount++;
+
     return buffer;
 }
 
@@ -1031,15 +1059,14 @@ void receiveTimer(int *socketfd, clientConfig *config) {
     }
 }
 
-void finishGame(int *socketfd, clientConfig *config, float accuracy) {
+void finishGame(int *socketfd, clientConfig *config, EstatisticasLinha *estatisticas) {
     
     char buffer[BUFFER_SIZE];
     memset(buffer, 0, sizeof(buffer));
 
-
     // send the accuracy to the server
     char accuracyString[10];
-    sprintf(accuracyString, "%.2f", accuracy);
+    sprintf(accuracyString, "%.2f", estatisticas->percentagemAcerto);
 
     // send the accuracy to the server
     if (send(*socketfd, accuracyString, strlen(accuracyString), 0) < 0) {
@@ -1052,6 +1079,10 @@ void finishGame(int *socketfd, clientConfig *config, float accuracy) {
         printf("Accuracy sent: %s\n", accuracyString);
     }
 
+    printf("Tentativas: %d\n", estatisticas->tentativas);
+    printf("Acertos: %d\n", estatisticas->acertos);
+    printf("Percentagem de acerto: %.2f%%\n", estatisticas->percentagemAcerto);
+
     // receive the final message from the server
     if (recv(*socketfd, buffer, sizeof(buffer), 0) < 0) {
 
@@ -1063,4 +1094,6 @@ void finishGame(int *socketfd, clientConfig *config, float accuracy) {
         // show the final message
         printf("%s", buffer);
     }
+
+    free(estatisticas);
 }

@@ -126,23 +126,36 @@ void *handleClient(void *arg) {
 
             } else if (strcmp(buffer, "newSinglePlayerGame") == 0) {
 
+                pthread_mutex_lock(&serverConfig->mutex);
+
                 // criar novo jogo single player
                 room = createRoomAndGame(serverConfig, client, true, true, 0, 0);
+
+                pthread_mutex_unlock(&serverConfig->mutex);
 
             } else if(strcmp(buffer, "newMultiPlayerGameReadersWriters") == 0) {
 
                 printf("Cliente %d solicitou um novo jogo rando multiplayer game com readers-writers\n", client->clientID);
 
+                // lock mutex
+                pthread_mutex_lock(&serverConfig->mutex);
+
                 room = createRoomAndGame(serverConfig, client, false, true, 0, 0);
+
+                // unlock mutex
+                pthread_mutex_unlock(&serverConfig->mutex);
 
                 // adicionar timer
                 handleTimer(serverConfig, room, client);
 
             } else if (strcmp(buffer, "newMultiPlayerGameBarberShopStaticPriority") == 0) {
 
-                printf("Cliente %d solicitou um novo jogo rando multiplayer game com barber shop priority\n", client->clientID);
+                
+                pthread_mutex_lock(&serverConfig->mutex);
 
                 room = createRoomAndGame(serverConfig, client, false, true, 0, 1);
+
+                pthread_mutex_unlock(&serverConfig->mutex);
 
                 // adicionar timer
                 handleTimer(serverConfig, room, client);
@@ -151,7 +164,13 @@ void *handleClient(void *arg) {
 
                 printf("Cliente %d solicitou um novo jogo rando multiplayer game com barber shop dynamic priority\n", client->clientID);
 
+                // lock mutex
+                pthread_mutex_lock(&serverConfig->mutex);
+
                 room = createRoomAndGame(serverConfig, client, false, true, 0, 2);
+
+                // unlock mutex
+                pthread_mutex_unlock(&serverConfig->mutex);
 
                 // adicionar timer
                 handleTimer(serverConfig, room, client);
@@ -160,7 +179,13 @@ void *handleClient(void *arg) {
 
                 printf("Cliente %d solicitou um novo jogo rando multiplayer game com barber shop fifo\n", client->clientID);
 
+                // lock mutex
+                pthread_mutex_lock(&serverConfig->mutex);
+
                 room = createRoomAndGame(serverConfig, client, false, true, 0, 3);
+
+                // unlock mutex
+                pthread_mutex_unlock(&serverConfig->mutex);
 
                 // adicionar timer
                 handleTimer(serverConfig, room, client);
@@ -171,16 +196,23 @@ void *handleClient(void *arg) {
                 // Receber jogos existentes
                 char buffer[BUFFER_SIZE];
                 memset(buffer, 0, sizeof(buffer));
+
+                // lock mutex
+                pthread_mutex_lock(&serverConfig->mutex);
                 // Obter jogos existentes
                 char *games = getGames(serverConfig);
 
                 printf("Jogos existentes: %s\n", games);
+
+                // unlock mutex
+                pthread_mutex_unlock(&serverConfig->mutex);
 
                 bool leave = false;
 
                 while (!leave) {
                     // Enviar jogos existentes ao cliente
                     if (send(newSockfd, games, strlen(games), 0) < 0) {
+                        free(games);
                         err_dump(serverConfig, 0, client->clientID, "can't send existing games to client", EVENT_MESSAGE_SERVER_NOT_SENT);
                     } else {
                         produceLog(serverConfig, "Jogos enviados para o cliente", EVENT_SERVER_GAMES_SENT, 0, client->clientID);
@@ -190,6 +222,7 @@ void *handleClient(void *arg) {
 
                     // receber ID do jogo
                     if (recv(newSockfd, buffer, sizeof(buffer), 0) < 0) {
+                        free(games);
                         err_dump(serverConfig, 0, client->clientID, "can't receive game ID from client", EVENT_MESSAGE_SERVER_NOT_RECEIVED);
                     } else if (atoi(buffer) == 0) {
                         printf("Cliente %d voltou atras no menu\n", client->clientID);
@@ -225,13 +258,24 @@ void *handleClient(void *arg) {
                                 } else if (strcmp(buffer, "newMultiPlayerGameBarberShopFIFO") == 0) {
                                     printf("Cliente %d escolheu o jogo com barber shop fifo\n", client->clientID);
                                     synchronizationType = 3;
+                                } else if (strcmp(buffer, "0") == 0) {
+                                    printf("Cliente %d voltou atras no menu\n", client->clientID);
+                                    leave = true;
+                                    client->startAgain = true;
+                                    break;
                                 }
                             }
 
-                            printf("Synchronization type: %d\n", synchronizationType);
+                            //printf("Synchronization type: %d\n", synchronizationType);
                         }
 
+                        // lock mutex
+                        pthread_mutex_lock(&serverConfig->mutex);
+
                         room = createRoomAndGame(serverConfig, client, isSinglePlayer, false, gameID, synchronizationType);
+
+                        // unlock mutex
+                        pthread_mutex_unlock(&serverConfig->mutex);
 
                         if (!isSinglePlayer) {
                             // adicionar timer
@@ -250,9 +294,14 @@ void *handleClient(void *arg) {
                 char buffer[BUFFER_SIZE];
                 memset(buffer, 0, sizeof(buffer));
                 // Obter salas existentes
+
+                pthread_mutex_lock(&serverConfig->mutex);
+
                 char *rooms = getRooms(serverConfig);
 
                 printf("Rooms existentes: %s\n", rooms);
+
+                pthread_mutex_unlock(&serverConfig->mutex);
 
                 bool leave = false;
 
@@ -280,8 +329,14 @@ void *handleClient(void *arg) {
 
                         //printf("ROOM ID NO SERVIDOR: %d\n", roomID);
 
+                        // lock mutex
+                        pthread_mutex_lock(&serverConfig->mutex);
+
                         // get the room
                         room = getRoom(serverConfig, roomID, client->clientID);
+
+                        // unlock mutex
+                        pthread_mutex_unlock(&serverConfig->mutex);
 
                         // add the Client to the queue
                         printf("ENQUEING CLIENT %d which is %s\n", client->clientID, client->isPremium ? "premium" : "not premium");
@@ -346,10 +401,16 @@ void *handleClient(void *arg) {
  
                     }
                 }
+                //printf("Rooms pointer before free: %p\n", (void*)rooms);
                 free(rooms);
+                //rooms = NULL;
+
             } else if (strcmp(buffer, "closeConnection") == 0) {
                 continueLoop = false;
                 break;
+            } else if (strcmp(buffer, "0") == 0) {
+                printf("Cliente %d voltou atras no menu\n", client->clientID);
+                client->startAgain = true;
             }
 
             if (!client->startAgain) {
@@ -369,8 +430,13 @@ void *handleClient(void *arg) {
                     releaseTurnsTileSemaphore(room, client);
                 }
 
+                // mutex para terminar o jogo
+                pthread_mutex_lock(&serverConfig->mutex);
                 // terminar o jogo
                 finishGame(serverConfig, room, &newSockfd);
+
+                // unlock mutex
+                pthread_mutex_unlock(&serverConfig->mutex);
             }
         }
     }
@@ -457,7 +523,7 @@ Room *createRoomAndGame(ServerConfig *config, Client *client, bool isSinglePlaye
         } else if (room->priorityQueueType == 1) {
             strcpy(buffer, " and DYNAMIC PRIORITIES queue");
         } else if (room->priorityQueueType == 2) {
-            strcpy(buffer, "and FIFO queue");
+            strcpy(buffer, " and FIFO queue");
         }
     }
 

@@ -602,14 +602,14 @@ char *getGames(ServerConfig *config) {
 
 char *getRooms(ServerConfig *config) {
 
-        // iterate over the rooms
-        if (config->numRooms == 0) {
-            return "No rooms available\n";
-        }
-    
         // create a string to store the rooms
         char *rooms = (char *)malloc(BUFFER_SIZE);
         memset(rooms, 0, 1024);
+
+        // iterate over the rooms
+        if (config->numRooms == 0) {
+            strcpy(rooms, "No rooms available\n");
+        }
 
         for (int i = 0; i < config->numRooms; i++) {
             if (config->rooms[i] == NULL) {
@@ -626,7 +626,7 @@ char *getRooms(ServerConfig *config) {
 
         // if no rooms are available
         if (strlen(rooms) == 0) {
-            return "No rooms available\n";
+            strcpy(rooms, "No rooms available\n");
         }
 
         // return the rooms

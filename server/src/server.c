@@ -45,6 +45,15 @@ void handleSigInt(int sig) {
     printf("Server shutting down...\n");
     free(svConfig->clients);
     free(svConfig->rooms);
+
+    // destroy semaphores
+    sem_destroy(&svConfig->mutexLogSemaphore);
+    sem_destroy(&svConfig->itemsLogSemaphore);
+    sem_destroy(&svConfig->spacesSemaphore);
+
+    // destroy mutex
+    pthread_mutex_destroy(&svConfig->mutex);
+
     free(svConfig);
 
     exit(0);

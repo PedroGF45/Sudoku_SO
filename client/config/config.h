@@ -17,7 +17,8 @@ typedef struct {
     bool isManual;              /**< Define se o jogo será jogado em modo manual. */
     bool isPremium;             /**< Define se o jogador é premium. */
     int difficulty;             /**< Nível de dificuldade do jogo (ex.: 1 - fácil, 2 - médio, 3 - difícil). */
-    //double totalGameTime;       /**< Tempo total de jogo. */
+    int readsCount;             /**< Número de leituras de mensagens do servidor. */
+    int writesCount;            /**< Número de escritas de mensagens para o servidor. */
 } clientConfig;
 
 // Carrega as configurações do cliente a partir de um ficheiro de configuração.

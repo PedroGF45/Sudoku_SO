@@ -8,8 +8,9 @@
 
 #define INTERFACE_MENU "1. Play\n2. Statistics\n3. Exit\nChoose an option: "
 #define INTERFACE_PLAY_MENU "1. Singleplayer\n2. Multiplayer\n3. Back\n4. Exit\nChoose an option: "
-#define INTERFACE_SELECT_GAME "1. New Random Game\n2. New Specific Game\n3. Back\n4. Exit\nChoose an option: "
-#define INTERFACE_SELECT_MULTIPLAYER_GAME "1. Create a New Multiplayer Game\n2. Join a Multiplayer Game\n3. Back\n4. Exit\nChoose an option: "
+#define INTERFACE_SELECT_SINGLEPLAYER_GAME "1. New Random SinglepLayer Game\n2. New Specific Singleplayer Game\n3. Back\n4. Exit\nChoose an option: "
+#define INTERFACE_SELECT_MULTIPLAYER_GAME "1. New Random Multiplayer Game\n2. New Specific Multiplayer Game\n3. Back\n4. Exit\nChoose an option: "
+#define INTERFACE_SELECT_MULTIPLAYER_MENU "1. Create a New Multiplayer Game\n2. Join a Multiplayer Game\n3. Back\n4. Exit\nChoose an option: "
 #define INTERFACE_POSSIBLE_SYNCHRONIZATION "1. Readers-Writers\n2. Barber-Shop with static priority\n3. Barber-shop with dynamic priority\n4. Barber-Shop with FIFO\n5. Back\n6. Exit\nChoose an option: "
 
 
@@ -63,6 +64,6 @@ char *showBoard(int *socketfd, clientConfig *config);
 void receiveTimer(int *socketfd, clientConfig *config);
 
 // Acaba o jogo
-void finishGame(int *socketfd, clientConfig *config, float accuracy);
+void finishGame(int *socketfd, clientConfig *config, EstatisticasLinha *estatisticas);
 
 #endif // CLIENT_COMMS_H
