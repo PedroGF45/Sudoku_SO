@@ -2,17 +2,13 @@
 #define SERVER_GAME_H
 
 #include "../config/config.h"
+#include "server-barber.h"
+#include "server-barrier.h"
+#include "server-readerWriter.h"
+#include "server-statistics.h"
 
 // Gera um ID único para uma sala.
 int generateUniqueId();
-
-void saveRoomStatistics(int roomId, double elapsedTime);
-
-// Carrega um jogo específico a partir do ficheiro 'games.json'.
-Game *loadGame(ServerConfig *config, int gameID, int playerID);
-
-// Carrega um jogo aleatório do ficheiro 'games.json'.
-Game *loadRandomGame(ServerConfig *config, int playerID);
 
 // Verifica se a linha inserida pelo jogador está correta.
 int verifyLine(ServerConfig *config, Game *game, char *solutionSent, int insertLine[9], int playerID);
@@ -20,44 +16,46 @@ int verifyLine(ServerConfig *config, Game *game, char *solutionSent, int insertL
 // Verifica se uma linha do tabuleiro está correta.
 bool isLineCorrect(Game *game, int row);
 
+// Cria uma sala e um jogo, configurando-os com base nos parâmetros fornecidos.
+Room *createRoomAndGame(ServerConfig *config, Client *client, bool isSinglePlayer, bool isRandom, int gameID, int synchronizationType);
+
 // Cria uma nova sala de jogo.
 Room *createRoom(ServerConfig *config, int playerID, bool isSinglePlayer, int synchronizationType);
 
 // Obtém uma sala de jogo a partir do ID.
 Room *getRoom(ServerConfig *config, int roomID, int playerID);
 
+// Junta um jogador a uma sala existente.
+void joinRoom(ServerConfig *config, Room *room, Client *client);
+
 // delete room
 void deleteRoom(ServerConfig *config, int roomID);
-
-// Obtém uma lista de IDs dos jogos disponíveis.
-char *getGames(ServerConfig *config);
 
 // Obtém uma lista das salas de jogo disponíveis.
 char *getRooms(ServerConfig *config);
 
-// update game statistics
-void updateGameStatistics(ServerConfig *config, int roomID, int elapsedTime, float accuracy);
+// Obtém uma lista de IDs dos jogos disponíveis.
+char *getGames(ServerConfig *config);
 
-void acquireReadLock(Room *room);
+// Carrega um jogo específico a partir do ficheiro 'games.json'.
+Game *loadGame(ServerConfig *config, int gameID, int playerID);
 
-void releaseReadLock(Room *room);
+// Carrega um jogo aleatório do ficheiro 'games.json'.
+Game *loadRandomGame(ServerConfig *config, int playerID);
 
-void acquireWriteLock(Room *room, Client *client);
+// Envia o tabuleiro atual ao cliente em formato JSON.
+void sendBoard(ServerConfig *config, Room* room, Client *client);
 
-void releaseWriteLock(Room *room, Client *client);
+// Recebe as linhas enviadas pelo cliente e processa-as.
+void receiveLines(ServerConfig *config, Room *room, Client *client, int *currentLine);
 
-void acquireTurnsTileSemaphore(Room *room, Client *client);
+// Termina o jogo e limpa os recursos associados à sala.
+void finishGame(ServerConfig *config, Room *room, int *socket);
 
-void releaseTurnsTileSemaphore(Room *room, Client *client);
+// Trata o temporizador de espera do cliente.
+void handleTimer(ServerConfig *config, Room *room, Client *client);
 
-void enterBarberShop(Room *room, Client *client);
-
-void leaveBarberShop(Room *room, Client *client);
-
-void barberCut(Room *room);
-
-void barberIsDone(Room *room);
-
-void *handleBarber(void *arg);
+// Envia uma mensagem de atualização do temporizador ao cliente.
+void sendTimerUpdate(ServerConfig *config, Room *room, Client *client);
 
 #endif

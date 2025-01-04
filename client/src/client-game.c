@@ -2,11 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include "../../utils/parson/parson.h"
 #include "../../utils/logs/logs-common.h"
 #include "../logs/logs.h"
-#include "../../utils/parson/parson.h"
 #include "client-game.h"
-
 
 /**
  * Verifica se a linha contém exatamente 9 dígitos numéricos (de '0' a '9').
@@ -172,22 +171,267 @@ bool isValid(JSON_Array *board_array, int row, int col, int num, int difficulty)
     return true;
 }
 
-int showTimerUpdate(char *buffer, int timeLeft) {
+void playGame(int *socketfd, clientConfig *config) {
 
-    //printf("Recebido: %s\n", buffer);
-    // Parse the received message
-    strtok(buffer, "\n");
-    timeLeft = atoi(strtok(NULL, "\n"));
-    //printf("Tempo restante: %d segundos\n", timeLeft);
-    int roomId = atoi(strtok(NULL, "\n"));
-    //printf("ID da sala: %d\n", roomId);
-    int gameId = atoi(strtok(NULL, "\n"));
-    //printf("ID do jogo: %d\n", gameId);
-    int numPlayers = atoi(strtok(NULL, "\n"));
-    //printf("Jogadores na sala: %d\n", numPlayers);
+    // buffer for the board
+    char buffer[BUFFER_SIZE];
+    memset(buffer, 0, sizeof(buffer));
 
-    // show the timer update
-    printf("Time left: %d seconds - Room ID: %d - Game ID: %d - Players joined: %d\n", timeLeft, roomId, gameId, numPlayers);
+    printf("A jogar...\n");
 
-    return --timeLeft;
+    // set default values of reads and writes
+    config->readsCount = 0;
+    config->writesCount = 0;
+
+    char *board;
+    board = showBoard(socketfd, config);
+
+    // get the current line
+    char *boardSplit = strtok(board, "\n");
+    char *token = strtok(NULL, "\n");
+    int currentLine = atoi(token);
+
+    char tempString[BUFFER_SIZE]; // Allocate a temporary buffer
+    strcpy(tempString, boardSplit); // Copy the original board data
+
+    printf("Linha atual: %d\n", currentLine);
+
+    EstatisticasLinha *estatisticas;
+    estatisticas = (EstatisticasLinha *)malloc(sizeof(EstatisticasLinha));
+    estatisticas->tentativas = 0; // Iniciar com 0 tentativas
+    estatisticas->acertos = 0;
+    estatisticas->percentagemAcerto = 0.0;
+    estatisticas->tempoResolucao = 0.0;
+
+    free(board);
+    writeLogJSON(config->logPath, 0, config->clientID, "Started playing the game");
+
+    // Enviar linhas inseridas pelo utilizador e receber o board atualizado
+    while (currentLine <= 9) {
+
+        int validLine = 0;  // Variável para controlar se a linha está correta
+
+        // line to send to server
+        char line[10];
+
+        // inicializa o buffer com '0' e terminador nulo
+        memset(line, '0', sizeof(line));
+
+        while (!validLine) {
+
+            if (config->isManual) {
+
+                printf("Insira valores para a linha %d do board (exactamente 9 digitos):\n", currentLine);
+                scanf("%s", line);
+                char logMessage[256];
+                snprintf(logMessage, sizeof(logMessage), "Manual input for board line %d", currentLine);
+                writeLogJSON(config->logPath, 0, config->clientID, logMessage);
+
+            } else {
+
+                // Passa a variável estatisticas para a função resolveLine
+                resolveLine(tempString, line, currentLine - 1, config->difficulty, estatisticas);
+                char logMessage[256];
+                snprintf(logMessage, sizeof(logMessage), "Auto-solving the board line %d", currentLine);
+                writeLogJSON(config->logPath, 0, config->clientID, logMessage);
+
+            }
+
+            // Enviar a linha ao servidor
+            if (send(*socketfd, line, sizeof(line), 0) < 0) {
+                err_dump_client(config->logPath, 0, config->clientID, "can't send lines to server", EVENT_MESSAGE_CLIENT_NOT_SENT);
+                continue;
+            } else {
+                printf("Linha enviada: %s\n", line);
+                // Incrementa o contador de escritas
+                config->writesCount++;
+                char logMessage[256];
+                snprintf(logMessage, sizeof(logMessage), "Sent line %d to server", currentLine);
+                writeLogJSON(config->logPath, 0, config->clientID, logMessage);
+            }
+
+            char *board;
+            board = showBoard(socketfd, config);
+            // get the current line
+            boardSplit = strtok(board, "\n");
+            char *token = strtok(NULL, "\n");
+            int serverLine = atoi(token);
+
+            strcpy(tempString, boardSplit); // Copy the original board data
+
+            //printf("Linha do servidor: %d\n", serverLine);
+            if (serverLine > currentLine) {
+                validLine = 1;
+                currentLine = serverLine;
+                char logMessage[256];
+                snprintf(logMessage, sizeof(logMessage), "Received line %d from server", currentLine);
+                writeLogJSON(config->logPath, 0, config->clientID, logMessage);
+            } else {
+                printf("Linha %d incorreta. Tente novamente.\n", currentLine);
+                char logMessage[256];
+                snprintf(logMessage, sizeof(logMessage), "Received incorrect line %d from server", currentLine);
+                writeLogJSON(config->logPath, 1, config->clientID, logMessage);
+            }
+
+            // print read and write counts
+            printf("Number of Reads: %d\n", config->readsCount);
+            printf("Number of Writes: %d\n", config->writesCount);
+
+            free(board);
+        }
+    }
+
+    finishGame(socketfd, config, estatisticas);
+    writeLogJSON(config->logPath, 0, config->clientID, "Game finished");
+}
+
+/**
+ * Exibe o tabuleiro de jogo a partir de uma string JSON e regista o evento no log.
+ *
+ * @param buffer Uma string JSON que contém o estado do tabuleiro.
+ * @param logFileName O caminho para o ficheiro de log onde o evento será registado.
+ * @param playerID O identificador do jogador que está a visualizar o tabuleiro.
+ *
+ * @details A função faz o seguinte:
+ * - Faz o parse da string JSON para obter o objeto `board` e o `gameID`.
+ * - Imprime o tabuleiro no formato de uma grelha 9x9 com separadores visuais.
+ * - Regista o evento de visualização do tabuleiro no ficheiro de log.
+ * - Liberta a memória alocada para o objeto JSON após a operação.
+ */
+
+char *showBoard(int *socketfd, clientConfig *config) {
+
+    // buffer for the board
+    // Allocate memory for buffer on the heap
+    char *buffer = (char *)malloc(BUFFER_SIZE);
+    if (buffer == NULL) {
+        perror("Failed to allocate memory");
+        return NULL;
+    }
+    memset(buffer, 0, BUFFER_SIZE);
+
+    printf("Received board from server...\n");
+
+    // receive the board from the server
+    if (recv(*socketfd, buffer, BUFFER_SIZE, 0) < 0) {
+        // error receiving board from server
+        err_dump_client(config->logPath, 0, config->clientID, "can't receive board from server", EVENT_MESSAGE_CLIENT_NOT_RECEIVED);
+        free(buffer);
+
+    } else {
+
+        if (strcmp(buffer, "No rooms available") == 0) {
+            printf("No rooms available\n");
+            free(buffer);
+            return NULL;
+        }
+    }
+
+    //printf("Board received: %s\n", buffer);
+
+    char *board = strtok(buffer, "\n");
+    char *token = strtok(NULL, "\n");
+    int serverLine = atoi(token);
+    //printf("Linha do servidor: %d\n", serverLine);
+
+    // get the JSON object from the buffer
+    JSON_Value *root_value = json_parse_string(board);
+    JSON_Object *root_object = json_value_get_object(root_value);
+
+    // get the game ID
+    int gameID = (int)json_object_get_number(root_object, "id");
+
+    // print the board
+    printf("-------------------------------------\n");
+    printf("BOARD ID: %d  PLAYER ID: %d   %s\n", gameID, config->clientID, config->isPremium ? "PREMIUM" : "NON-PREMIUM");
+    printf("-------------------------------------\n");
+
+    // get the board array from the JSON object
+    JSON_Array *board_array = json_object_get_array(root_object, "board");
+
+    for (int i = 0; i < json_array_get_count(board_array); i++) {
+
+        // get the line array from the board array
+        JSON_Array *linha_array = json_array_get_array(board_array, i);
+
+        printf("| line %d -> | ", i + 1);
+
+        // print the line array
+        for (int j = 0; j < 9; j++) {
+            printf("%d ", (int)json_array_get_number(linha_array, j));
+            if ((j + 1) % 3 == 0) {
+                printf("| ");
+            }
+        }
+        printf("\n");
+        if ((i + 1) % 3 == 0) {
+            printf("-------------------------------------\n");
+        }
+    }
+
+    // Concatenate board and server line
+    char tempString[BUFFER_SIZE]; // Allocate a temporary buffer
+    strcpy(tempString, board); // Copy the original board data
+    strcat(tempString, "\n"); // Concatenate newline
+    char serverLineStr[10];
+    sprintf(serverLineStr, "%d", serverLine);
+    strcat(tempString, serverLineStr); // Concatenate server line
+
+    // Copy the modified string to the original buffer
+    strcpy(buffer, tempString);
+
+    // Free the JSON object
+    json_value_free(root_value);
+
+    writeLogJSON(config->logPath, gameID, config->clientID, EVENT_BOARD_SHOW);
+
+    // increase the reads count
+    config->readsCount++;
+
+    return buffer;
+}
+
+void finishGame(int *socketfd, clientConfig *config, EstatisticasLinha *estatisticas) {
+    
+    char buffer[BUFFER_SIZE];
+    memset(buffer, 0, sizeof(buffer));
+
+    // send the accuracy to the server
+    char accuracyString[10];
+    sprintf(accuracyString, "%.2f", estatisticas->percentagemAcerto);
+
+    // send the accuracy to the server
+    if (send(*socketfd, accuracyString, strlen(accuracyString), 0) < 0) {
+
+        // error sending accuracy to server
+        err_dump_client(config->logPath, 0, config->clientID, "can't send accuracy to server", EVENT_MESSAGE_CLIENT_NOT_SENT);
+    } else {
+
+        // show the accuracy sent
+        //printf("Accuracy sent: %s\n", accuracyString);
+         // Log accuracy sent
+        char logMessage[256];
+        snprintf(logMessage, sizeof(logMessage), "%s: sent accuracy: %s", EVENT_MESSAGE_CLIENT_SENT, accuracyString);
+        writeLogJSON(config->logPath, 0, config->clientID, logMessage); // Log de envio de precisão
+    }
+
+    printf("Tentativas: %d\n", estatisticas->tentativas);
+    printf("Acertos: %d\n", estatisticas->acertos);
+    printf("Percentagem de acerto: %.2f%%\n", estatisticas->percentagemAcerto);
+
+    
+
+    // receive the final message from the server
+    if (recv(*socketfd, buffer, sizeof(buffer), 0) < 0) {
+
+        // error receiving final board from server
+        err_dump_client(config->logPath, 0, config->clientID, "can't receive final board from server", EVENT_MESSAGE_CLIENT_NOT_RECEIVED);
+
+    } else {
+
+        // show the final message
+        printf("%s", buffer);
+    }
+
+    free(estatisticas);
 }

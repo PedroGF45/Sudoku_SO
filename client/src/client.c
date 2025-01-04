@@ -3,10 +3,10 @@
 #include <time.h>
 #include "../../utils/logs/logs-common.h"
 #include "../../utils/network/network.h"
-#include "../config/config.h"
 #include "../../utils/parson/parson.h"
-#include "client-comms.h"
+#include "../config/config.h"
 #include "../logs/logs.h"
+#include "client-game.h"
 
 
 /**
