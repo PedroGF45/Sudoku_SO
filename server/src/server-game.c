@@ -879,7 +879,7 @@ void enterBarberShop(Room *room, Client *client) {
     // increment the number of customers
     room->customers++;
 
-    printf("CLIENT %d ENTERED THE BARBER SHOP\n", client->clientID);
+    //printf("CLIENT %d ENTERED THE BARBER SHOP\n", client->clientID);
     // add the client to the barber shop queue
     if (room->priorityQueueType == 0) { // static priority
         enqueueWithPriority(room->barberShopQueue, client->clientID, client->isPremium);

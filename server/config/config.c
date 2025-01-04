@@ -190,6 +190,7 @@ Node *createNode(int clientID, bool isPremium) {
     newNode->clientID = clientID;
     newNode->isPremium = isPremium;
     newNode->next = NULL;
+    newNode->timeInQueue = 0;
     return newNode;
 }
 
@@ -205,7 +206,7 @@ void enqueueWithPriority(PriorityQueue *queue, int clientID, bool isPremium) {
     //printf("CLIENT %d WANT TO JOIN THE ROOM\n", clientID);
 
     Node *newNode = createNode(clientID, isPremium); // create a new node
-    printf("CREATING A NODE FOR CLIENt %d WHICH IS %s\n", clientID, isPremium ? "PREMIUM" : "NOT PREMIUM");
+    //printf("CREATING A NODE FOR CLIENt %d WHICH IS %s\n", clientID, isPremium ? "PREMIUM" : "NOT PREMIUM");
 
     sem_wait(&queue->empty); // wait for empty space
 
@@ -247,15 +248,15 @@ void enqueueWithPriority(PriorityQueue *queue, int clientID, bool isPremium) {
         }
 
         if (prev == NULL) { // if the new node is the first
-            printf("CLIENT %d IS THE FIRST NODE\n", clientID);
+            //printf("CLIENT %d IS THE FIRST NODE\n", clientID);
             newNode->next = queue->front;
             queue->front = newNode;
         } else if (temp == NULL) { // if the new node is the last
-            printf("CLIENT %d IS THE LAST NODE\n", clientID);
+            //printf("CLIENT %d IS THE LAST NODE\n", clientID);
             queue->rear->next = newNode;
             queue->rear = newNode;
         } else { // if the new node is in the middle
-            printf("CLIENT %d IS IN THE MIDDLE\n", clientID);
+            //printf("CLIENT %d IS IN THE MIDDLE\n", clientID);
             prev->next = newNode;
             newNode->next = temp;
         }
@@ -298,7 +299,7 @@ void updateQueueWithPriority(PriorityQueue *queue, int maxWaitingTime) {
     //printf("--------------------\n");
     //printf("QUEUE ORDER BEFORE UPDATEING PRIORITY:\n");
     //while (temp1 != NULL) {
-    //    printf("Client %d isPremium: %s\n", temp1->clientID, temp1->isPremium ? "true" : "false");
+    //    printf("Client %d isPremium: %s TIME:%d\n", temp1->clientID, temp1->isPremium ? "true" : "false", temp1->timeInQueue);
     //    temp1 = temp1->next;
     //}
     //printf("FRONT: %d\n", queue->front->clientID);
@@ -341,7 +342,7 @@ void updateQueueWithPriority(PriorityQueue *queue, int maxWaitingTime) {
     //printf("--------------------\n");
     //printf("QUEUE ORDER AFTER UPDATING PRIORITY:\n");
     //while (temp2 != NULL) {
-    //    printf("Client %d isPremium: %s\n", temp2->clientID, temp2->isPremium ? "true" : "false");
+    //    printf("Client %d isPremium: %s TIME:%d\n", temp2->clientID, temp2->isPremium ? "true" : "false", temp2->timeInQueue);
     //    temp2 = temp2->next;
     //}
     //printf("FRONT: %d\n", queue->front->clientID);
