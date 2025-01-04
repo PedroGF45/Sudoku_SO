@@ -10,11 +10,17 @@
 
 static int nextClientID = 1;
 
-void sendRoomStatistics(int clientSocket) {
+void sendRoomStatistics(ServerConfig *config, Client *client) {
     FILE *file = fopen("room_stats.log", "r");
     if (file == NULL) {
         const char *errorMsg = "Erro: Não foi possível abrir o ficheiro de estatísticas.\n";
-        send(clientSocket, errorMsg, strlen(errorMsg), 0);
+        if (send(client->socket_fd, errorMsg, strlen(errorMsg), 0) < 0) {
+            // erro ao enviar mensagem de erro
+            err_dump(config, 0, client->clientID, "can't send error message to client", EVENT_MESSAGE_SERVER_NOT_SENT);
+        } else {
+            printf("Erro: Não foi possível abrir o ficheiro de estatísticas\n");
+            produceLog(config, "Erro: Não foi possível abrir o ficheiro de estatísticas", EVENT_MESSAGE_SERVER_SENT, 0, client->clientID);
+        }
         return;
     }
 
@@ -25,8 +31,20 @@ void sendRoomStatistics(int clientSocket) {
     }
     fclose(file);
 
+    // if there are no statistics send "No statistics available"
+    if (strlen(stats) == 0) {
+        strcpy(stats, "No statistics available");
+    }
+        
+
     // Envia as estatísticas ao cliente
-    send(clientSocket, stats, strlen(stats), 0);
+    if (send(client->socket_fd, stats, strlen(stats), 0) < 0) {
+        // erro ao enviar estatísticas
+        err_dump(config, 0, client->clientID, "can't send statistics to client", EVENT_MESSAGE_SERVER_NOT_SENT);
+    } else {
+        printf("Estatísticas enviadas ao cliente\n");
+        produceLog(config, "Estatísticas enviadas ao cliente", EVENT_MESSAGE_SERVER_SENT, 0, client->clientID);
+    }
 }
 /**
  * Gera um ID de cliente único.
@@ -120,9 +138,14 @@ void *handleClient(void *arg) {
             printf("BUFFER RECEBIDO: %s\n", buffer);
             
             // cliente quer ver as estatisticas
-            if(strcmp(buffer, "GET_STATUS") == 0){
+            if(strcmp(buffer, "GET_STATS") == 0){
 
-                sendRoomStatistics(newSockfd);
+                pthread_mutex_lock(&serverConfig->mutex);
+
+                sendRoomStatistics(serverConfig, client);
+                client->startAgain = true;
+
+                pthread_mutex_unlock(&serverConfig->mutex);
 
             } else if (strcmp(buffer, "newSinglePlayerGame") == 0) {
 

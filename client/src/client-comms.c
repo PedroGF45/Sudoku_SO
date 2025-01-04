@@ -7,23 +7,30 @@
 
 
 
-void showStatisticsMenu(int *socketfd) {
+void showStatisticsMenu(int *socketfd, clientConfig *client) {
     // Envia pedido de estatísticas ao servidor
     const char *request = "GET_STATS";
-    send(*socketfd, request, strlen(request), 0);
+    if (send(*socketfd, request, strlen(request), 0) < 0) {
+        // erro ao enviar pedido de estatísticas
+        err_dump_client(client->logPath, 0, client->clientID, "can't send statistics request to server", EVENT_MESSAGE_CLIENT_NOT_SENT);
+    } else {
+        printf("Pedido de estatísticas enviado ao servidor\n");
+        char logMessage[256];
+        sprintf(logMessage, "%s: Pedido de estatísticas enviado ao servidor", EVENT_MESSAGE_CLIENT_SENT);
+        writeLogJSON(client->logPath, 0, client->clientID, logMessage);
+    }
 
     // Recebe e exibe as estatísticas do servidor
     char buffer[1024];
-    int bytesReceived = recv(*socketfd, buffer, sizeof(buffer) - 1, 0);
-    if (bytesReceived > 0) {
-        buffer[bytesReceived] = '\0';  // Termina a string
-        printf("Estatísticas do jogo:\n%s\n", buffer);
+    memset(buffer, 0, sizeof(buffer));
+
+    if (recv(*socketfd, buffer, sizeof(buffer), 0) < 0) {
+        // erro ao receber estatísticas
+        err_dump_client(client->logPath, 0, client->clientID, "can't receive statistics from server", EVENT_MESSAGE_CLIENT_NOT_RECEIVED);
     } else {
-        printf("Erro ao receber as estatísticas do servidor.\n");
+        printf("Estatísticas do servidor:\n%s\n", buffer);
     }
 }
-
- 
 
 /**
  * Estabelece uma ligação TCP ao servidor especificado na configuração do cliente.
@@ -117,7 +124,8 @@ void showMenu(int *socketfd, clientConfig *config) {
                 showPlayMenu(socketfd, config);
                 break;
             case 2:
-                showStatisticsMenu(socketfd);
+                showStatisticsMenu(socketfd, config);
+                showMenu(socketfd, config);
                 break;
             case 3:
                 closeConnection(socketfd, config);

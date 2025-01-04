@@ -14,7 +14,7 @@
 #define INTERFACE_POSSIBLE_SYNCHRONIZATION "1. Readers-Writers\n2. Barber-Shop with static priority\n3. Barber-shop with dynamic priority\n4. Barber-Shop with FIFO\n5. Back\n6. Exit\nChoose an option: "
 
 
-void showStatisticsMenu(int *socketfd);
+void showStatisticsMenu(int *socketfd, clientConfig *client);
 
 // Estabelece uma ligação TCP com o servidor.
 void connectToServer(struct sockaddr_in *serv_addr, int *socketfd, clientConfig *config);

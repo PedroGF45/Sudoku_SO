@@ -5,7 +5,7 @@
 // Inclui "server-game.h" para aceder à estrutura Game.
 #include "server-game.h" 
 
-void sendRoomStatistics(int clientSocket);
+void sendRoomStatistics(ServerConfig *config, Client *client);
 
 // Gera um ID único para um cliente.
 int generateUniqueClientId();
