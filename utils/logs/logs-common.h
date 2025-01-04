@@ -39,6 +39,7 @@
 #define EVENT_MESSAGE_CLIENT_NOT_SENT           "Erro ao enviar mensagem para o servidor"
 #define EVENT_MESSAGE_CLIENT_RECEIVED           "Mensagem recebida do servidor"
 #define EVENT_MESSAGE_CLIENT_NOT_RECEIVED       "Erro ao receber mensagem do servidor"
+#define EVENT_GAME_STARTED                      "Game started"
 
 
 #define MEMORY_ERROR                            "Erro de memoria"

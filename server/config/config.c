@@ -208,11 +208,11 @@ void enqueueWithPriority(PriorityQueue *queue, int clientID, bool isPremium) {
     Node *newNode = createNode(clientID, isPremium); // create a new node
     //printf("CREATING A NODE FOR CLIENt %d WHICH IS %s\n", clientID, isPremium ? "PREMIUM" : "NOT PREMIUM");
 
-    sem_wait(&queue->empty); // wait for empty space
+    sem_wait(&queue->empty); // wait for empty space (fica a espera que haja espaço na fila para adicionar um novo cliente)
 
     //printf("CLIENT %d JOINING THE QUEUE\n", clientID);
 
-    pthread_mutex_lock(&queue->mutex); // lock the queue
+    pthread_mutex_lock(&queue->mutex); // lock the queue (garante a exclusão mútua se dois clientes tentarem aceder simultaneamente à fila)
 
     if (queue->front == NULL) { // if the queue is empty
         //printf("QUEUE IS EMPTY: ADDING CLIENT %d TO THE FIRST NODE\n", clientID);
@@ -358,21 +358,21 @@ void enqueueFifo(PriorityQueue *queue, int clientID) {
 
     Node *newNode = createNode(clientID, false); // create a new node
 
-    sem_wait(&queue->empty); // wait for empty space
+    sem_wait(&queue->empty); // wait for empty space(se for >0 continua a decrementar se for =0 fica a espera que haja espaço na fila para adicionar um novo cliente)
 
     pthread_mutex_lock(&queue->mutex); // lock the queue
 
-    if (queue->front == NULL) { // if the queue is empty
+    if (queue->front == NULL) { // if the queue is empty(ao adicionar 1 cliente passa para a função de baixo porque a  fila já não está vazia)
         queue->front = newNode;
         queue->rear = newNode;
-    } else {                    // if the queue is not empty
+    } else {                    // if the queue is not empty(adiciona o cliente no fim da fila)
         queue->rear->next = newNode;
         queue->rear = newNode;
     }
 
     pthread_mutex_unlock(&queue->mutex);
 
-    sem_post(&queue->full);
+    sem_post(&queue->full);//(incrementa o semáforo full, indicando que há um item na fila para ser consumido)
 
 }
 
@@ -380,13 +380,13 @@ void enqueueFifo(PriorityQueue *queue, int clientID) {
 int dequeue(PriorityQueue *queue) {
     //printf("CLIENT WANTS TO BE REMOVED FROM THE QUEUE\n");
 
-    sem_wait(&queue->full); // wait for full queue
+    sem_wait(&queue->full); // wait for full queue (decr)
 
     //printf("CLIENT REMOVING FROM THE QUEUE\n");
 
     pthread_mutex_lock(&queue->mutex); // lock the queue
 
-    Node *temp = queue->front;
+    Node *temp = queue->front;//(guarda o primeiro nó em temp do cliente que vai ser removido)
 
     if (queue->front == NULL) {
         printf("Queue is empty\n");
@@ -395,7 +395,7 @@ int dequeue(PriorityQueue *queue) {
         return -1;
     }
 
-    queue->front = queue->front->next;
+    queue->front = queue->front->next;//(avança o front para o próximo cliente)
 
     if (queue->front == NULL) { // if the queue is empty
         queue->rear = NULL;
@@ -406,7 +406,7 @@ int dequeue(PriorityQueue *queue) {
     free(temp);
 
     pthread_mutex_unlock(&queue->mutex);
-    sem_post(&queue->empty);
+    sem_post(&queue->empty);// incrementa o semáforo empty, indicando que há um espaço na fila para ser preenchido
     //printf("CLIENT REMOVED FROM THE QUEUE\n");
 
     return clientID;

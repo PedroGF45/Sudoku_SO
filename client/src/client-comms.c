@@ -11,6 +11,7 @@ void showStatisticsMenu(int *socketfd) {
     // Envia pedido de estatísticas ao servidor
     const char *request = "GET_STATS";
     send(*socketfd, request, strlen(request), 0);
+    
 
     // Recebe e exibe as estatísticas do servidor
     char buffer[1024];
@@ -484,18 +485,24 @@ void showPossibleSynchronizations(int *socketfd, clientConfig *config) {
             case 1:
                 // create a new random multiplayer game with readers-writers synchronization
                 playMultiPlayerGame(socketfd, config, "readersWriters");
+                writeLogJSON(config->logPath, 0, config->clientID, "Started multiplayer game with readers-writers synchronization");
+
                 break;
             case 2:
                 // create a new random multiplayer game with barber shop synchronization with priority queues
                 playMultiPlayerGame(socketfd, config, "barberShopStaticPriority");
+                 writeLogJSON(config->logPath, 0, config->clientID, "Started multiplayer game with barberShopStaticPriority synchronization");
                 break;
             case 3:
                 // create a new random multiplayer game with barber shop synchronization with dynamic priority queues
                 playMultiPlayerGame(socketfd, config, "barberShopDynamicPriority");
+                 writeLogJSON(config->logPath, 0, config->clientID, "Started multiplayer game with barberShopDynamicPriority synchronization");
                 break;
             case 4:
                 // create a new random multiplayer game with barber shop synchronization with a FIFO queue
                 playMultiPlayerGame(socketfd, config, "barberShopFIFO");
+                writeLogJSON(config->logPath, 0, config->clientID, "Started multiplayer game with barberShopFIFO synchronization");
+                
                 break;
             case 5:
 
@@ -510,6 +517,7 @@ void showPossibleSynchronizations(int *socketfd, clientConfig *config) {
 
                 // back to the multiplayer menu
                 createNewMultiplayerGame(socketfd, config);
+                writeLogJSON(config->logPath, 0, config->clientID, "Returned to multiplayer menu");
                 break;
             case 6:
                 // close the connection
@@ -534,30 +542,39 @@ void playMultiPlayerGame(int *socketfd, clientConfig *config, char *synchronizat
         
         // buffer for readersWriters
         strcpy(buffer, "newMultiPlayerGameReadersWriters");
-    
+     // Log evento de solicitação
+        writeLogJSON(config->logPath, 0, config->clientID, "Requesting multiplayer game with readers-writers synchronization");
     } else if (strcmp(synchronization, "barberShopStaticPriority") == 0) {
         
         // buffer for barberShopPriority
         strcpy(buffer, "newMultiPlayerGameBarberShopStaticPriority");
+         // Log evento de solicitação
+        writeLogJSON(config->logPath, 0, config->clientID, "Requesting multiplayer game with barber shop static priority synchronization");
     
     } else if (strcmp(synchronization, "barberShopDynamicPriority") == 0) {
         
         // buffer for barberShopDynamicPriority
         strcpy(buffer, "newMultiPlayerGameBarberShopDynamicPriority");
+         // Log evento de solicitação
+        writeLogJSON(config->logPath, 0, config->clientID, "Requesting multiplayer game with barber shop dynamic priority synchronization");
 
     } else if (strcmp(synchronization, "barberShopFIFO") == 0) {
         
         // buffer for barberShopFIFO
         strcpy(buffer, "newMultiPlayerGameBarberShopFIFO");
+        writeLogJSON(config->logPath, 0, config->clientID, "Requesting multiplayer game with barber shop FIFO synchronization");
 
     } else {
         printf("Invalid synchronization option\n");
+         writeLogJSON(config->logPath, 1, config->clientID, "Invalid synchronization option requested");
+        
         return;
     }
 
     // ask server for a 
     if (send(*socketfd, buffer, BUFFER_SIZE, 0) < 0) {
         err_dump_client(config->logPath, 0, config->clientID, "can't send multiplayer game request to server", EVENT_MESSAGE_CLIENT_NOT_SENT);
+          writeLogJSON(config->logPath, 1, config->clientID, "Failed to send multiplayer game request to server");
     } else {
         printf("Requesting a new multiplayer game...\n");
 
@@ -590,8 +607,10 @@ void showMultiplayerRooms(int *socketfd, clientConfig *config) {
     // ask server for existing rooms
     if (send(*socketfd, "existingRooms", strlen("existingRooms"), 0) < 0) {
         err_dump_client(config->logPath, 0, config->clientID, "can't send existing rooms request to server", EVENT_MESSAGE_CLIENT_NOT_SENT);
+         writeLogJSON(config->logPath, 1, config->clientID, "Failed to send existing rooms request to server");
     } else {
         printf("Requesting existing multiplayer rooms...\n");
+         writeLogJSON(config->logPath, 0, config->clientID, "Sent existing rooms request to server");
 
         // receive the rooms from the server
         char buffer[BUFFER_SIZE];
@@ -601,12 +620,13 @@ void showMultiplayerRooms(int *socketfd, clientConfig *config) {
 
             // error receiving rooms from server
             err_dump_client(config->logPath, 0, config->clientID, "can't receive rooms from server", EVENT_MESSAGE_CLIENT_NOT_RECEIVED);
-
+             writeLogJSON(config->logPath, 1, config->clientID, "Failed to receive rooms from server");
         } else {
 
             // show the rooms
             printf("Existing rooms:\n%s\n", buffer);
             printf("0 - Back\n");
+            writeLogJSON(config->logPath, 0, config->clientID, "Received existing rooms from server");
 
             // ask for the game ID
             int roomID;
@@ -624,6 +644,7 @@ void showMultiplayerRooms(int *socketfd, clientConfig *config) {
                 // send 0 to the server
                 if (send(*socketfd, "0", strlen("0"), 0) < 0) {
                     err_dump_client(config->logPath, 0, config->clientID, "can't send return to menu to server", EVENT_MESSAGE_CLIENT_NOT_SENT);
+                     writeLogJSON(config->logPath, 1, config->clientID, "Failed to send room ID to server");
                 } else {
                     char logMessage[256];
                     snprintf(logMessage, sizeof(logMessage), "%s: sent 0 to return to multiplayer menu", EVENT_MESSAGE_CLIENT_SENT);
@@ -648,7 +669,8 @@ void showMultiplayerRooms(int *socketfd, clientConfig *config) {
                     
                 printf("NOW RECEIVING TIMER\n");
                 // receive timer from server
-                receiveTimer(socketfd, config);    
+                receiveTimer(socketfd, config); 
+                writeLogJSON(config->logPath, 0, config->clientID, "Receiving timer from server");   
             }
         }
     }
@@ -707,6 +729,7 @@ void playGame(int *socketfd, clientConfig *config) {
     estatisticas->tempoResolucao = 0.0;
 
     free(board);
+     writeLogJSON(config->logPath, 0, config->clientID, "Started playing the game");
 
     // Enviar linhas inseridas pelo utilizador e receber o board atualizado
     while (currentLine <= 9) {
@@ -725,11 +748,13 @@ void playGame(int *socketfd, clientConfig *config) {
 
                 printf("Insira valores para a linha %d do board (exactamente 9 digitos):\n", currentLine);
                 scanf("%s", line);
+                 writeLogJSON(config->logPath, 0, config->clientID, "Manual input for board line");
 
             } else {
 
                 // Passa a variável estatisticas para a função resolveLine
                 resolveLine(tempString, line, currentLine - 1, config->difficulty, estatisticas);
+                 writeLogJSON(config->logPath, 0, config->clientID, "Auto-solving the board line");
 
             }
 
@@ -741,6 +766,7 @@ void playGame(int *socketfd, clientConfig *config) {
                 printf("Linha enviada: %s\n", line);
                 // Incrementa o contador de escritas
                 config->writesCount++;
+                   writeLogJSON(config->logPath, 0, config->clientID, "Sent line to server");
             }
 
             char *board;
@@ -756,8 +782,10 @@ void playGame(int *socketfd, clientConfig *config) {
             if (serverLine > currentLine) {
                 validLine = 1;
                 currentLine = serverLine;
+                 writeLogJSON(config->logPath, 0, config->clientID, "Line validated successfully");
             } else {
                 printf("Linha %d incorreta. Tente novamente.\n", currentLine);
+                 writeLogJSON(config->logPath, 1, config->clientID, "Invalid line, try again");
             }
 
             // print read and write counts
@@ -769,6 +797,7 @@ void playGame(int *socketfd, clientConfig *config) {
     }
 
     finishGame(socketfd, config, estatisticas);
+     writeLogJSON(config->logPath, 0, config->clientID, "Game finished");
 }
 
 /**
@@ -805,6 +834,7 @@ void showGames(int *socketfd, clientConfig *config, bool isSinglePlayer) {
     if (send(*socketfd, message, strlen(message), 0) < 0) {
         err_dump_client(config->logPath, 0, config->clientID, "can't send existing games request to server", EVENT_MESSAGE_CLIENT_NOT_SENT);
     } else {
+         writeLogJSON(config->logPath, 0, config->clientID, "Requested existing games from server");
         printf("Requesting existing games...\n");
 
         // receive the games from the server
@@ -821,7 +851,7 @@ void showGames(int *socketfd, clientConfig *config, bool isSinglePlayer) {
             // show the games
             printf("Existing games:\n%s", buffer);
             printf("0 - Back\n");
-
+            writeLogJSON(config->logPath, 0, config->clientID, "Received and displayed existing games");
             // ask for the game ID
             int gameID;
             printf("Choose an option: ");
@@ -865,6 +895,7 @@ void showGames(int *socketfd, clientConfig *config, bool isSinglePlayer) {
                 if (!isSinglePlayer) {
                     // now need to choose synchronization
                     showPossibleSynchronizations(socketfd, config);
+                     writeLogJSON(config->logPath, 0, config->clientID, "Selected synchronization type for multiplayer game");
                 }
             }  
         }
@@ -1053,6 +1084,7 @@ void receiveTimer(int *socketfd, clientConfig *config) {
 
     if (isRoomFull) {
         //debug
+         writeLogJSON(config->logPath, 0, config->clientID, "Room is full. Returning to multiplayer menu.");
         printf("Room is full\n");
         // show the multiplayer menu
         showMultiPlayerMenu(socketfd, config);
@@ -1077,11 +1109,17 @@ void finishGame(int *socketfd, clientConfig *config, EstatisticasLinha *estatist
 
         // show the accuracy sent
         printf("Accuracy sent: %s\n", accuracyString);
+         // Log accuracy sent
+        char logMessage[256];
+        snprintf(logMessage, sizeof(logMessage), "%s: sent accuracy: %s", EVENT_MESSAGE_CLIENT_SENT, accuracyString);
+        writeLogJSON(config->logPath, 0, config->clientID, logMessage); // Log de envio de precisão
     }
 
     printf("Tentativas: %d\n", estatisticas->tentativas);
     printf("Acertos: %d\n", estatisticas->acertos);
     printf("Percentagem de acerto: %.2f%%\n", estatisticas->percentagemAcerto);
+
+    
 
     // receive the final message from the server
     if (recv(*socketfd, buffer, sizeof(buffer), 0) < 0) {

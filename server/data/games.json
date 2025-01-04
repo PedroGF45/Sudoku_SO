@@ -204,7 +204,7 @@
                     9
                 ]
             ],
-            "timeRecord": 26,
+            "timeRecord": 1,
             "accuracyRecord": 88.889999389648438
         },
         {
@@ -411,7 +411,7 @@
                     5
                 ]
             ],
-            "timeRecord": 18,
+            "timeRecord": 1,
             "accuracyRecord": 88.889999389648438
         },
         {
@@ -618,8 +618,8 @@
                     8
                 ]
             ],
-            "timeRecord": 0,
-            "accuracyRecord": 0
+            "timeRecord": 3,
+            "accuracyRecord": 40.340000152587891
         }
     ]
 }

@@ -418,8 +418,8 @@ void *handleClient(void *arg) {
                 room->startTime = time(NULL);
 
                 // barreira para começar o jogo
-                if (!room->isSinglePlayer) {
-                    acquireTurnsTileSemaphore(room, client);
+                if (!room->isSinglePlayer) {//Se o jogo for multiplayer
+                    acquireTurnsTileSemaphore(room, client);//Garante que todas as threads estao prontas antes de avançar para a fase critica
                 }
 
                 // receber linhas do cliente

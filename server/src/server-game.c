@@ -729,7 +729,7 @@ void acquireReadLock(Room *room) {
 
     // if first reader lock the write semaphore
     if (room->readerCount == 1) {
-        sem_wait(&room->writeSemaphore); 
+        sem_wait(&room->writeSemaphore); //(decrementa o semáforo)
     }
 
     // unlock mutex
@@ -748,7 +748,7 @@ void releaseReadLock(Room *room) {
 
     // if last reader unlock the write semaphore
     if (room->readerCount == 0) {
-        sem_post(&room->writeSemaphore);
+        sem_post(&room->writeSemaphore);//(incrementa o semáforo)
     }
 
     // unlock mutex
