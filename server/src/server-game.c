@@ -339,6 +339,7 @@ Room *createRoom(ServerConfig *config, int playerID, bool isSinglePlayer, int sy
     room->maxClients = room->isSinglePlayer ? 1 : config->maxClientsPerRoom;
     room->clients = (Client **)malloc(sizeof(Client *) * room->maxClients);
     room->maxWaitingTime = config->maxWaitingTime;
+    room->savedStatistics = false;
 
     // we dont need synchronization for single player games
     if (!room->isSinglePlayer) {
@@ -1043,7 +1044,10 @@ void finishGame(ServerConfig *config, Room *room, int *socket) {
             updateGameStatistics(config, room->game->id, room->elapsedTime, accuracyFloat);
 
             // Save room statistics in log
-            saveRoomStatistics(room->id, room->elapsedTime);
+            if (!room->savedStatistics) {
+                saveRoomStatistics(room->id, room->elapsedTime);
+                room->savedStatistics = true;
+            }
         }
 
         // set room as finished

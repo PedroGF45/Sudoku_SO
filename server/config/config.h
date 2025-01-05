@@ -91,6 +91,8 @@ typedef struct {
     sem_t turnsTileSemaphore1;
     sem_t turnsTileSemaphore2;
 
+    bool savedStatistics;
+
 } Room;
 
 

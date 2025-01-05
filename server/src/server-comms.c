@@ -420,6 +420,7 @@ void *handleClient(void *arg) {
 
                 // mutex para terminar o jogo
                 pthread_mutex_lock(&serverConfig->mutex);
+                
                 // terminar o jogo
                 finishGame(serverConfig, room, &newSockfd);
 

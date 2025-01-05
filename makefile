@@ -23,7 +23,7 @@ all: server client
 
 # Client build
 client: $(CLIENT_OBJS) $(UTIL_OBJS)
-	$(CC) -o client.exe $(CLIENT_OBJS) $(UTIL_OBJS)
+	$(CC) -o client.exe $(CLIENT_OBJS) $(UTIL_OBJS) -lpthread
 
 # Compile client object files
 $(CLIENT_SRC)/client.o: $(CLIENT_SRC)/client.c $(CLIENT_CONFIG)/config.h
